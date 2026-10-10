@@ -13,6 +13,6 @@
 #          capas-canva/_traduzir-capas.py, capas-canva/_medir.py
 # ---------------------------------------------------------------------------
 
-Pillow>=10.0.0
+Pillow>=12.3.0
 numpy>=1.24.0
 opencv-python-headless>=4.8.0
