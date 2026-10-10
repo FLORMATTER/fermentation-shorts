@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>codec test</title></head>
+<body><pre id="out">running</pre>
+<script>
+const lines = [];
+function ok(l){ lines.push(l); document.getElementById('out').textContent = lines.join('\n'); }
+
+ok('MediaRecorder: ' + (typeof MediaRecorder));
+
+const types = [
+  'video/mp4',
+  'video/mp4;codecs=avc1',
+  'video/mp4;codecs=avc1.42E01E',
+  'video/mp4;codecs=avc1.4D401F',
+  'video/mp4;codecs=h264',
+  'video/webm',
+  'video/webm;codecs=vp8',
+  'video/webm;codecs=vp9',
+  'video/webm;codecs=h264'
+];
+types.forEach(t => ok('  isTypeSupported("' + t + '") = ' + MediaRecorder.isTypeSupported(t)));
+
+ok('VideoEncoder: ' + (typeof VideoEncoder));
+ok('canvas.captureStream: ' + (typeof document.createElement('canvas').captureStream));
+
+(async () => {
+  if (typeof VideoEncoder === 'undefined') { ok('sem WebCodecs'); return; }
+  const cfgs = [
+    { codec:'avc1.42E01E', width:1080, height:1920, bitrate:8000000, framerate:30 },
+    { codec:'avc1.4D401F', width:1080, height:1920, bitrate:8000000, framerate:30 },
+    { codec:'vp09.00.10.08', width:1080, height:1920, bitrate:8000000, framerate:30 },
+    { codec:'vp8', width:1080, height:1920, bitrate:8000000, framerate:30 }
+  ];
+  for (const c of cfgs) {
+    try {
+      const s = await VideoEncoder.isConfigSupported(c);
+      ok('  VideoEncoder ' + c.codec + ' -> ' + s.supported);
+    } catch (e) { ok('  VideoEncoder ' + c.codec + ' -> ERRO ' + e.message); }
+  }
+  ok('DONE');
+})();
+</script></body></html>

@@ -1,0 +1,33 @@
+# ---------------------------------------------------------------------------
+# fermentation-shorts — git attributes
+# ---------------------------------------------------------------------------
+
+# IMPORTANT: do NOT let git rewrite line endings.
+# The HTML/Markdown files in this project have *mixed* line endings on purpose
+# (the generators detect the end-of-line character of each anchor, so a file
+# rewritten to a single style breaks the tooling). Storing the exact bytes
+# keeps every clone byte-identical.
+* -text
+
+# --- Binary assets ---------------------------------------------------------
+*.mp4   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.zip   binary
+
+# --- Generated files (hidden from GitHub language stats) -------------------
+galeria-shorts.html linguist-generated=true
+_revisao/*.png      linguist-generated=true
+
+# --- Documentation / archive folders ---------------------------------------
+_arquivo/** linguist-documentation=true
+
+# --- Diff behaviour --------------------------------------------------------
+*.md    diff=markdown

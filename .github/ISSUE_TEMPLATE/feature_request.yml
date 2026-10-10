@@ -1,0 +1,19 @@
+name: Idea or suggestion
+description: Suggest a new short, a better workflow, or a fix to the guides.
+title: "[idea] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What is the idea?
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why would it help?
+      description: If it is a new video, say which vegetable or ferment it covers.
+    validations:
+      required: false

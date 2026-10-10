@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Galeria dos shorts animados - fermentacao</title>
+<style>
+:root{--bg:#141110;--bg2:#1d1917;--card:#231e1b;--line:#3a322d;--tx:#f2e9e2;
+      --tx2:#a89a8f;--ac:#e0714f;--up:#4fbf8b;--bug:#e0b04f;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);
+     font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+     padding:40px 28px 80px}
+.wrap{max-width:1240px;margin:0 auto}
+h1{font-size:30px;letter-spacing:-.5px;margin-bottom:10px}
+.lead{color:var(--tx2);max-width:760px;margin-bottom:8px}
+.alerta{background:#2a1f14;border:1px solid #6b4a22;border-radius:12px;
+        padding:16px 20px;margin:22px 0 34px;font-size:14.5px;color:#f0d9b8}
+.alerta b{color:#ffd9a0}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:1.6px;color:var(--ac);
+   margin:42px 0 16px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+h2 small{color:var(--tx2);text-transform:none;letter-spacing:0;font-weight:400}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:16px}
+.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;
+      overflow:hidden;text-decoration:none;color:inherit;transition:.16s}
+.card:hover{transform:translateY(-3px);border-color:var(--ac)}
+.thumb{height:112px;background:linear-gradient(135deg,#33281f,#241d18);
+       display:flex;align-items:center;justify-content:center;position:relative}
+.play{width:44px;height:44px;border-radius:50%;background:rgba(224,113,79,.92);
+      color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;
+      padding-left:3px}
+.dur{position:absolute;right:10px;bottom:8px;background:rgba(0,0,0,.65);
+     border-radius:5px;padding:1px 7px;font-size:12px;color:#fff}
+.info{padding:14px 16px 16px}
+h3{font-size:16px;line-height:1.3;margin-bottom:4px}
+.sub{font-size:13px;color:var(--tx2);margin-bottom:8px}
+.meta{font-size:11.5px;color:var(--tx2);margin-bottom:10px}
+code{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:#c8b6a8}
+.badges{display:flex;flex-wrap:wrap;gap:6px}
+.b{font-size:10.5px;padding:2px 8px;border-radius:20px;border:1px solid}
+.b.up{color:#8ff0c0;border-color:#2f6b52;background:#173026}
+.b.mp4{color:#ffc9e0;border-color:#6b2f4f;background:#2a1220}
+.b.pt{color:#ffd0a8;border-color:#6b4a2a;background:#2a1e12}
+.b.en{color:#a8d0ff;border-color:#2a4a6b;background:#12212e}
+.b.ok{color:#9ee0c0;border-color:#2f5a48;background:#14251e}
+.b.bug{color:#ffd88f;border-color:#6b5a22;background:#2a2412}
+.b.aviso{color:#c9bda8;border-color:#4a4238;background:#221e18}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+       color:var(--tx2);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Galeria dos shorts animados</h1>
+  <p class="lead">57 shorts animados &middot; 47:08 de animacao no total &middot;
+     66 arquivos HTML+SVG.</p>
+
+  <div class="alerta">
+    <b>Como isto vira video:</b> 28 dos shorts ja tem <code>.mp4</code> renderizado na
+    mesma pasta, com o mesmo nome do <code>.html</code> - e' esse arquivo que sobe no
+    YouTube. Os demais sao o <b>arquivo HTML+SVG que se anima sozinho</b>: abra o cartao
+    e renderize com <code>node _gerar-mp4.js</code> (headless Chrome, sem OBS).<br>
+    Os que estao marcados <b>1080&times;1920 pronto</b> ja saem no formato de upload,
+    sem borda. Os demais sao o cartao 405&times;720 usado para conferir na tela.
+  </div>
+
+  <h2>Prontos para subir no YouTube <small>- ja no formato 1080&times;1920</small></h2>
+  <div class="grid">
+    <a class="card" href="beterraba/shorts-beet-garlic-en-1080x1920-60s.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">1:07</span></div>
+      <div class="info">
+        <h3>One beet, one garlic head</h3>
+        <p class="sub">2% salt · ready in 1 to 2 weeks</p>
+        <p class="meta">10 cenas &middot; 64 KB &middot; <code>shorts-beet-garlic-en-1080x1920-60s.html</code></p>
+        <p class="badges"><span class="b up">1080&times;1920 pronto</span><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="beterraba/shorts-beet-garlic-1080x1920.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:54</span></div>
+      <div class="info">
+        <h3>Uma beterraba, uma cabeça de alho</h3>
+        <p class="sub">2% de sal · pronta em 1 a 2 semanas</p>
+        <p class="meta">8 cenas &middot; 53 KB &middot; <code>shorts-beet-garlic-1080x1920.html</code></p>
+        <p class="badges"><span class="b up">1080&times;1920 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="beterraba/shorts-beet-garlic-en-1080x1920.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:54</span></div>
+      <div class="info">
+        <h3>One beet, one garlic head</h3>
+        <p class="sub">2% salt · ready in 1 to 2 weeks</p>
+        <p class="meta">8 cenas &middot; 53 KB &middot; <code>shorts-beet-garlic-en-1080x1920.html</code></p>
+        <p class="badges"><span class="b up">1080&times;1920 pronto</span><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="repolho/shorts-sauerkraut-en-1080x1920.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:52</span></div>
+      <div class="info">
+        <h3>Hands only. No face.</h3>
+        <p class="sub">1 cabbage · 2% salt · 7 days</p>
+        <p class="meta">8 cenas &middot; 52 KB &middot; <code>shorts-sauerkraut-en-1080x1920.html</code></p>
+        <p class="badges"><span class="b up">1080&times;1920 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="guia-geral/shorts-5-easiest-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:49</span></div>
+      <div class="info">
+        <h3>The 5 easiest to ferment</h3>
+        <p class="sub">start with any of these</p>
+        <p class="meta">8 cenas &middot; 47 KB &middot; <code>shorts-5-easiest-en.html</code></p>
+        <p class="badges"><span class="b up">1080&times;1920 pronto</span><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+  </div>
+  <h2>Repolho / Chucrute <small>- 6 short(s)</small></h2>
+  <div class="grid">
+    <a class="card" href="repolho/shorts-repolho-maos-canva-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:52</span></div>
+      <div class="info">
+        <h3>Hands only. No face.</h3>
+        <p class="sub">1 cabbage, 7 days of waiting</p>
+        <p class="meta">8 cenas &middot; 49 KB &middot; <code>shorts-repolho-maos-canva-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="repolho/shorts-repolho-maos-canva.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:52</span></div>
+      <div class="info">
+        <h3>Só as mãos. Sem rosto.</h3>
+        <p class="sub">1 repolho, 7 dias de espera</p>
+        <p class="meta">8 cenas &middot; 47 KB &middot; <code>shorts-repolho-maos-canva.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="repolho/shorts-chucrute-30s-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:30</span></div>
+      <div class="info">
+        <h3>1 cabbage. 2% salt. 7 days.</h3>
+        <p class="sub">no equipment at all</p>
+        <p class="meta">5 cenas &middot; 30 KB &middot; <code>shorts-chucrute-30s-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="repolho/shorts-chucrute-30s.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:30</span></div>
+      <div class="info">
+        <h3>1 repolho. 2% de sal. 7 dias.</h3>
+        <p class="sub">sem equipamento nenhum</p>
+        <p class="meta">5 cenas &middot; 29 KB &middot; <code>shorts-chucrute-30s.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="repolho/shorts-repolho-animado-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:28</span></div>
+      <div class="info">
+        <h3>I am going to ferment this cabbage</h3>
+        <p class="sub">and I only come back here on day 7</p>
+        <p class="meta">6 cenas &middot; 15 KB &middot; <code>shorts-repolho-animado-en.html</code></p>
+        <p class="badges"><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="repolho/shorts-repolho-animado.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:28</span></div>
+      <div class="info">
+        <h3>Vou fermentar esse repolho</h3>
+        <p class="sub">e só volto aqui no dia 7</p>
+        <p class="meta">6 cenas &middot; 13 KB &middot; <code>shorts-repolho-animado.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+  </div>
+  <h2>Beterraba <small>- 12 short(s)</small></h2>
+  <div class="grid">
+    <a class="card" href="beterraba/shorts-beterraba-couve-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:52</span></div>
+      <div class="info">
+        <h3>The two ingredients</h3>
+        <p class="sub">300 g of beet + 200 g of kale</p>
+        <p class="meta">8 cenas &middot; 46 KB &middot; <code>shorts-beterraba-couve-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="beterraba/shorts-beterraba-couve.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:52</span></div>
+      <div class="info">
+        <h3>Os dois ingredientes</h3>
+        <p class="sub">300 g de beterraba + 200 g de couve</p>
+        <p class="meta">8 cenas &middot; 44 KB &middot; <code>shorts-beterraba-couve.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="beterraba/shorts-beet-carrot-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:45</span></div>
+      <div class="info">
+        <h3>Beetroot and carrot</h3>
+        <p class="sub">one bleeds red, one stays orange</p>
+        <p class="meta">7 cenas &middot; 26 KB &middot; <code>shorts-beet-carrot-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="beterraba/shorts-beet-kvass-garlic-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:45</span></div>
+      <div class="info">
+        <h3>Beet kvass with garlic</h3>
+        <p class="sub">beet, water, salt, and one clove</p>
+        <p class="meta">7 cenas &middot; 25 KB &middot; <code>shorts-beet-kvass-garlic-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="beterraba/shorts-beterraba-svg-puro-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:44</span></div>
+      <div class="info">
+        <h3>Fermented beet</h3>
+        <p class="sub">the prettiest and the slowest</p>
+        <p class="meta">7 cenas &middot; 33 KB &middot; <code>shorts-beterraba-svg-puro-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="beterraba/shorts-beterraba-svg-puro.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:44</span></div>
+      <div class="info">
+        <h3>Beterraba fermentada</h3>
+        <p class="sub">a mais bonita e a mais lenta</p>
+        <p class="meta">7 cenas &middot; 32 KB &middot; <code>shorts-beterraba-svg-puro.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="beterraba/shorts-beterraba-melancia-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:33</span></div>
+      <div class="info">
+        <h3>Beet with watermelon</h3>
+        <p class="sub">the prettiest pair in the jar</p>
+        <p class="meta">7 cenas &middot; 18 KB &middot; <code>shorts-beterraba-melancia-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="beterraba/shorts-beterraba-melancia.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:33</span></div>
+      <div class="info">
+        <h3>Beterraba com melancia</h3>
+        <p class="sub">a dupla mais bonita do pote</p>
+        <p class="meta">7 cenas &middot; 16 KB &middot; <code>shorts-beterraba-melancia.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="beterraba/shorts-beterraba-animado-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:32</span></div>
+      <div class="info">
+        <h3>I am going to ferment beet</h3>
+        <p class="sub">and I come back in 7 days</p>
+        <p class="meta">7 cenas &middot; 16 KB &middot; <code>shorts-beterraba-animado-en.html</code></p>
+        <p class="badges"><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="beterraba/shorts-beterraba-animado.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:32</span></div>
+      <div class="info">
+        <h3>Vou fermentar beterraba</h3>
+        <p class="sub">e volto em 7 dias</p>
+        <p class="meta">7 cenas &middot; 14 KB &middot; <code>shorts-beterraba-animado.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="beterraba/shorts-beterraba-camadas-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:30</span></div>
+      <div class="info">
+        <h3>The beet from the inside</h3>
+        <p class="sub">what happens over the 7 days</p>
+        <p class="meta">6 cenas &middot; 18 KB &middot; <code>shorts-beterraba-camadas-en.html</code></p>
+        <p class="badges"><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="beterraba/shorts-beterraba-camadas.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:30</span></div>
+      <div class="info">
+        <h3>A beterraba por dentro</h3>
+        <p class="sub">o que acontece nos 7 dias</p>
+        <p class="meta">6 cenas &middot; 16 KB &middot; <code>shorts-beterraba-camadas.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+  </div>
+  <h2>Cebola <small>- 2 short(s)</small></h2>
+  <div class="grid">
+    <a class="card" href="cebola/shorts-cebola-beterraba-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:53</span></div>
+      <div class="info">
+        <h3>Onion with beet</h3>
+        <p class="sub">one gives the colour, the other gives the crunch</p>
+        <p class="meta">8 cenas &middot; 51 KB &middot; <code>shorts-cebola-beterraba-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="cebola/shorts-cebola-beterraba.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:53</span></div>
+      <div class="info">
+        <h3>Cebola com beterraba</h3>
+        <p class="sub">uma dá a cor, a outra dá a crocância</p>
+        <p class="meta">8 cenas &middot; 49 KB &middot; <code>shorts-cebola-beterraba.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+  </div>
+  <h2>Alho <small>- 1 short(s)</small></h2>
+  <div class="grid">
+    <a class="card" href="alho/shorts-garlic-honey-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:52</span></div>
+      <div class="info">
+        <h3>Fermented garlic in honey</h3>
+        <p class="sub">No salt. No vinegar. Just two things.</p>
+        <p class="meta">8 cenas &middot; 46 KB &middot; <code>shorts-garlic-honey-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+  </div>
+  <h2>Cenoura <small>- 5 short(s)</small></h2>
+  <div class="grid">
+    <a class="card" href="cenoura/shorts-apple-garlic-carrot-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:44</span></div>
+      <div class="info">
+        <h3>Apple, garlic, carrot</h3>
+        <p class="sub">one of them fights the other two</p>
+        <p class="meta">7 cenas &middot; 28 KB &middot; <code>shorts-apple-garlic-carrot-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="cenoura/shorts-carrot-apple-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:42</span></div>
+      <div class="info">
+        <h3>Carrot with apple</h3>
+        <p class="sub">the sweet one - and it fizzes</p>
+        <p class="meta">7 cenas &middot; 19 KB &middot; <code>shorts-carrot-apple-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="cenoura/shorts-carrot-apple.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:42</span></div>
+      <div class="info">
+        <h3>Cenoura com maçã</h3>
+        <p class="sub">a doce - e faz espuma</p>
+        <p class="meta">7 cenas &middot; 19 KB &middot; <code>shorts-carrot-apple.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="cenoura/shorts-cenoura-animado-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:32</span></div>
+      <div class="info">
+        <h3>I am going to ferment carrot</h3>
+        <p class="sub">and I come back here in 5 days</p>
+        <p class="meta">7 cenas &middot; 15 KB &middot; <code>shorts-cenoura-animado-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="cenoura/shorts-cenoura-animado.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:32</span></div>
+      <div class="info">
+        <h3>Vou fermentar cenoura</h3>
+        <p class="sub">e volto aqui em 5 dias</p>
+        <p class="meta">7 cenas &middot; 14 KB &middot; <code>shorts-cenoura-animado.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+  </div>
+  <h2>Couve-flor <small>- 4 short(s)</small></h2>
+  <div class="grid">
+    <a class="card" href="couve-flor/shorts-cauliflower-apple-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:43</span></div>
+      <div class="info">
+        <h3>Cauliflower and apple</h3>
+        <p class="sub">the apple is a starter, not a flavour</p>
+        <p class="meta">7 cenas &middot; 20 KB &middot; <code>shorts-cauliflower-apple-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="couve-flor/shorts-cauliflower-apple.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:43</span></div>
+      <div class="info">
+        <h3>Couve-flor com maçã</h3>
+        <p class="sub">a maçã é starter, não sabor</p>
+        <p class="meta">7 cenas &middot; 20 KB &middot; <code>shorts-cauliflower-apple.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="couve-flor/shorts-couveflor-animado-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:43</span></div>
+      <div class="info">
+        <h3>Pickled cauliflower</h3>
+        <p class="sub">florets only, no leaves</p>
+        <p class="meta">7 cenas &middot; 33 KB &middot; <code>shorts-couveflor-animado-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="couve-flor/shorts-couveflor-animado.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:43</span></div>
+      <div class="info">
+        <h3>Couve-flor em conserva</h3>
+        <p class="sub">só o florete, sem as folhas</p>
+        <p class="meta">7 cenas &middot; 31 KB &middot; <code>shorts-couveflor-animado.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span><span class="b aviso" title="@keyframes nunca usado: ['nunca'] | hex suspeito: ['#cap', '#cbar', '#cfact', '#cfact', '#fbar', '#ffi', '#cap', '#cbar', '#cfact', '#cfact', '#fbar', '#ffi', '#cap', '#cbar', '#cfact', '#cfact', '#fbar', '#ffi', '#cap', '#cbar', '#cfact', '#cap', '#cap', '#cbar', '#cfact', '#cfact', '#fbar', '#ffi'">2 aviso(s)</span></p>
+      </div>
+    </a>
+  </div>
+  <h2>Pepino <small>- 5 short(s)</small></h2>
+  <div class="grid">
+    <a class="card" href="pepino/shorts-cucumber-garlic-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:45</span></div>
+      <div class="info">
+        <h3>It is not spoiled</h3>
+        <p class="sub">blue garlic is a reaction, not mould</p>
+        <p class="meta">7 cenas &middot; 27 KB &middot; <code>shorts-cucumber-garlic-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="pepino/shorts-pepino-apple-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:41</span></div>
+      <div class="info">
+        <h3>Cucumber with apple</h3>
+        <p class="sub">the fruity one</p>
+        <p class="meta">7 cenas &middot; 18 KB &middot; <code>shorts-pepino-apple-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="pepino/shorts-pepino-apple.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:41</span></div>
+      <div class="info">
+        <h3>Pepino com maçã</h3>
+        <p class="sub">o frutado</p>
+        <p class="meta">7 cenas &middot; 17 KB &middot; <code>shorts-pepino-apple.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="pepino/shorts-pepino-speed-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:20</span></div>
+      <div class="info">
+        <h3>Cucumber fermented in 4 days</h3>
+        <p class="sub">fast mode</p>
+        <p class="meta">7 cenas &middot; 17 KB &middot; <code>shorts-pepino-speed-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="pepino/shorts-pepino-speed.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:20</span></div>
+      <div class="info">
+        <h3>Pepino fermentado em 4 dias</h3>
+        <p class="sub">modo rápido</p>
+        <p class="meta">7 cenas &middot; 16 KB &middot; <code>shorts-pepino-speed.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+  </div>
+  <h2>Rabanete <small>- 2 short(s)</small></h2>
+  <div class="grid">
+    <a class="card" href="rabanete/shorts-rabanete-animado-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:40</span></div>
+      <div class="info">
+        <h3>Fermented radish</h3>
+        <p class="sub">the fastest of them all</p>
+        <p class="meta">7 cenas &middot; 37 KB &middot; <code>shorts-rabanete-animado-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="rabanete/shorts-rabanete-animado.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:40</span></div>
+      <div class="info">
+        <h3>Rabanete fermentado</h3>
+        <p class="sub">o mais rápido de todos</p>
+        <p class="meta">7 cenas &middot; 35 KB &middot; <code>shorts-rabanete-animado.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+  </div>
+  <h2>Cores (alho + cebola + beterraba) <small>- 1 short(s)</small></h2>
+  <div class="grid">
+    <a class="card" href="cores/shorts-3-colors-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:53</span></div>
+      <div class="info">
+        <h3>3 ferments that change color</h3>
+        <p class="sub">garlic, onion and beetroot</p>
+        <p class="meta">8 cenas &middot; 37 KB &middot; <code>shorts-3-colors-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+  </div>
+  <h2>Brocolis + laranja <small>- 1 short(s)</small></h2>
+  <div class="grid">
+    <a class="card" href="brocolis/shorts-broccoli-orange-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:53</span></div>
+      <div class="info">
+        <h3>Fermented broccoli and orange</h3>
+        <p class="sub">and why the sulfur smell is normal</p>
+        <p class="meta">8 cenas &middot; 36 KB &middot; <code>shorts-broccoli-orange-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+  </div>
+  <h2>Pão / Levain <small>- 2 short(s)</small></h2>
+  <div class="grid">
+    <a class="card" href="pao/shorts-sourdough-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:44</span></div>
+      <div class="info">
+        <h3>Flour and water, nothing else</h3>
+        <p class="sub">a starter is a culture, not a recipe</p>
+        <p class="meta">7 cenas &middot; 19 KB &middot; <code>shorts-sourdough-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="pao/shorts-sourdough.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:44</span></div>
+      <div class="info">
+        <h3>Farinha e água, só isso</h3>
+        <p class="sub">levain é cultura, não receita</p>
+        <p class="meta">7 cenas &middot; 19 KB &middot; <code>shorts-sourdough.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+  </div>
+  <h2>Kombucha <small>- 3 short(s)</small></h2>
+  <div class="grid">
+    <a class="card" href="kombucha/shorts-watermelon-apple-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:45</span></div>
+      <div class="info">
+        <h3>It can blow</h3>
+        <p class="sub">the sugar is still alive in there</p>
+        <p class="meta">7 cenas &middot; 25 KB &middot; <code>shorts-watermelon-apple-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="kombucha/shorts-apple-melon-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:44</span></div>
+      <div class="info">
+        <h3>The one fruit that is not acid</h3>
+        <p class="sub">its pH is 6.0 to 6.7</p>
+        <p class="meta">7 cenas &middot; 25 KB &middot; <code>shorts-apple-melon-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="kombucha/shorts-beet-watermelon-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:44</span></div>
+      <div class="info">
+        <h3>The colour has a window</h3>
+        <p class="sub">beetroot only holds its red between pH 3 and 6</p>
+        <p class="meta">7 cenas &middot; 29 KB &middot; <code>shorts-beet-watermelon-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+  </div>
+  <h2>Mosquito trap (DIY) <small>- 1 short(s)</small></h2>
+  <div class="grid">
+    <a class="card" href="mosquito/shorts-mosquito-trap-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:57</span></div>
+      <div class="info">
+        <h3>DIY mosquito trap</h3>
+        <p class="sub">1.5 L bottle, water, sugar and yeast</p>
+        <p class="meta">8 cenas &middot; 40 KB &middot; <code>shorts-mosquito-trap-en.html</code></p>
+        <p class="badges"><span class="b mp4" title="arquivo .mp4 renderizado na mesma pasta, mesmo nome do .html">.mp4 pronto</span><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+  </div>
+  <h2>Video longo (16:9) <small>- 2 short(s)</small></h2>
+  <div class="grid">
+    <a class="card" href="video-longo/player-video-longo-7-legumes-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">3:51</span></div>
+      <div class="info">
+        <h3>I am going to ferment this cabbage</h3>
+        <p class="sub">and I only come back here on day 7</p>
+        <p class="meta">3 cenas &middot; 82 KB &middot; <code>player-video-longo-7-legumes-en.html</code></p>
+        <p class="badges"><span class="b en">EN</span><span class="b ok">sem bug real</span><span class="b aviso" title="hex suspeito: ['#cap', '#cbar', '#cfact', '#cfact', '#fbar', '#ffi']">1 aviso(s)</span></p>
+      </div>
+    </a>
+    <a class="card" href="video-longo/player-video-longo-7-legumes.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">3:51</span></div>
+      <div class="info">
+        <h3>Vou fermentar esse repolho</h3>
+        <p class="sub">e só volto aqui no dia 7</p>
+        <p class="meta">3 cenas &middot; 80 KB &middot; <code>player-video-longo-7-legumes.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span><span class="b aviso" title="hex suspeito: ['#cap', '#cbar', '#cfact', '#cfact', '#fbar', '#ffi']">1 aviso(s)</span></p>
+      </div>
+    </a>
+  </div>
+  <h2>Arquivo morto (versoes antigas) <small>- 5 short(s)</small></h2>
+  <div class="grid">
+    <a class="card" href="_arquivo/video-guia-fermentacao-animado.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:57</span></div>
+      <div class="info">
+        <h3>Qualquer legume fermenta</h3>
+        <p class="sub">só muda o sal e o tempo</p>
+        <p class="meta">8 cenas &middot; 52 KB &middot; <code>video-guia-fermentacao-animado.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="_arquivo/shorts-onion-en.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:53</span></div>
+      <div class="info">
+        <h3>Fermented red onion</h3>
+        <p class="sub">the prettiest pickle you can make</p>
+        <p class="meta">8 cenas &middot; 46 KB &middot; <code>shorts-onion-en.html</code></p>
+        <p class="badges"><span class="b en">EN</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="_arquivo/prototipo-short-fermentacao.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:39</span></div>
+      <div class="info">
+        <h3>Protótipo — Short de fermentação (8 cenas)</h3>
+        
+        <p class="meta">8 cenas &middot; 25 KB &middot; <code>prototipo-short-fermentacao.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="_arquivo/shorts-maos-legumes.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:39</span></div>
+      <div class="info">
+        <h3>Lavando o repolho</h3>
+        <p class="sub">água fria, sem sabão</p>
+        <p class="meta">7 cenas &middot; 32 KB &middot; <code>shorts-maos-legumes.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+    <a class="card" href="_arquivo/prototipo-short-dia7.html" target="_blank" rel="noopener">
+      <div class="thumb"><span class="play">&#9654;</span><span class="dur">0:37</span></div>
+      <div class="info">
+        <h3>Protótipo — Short Dia 7 (revelação)</h3>
+        
+        <p class="meta">7 cenas &middot; 23 KB &middot; <code>prototipo-short-dia7.html</code></p>
+        <p class="badges"><span class="b pt">PT</span><span class="b ok">sem bug real</span></p>
+      </div>
+    </a>
+  </div>
+  <footer>
+    Gerado por <code>_gerar-galeria.py</code>. A validacao vem do
+    <code>_validar-short.py</code>.<br>
+    9 arquivo(s) na pasta nao entram na galeria (sao aulas, guias ou paginas sem cena):
+    <code>repolho/cartao-8-cenas-chucrute-en.html</code>, <code>repolho/cartao-8-cenas-chucrute.html</code>, <code>_arquivo/video-shorts-fermentacao.html</code>, <code>aulas/aula-01-html-do-zero.html</code>, <code>aulas/aula-02-css-cores-tamanhos.html</code>, <code>aulas/aula-03-animacoes.html</code>, <code>aulas/aula-04-javascript-cenas.html</code>, <code>guias/guia-capcut-celular.html</code>, <code>guias/guia-capcut-pc.html</code>
+  </footer>
+</div>
+</body>
+</html>

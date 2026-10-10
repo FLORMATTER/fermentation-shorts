@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>bench6</title>
+<style>
+html,body{margin:0;background:#111;color:#ddd;font:12px monospace}
+#palco{position:absolute;left:0;top:0;width:405px;height:720px;overflow:hidden}
+#out{position:absolute;left:430px;top:0;white-space:pre;font:12px monospace;color:#ddd}
+</style>
+</head>
+<body>
+<div id="palco"></div>
+<pre id="out">correndo</pre>
+<script>
+/* _mp4/bench6.html — QUANTO O THREAD PRINCIPAL FICA TRAVADO EM CADA ETAPA.
+   bench4 mediu LATENCIA com o iframe fora da tela (left:-3000px) e deu 10 ms em
+   1080 — numero que nao bate com o render de verdade, que mostra ~40 ms por
+   rasterizacao. Latencia engana. Aqui a sonda de setTimeout mede o TRAVAMENTO,
+   com o iframe NA TELA (senao a animacao nem roda) e as etapas separadas:
+
+     A. so assar                (sem rasterizar, sem desenhar)
+     B. assar + rasterizar 1080
+     C. assar + rasterizar  540
+     D. assar + rasterizar 1080 + desenhar no canvas + requestFrame
+
+   A diferenca entre as fases diz onde esta o tempo.
+
+   Uso: node _mp4/rodar.js "file:///.../_mp4/bench6.html?arq=../mosquito/shorts-mosquito-trap-en.html" 240 --file-access */
+window.__log = [];
+function L(s){ window.__log.push(s); document.getElementById('out').textContent = window.__log.join('\n'); }
+
+var ARQ = new URLSearchParams(location.search).get('arq') || '../mosquito/shorts-mosquito-trap-en.html';
+var K = 30;
+
+/* sonda de travamento: setTimeout(2) e anota quanto atrasou */
+var sonda = { ligada:false, soma:0, n:0, pior:0, prox:0 };
+function passo(){
+  if (!sonda.ligada) return;
+  var a = performance.now(), d = a - sonda.prox;
+  if (d > 0){ sonda.soma += d; sonda.n++; if (d > sonda.pior) sonda.pior = d; }
+  sonda.prox = performance.now() + 2;
+  setTimeout(passo, 2);
+}
+function sondaOn(){ sonda.soma=0; sonda.n=0; sonda.pior=0; sonda.prox=performance.now()+2; sonda.ligada=true; setTimeout(passo,2); }
+function sondaOff(){ sonda.ligada=false; return { med: sonda.n ? sonda.soma/sonda.n : 0, pior: sonda.pior, travado: sonda.soma }; }
+
+var f = document.createElement('iframe');
+f.style.cssText = 'width:405px;height:720px;border:0;position:absolute;left:0;top:0';
+f.src = ARQ;
+document.getElementById('palco').appendChild(f);
+
+f.onload = function(){
+  var d = f.contentDocument, w = f.contentWindow;
+  if (!d || !w){ L('ERRO: nao consegui ler o iframe'); window.__done='FAIL'; return; }
+  var cenas = [].slice.call(d.querySelectorAll('svg.scene'));
+  var animados = {}, animsPorCena = {};
+  d.getAnimations().forEach(function(a){
+    var alvo = a.effect && a.effect.target;
+    var sv = alvo && alvo.closest ? alvo.closest('svg.scene') : null;
+    if (!sv) return;
+    (animsPorCena[sv.id] = animsPorCena[sv.id] || []).push(a);
+    var todos = sv.querySelectorAll('*');
+    for (var k=0;k<todos.length;k++){ if (todos[k]===alvo){ (animados[sv.id]=animados[sv.id]||[]).push(k); break; } }
+  });
+  for (var idA in animsPorCena) animsPorCena[idA].forEach(function(a){ a.pause(); });
+  L('cenas: ' + cenas.length + ' | animacoes: ' + Object.keys(animsPorCena).reduce(function(s,k){ return s+animsPorCena[k].length; },0));
+
+  /* canvas 1080x1920 igual ao render */
+  var cv = document.createElement('canvas'); cv.width=1080; cv.height=1920;
+  cv.style.cssText='position:absolute;left:0;top:0;z-index:99';
+  document.getElementById('palco').appendChild(cv);
+  var cx = cv.getContext('2d');
+  var trilha = cv.captureStream(0).getVideoTracks()[0];
+
+  var QUAL = [0,3,7];
+
+  function bake(idx, local, lado){
+    var id = cenas[idx].id;
+    var anims = animsPorCena[id] || [];
+    for (var q=0;q<anims.length;q++) anims[q].currentTime = local;
+    var live = d.getElementById(id);
+    var clone = live.cloneNode(true);
+    var a = live.querySelectorAll('*'), b = clone.querySelectorAll('*');
+    var lista = animados[id] || [];
+    for (var j=0;j<lista.length;j++){
+      var i = lista[j];
+      var cs = w.getComputedStyle(a[i]);
+      var sty = (b[i].getAttribute('style')||'').replace(/animation[^;]*;?/g,'').replace(/transform:[^;]*;?/g,'').replace(/opacity:[^;]*;?/g,'');
+      if (cs.transform && cs.transform!=='none') sty += 'transform:'+cs.transform+';';
+      if (cs.opacity!=='' && cs.opacity!=='1') sty += 'opacity:'+cs.opacity+';';
+      b[i].setAttribute('style', sty);
+    }
+    clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    clone.setAttribute('width', lado); clone.setAttribute('height', Math.round(lado*720/405));
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(clone));
+  }
+
+  var resultados = [];
+
+  /* roda K iteracoes de um passo, medindo o travamento total */
+  function medir(nome, lado, desenhar, depois){
+    var i = 0, t0 = 0;
+    var seq = [];
+    for (var j=0;j<K;j++) seq.push({ ci: QUAL[j % QUAL.length], local: (j*977)%6000 });
+    sondaOn();
+    t0 = performance.now();
+    (function prox(){
+      if (i >= seq.length){
+        var s = sondaOff();
+        var dur = performance.now() - t0;
+        resultados.push({ nome:nome, dur:dur, s:s });
+        depois();
+        return;
+      }
+      var p = seq[i];
+      cenas.forEach(function(el,n){ if (n===p.ci) el.classList.add('on'); else el.classList.remove('on'); });
+      var url = bake(p.ci, p.local, lado);
+      i++;
+      if (!lado){ prox(); return; }
+      var im = new Image();
+      im.onload = function(){
+        if (desenhar){ cx.drawImage(im, 0, 0, 1080, 1920); trilha.requestFrame(); }
+        prox();
+      };
+      im.onerror = function(){ L('erro rasterizando ' + lado); window.__done='FAIL'; };
+      im.src = url;
+    })();
+  }
+
+  medir('A. so assar (sem rasterizar)',  0,    false, function(){
+    medir('B. assar + rasterizar 1080', 1080, false, function(){
+      medir('C. assar + rasterizar  540',  540, false, function(){
+        medir('D. assar + raster 1080 + desenhar + requestFrame', 1080, true, function(){
+          L('');
+          L('etapa                                          tempo   travado   por iter.');
+          resultados.forEach(function(r){
+            L('  ' + r.nome.padEnd(44) + r.dur.toFixed(0).padStart(6) + ' ms' +
+              r.s.travado.toFixed(0).padStart(9) + ' ms' +
+              (r.s.travado/K).toFixed(1).padStart(9) + ' ms');
+          });
+          L('');
+          L('travado = soma dos atrasos da sonda (tempo que o thread principal passou ocupado).');
+          L('regua: para 30 quadros/s o travado por iteracao tem que ficar ABAIXO de 33 ms.');
+          L('FIM');
+          window.__done = 'OK';
+        });
+      });
+    });
+  });
+};
+</script>
+</body></html>

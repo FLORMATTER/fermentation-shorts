@@ -1,0 +1,67 @@
+# ---------------------------------------------------------------------------
+# fermentation-shorts — files that should never be committed
+# ---------------------------------------------------------------------------
+
+# --- Rendered videos (regenerable) -----------------------------------------
+# Every .mp4 in this repo is produced from its .html source with _gerar-mp4.js.
+# They are ~288 MB in total, so they stay out of git.
+# Regenerate with:  node _gerar-mp4.js --w=1080 --fps=30 --kbps=3000 --cfr=1 <file>.html
+*.mp4
+
+# --- Browser / recording scratch -------------------------------------------
+# Chrome profiles created while testing the OBS "Browser Source" recording flow.
+_teste-rec/
+_revisao/_tmpprof/
+**/Crashpad/
+**/GPUCache/
+**/ShaderCache/
+**/DawnGraphiteCache/
+**/DawnWebGPUCache/
+
+# --- Generated review sheets -----------------------------------------------
+# Contact sheets written by _revisar-cenas.py / _captura-upload.py.
+_revisao/*.png
+_revisao/*.jpg
+
+# --- Manual backups --------------------------------------------------------
+# "*.antes*" files are hand-made snapshots kept while editing.
+# They are archived under _arquivo/backups/ and are not part of the project.
+*.antes
+*.antes-*
+*.antes_*
+*.corrompido
+*.bak
+
+# --- Python ----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Node ------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# --- Editor / IDE ----------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Operating system ------------------------------------------------------
+.DS_Store
+._*
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# --- Local agent workspace -------------------------------------------------
+# Internal WorkBuddy state (session memory, caches). Not part of the project.
+.workbuddy-ai/

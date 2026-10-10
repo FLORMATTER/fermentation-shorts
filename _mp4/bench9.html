@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>bench9</title>
+<style>html,body{margin:0;background:#111}pre{color:#ddd;font:12px monospace;padding:8px}</style>
+</head>
+<body>
+<pre id="out">correndo</pre>
+<script>
+/* _mp4/bench9.html — o que esta maquina tem para codificar video.
+   Pergunta se ha codificador POR HARDWARE (WebCodecs com prefer-hardware) e qual
+   a GPU. Se nao houver, o teto de ~15 quadros/s e' definitivo e nao vale procurar
+   caminho alternativo; se houver, existe uma saida via WebCodecs.
+
+   Uso: node _mp4/rodar.js "file:///.../_mp4/bench9.html" 60 --file-access */
+window.__log = [];
+function L(s){ window.__log.push(s); document.getElementById('out').textContent = window.__log.join('\n'); }
+
+(function(){
+  try {
+    L('nucleos logicos: ' + (navigator.hardwareConcurrency || '?'));
+    L('memoria (GB): ' + (navigator.deviceMemory || '?'));
+
+    /* GPU pelo WebGL */
+    try {
+      var cv = document.createElement('canvas');
+      var gl = cv.getContext('webgl') || cv.getContext('experimental-webgl');
+      if (gl) {
+        var dbg = gl.getExtension('WEBGL_debug_renderer_info');
+        L('GPU (renderer): ' + (dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)));
+        L('GPU (vendor)  : ' + (dbg ? gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR)));
+      } else {
+        L('GPU: sem contexto WebGL');
+      }
+    } catch (e) { L('GPU: erro ' + e.message); }
+
+    /* MediaRecorder: quais codecs aceita */
+    var MIMES = [
+      'video/mp4;codecs=avc1.42E01E',
+      'video/mp4;codecs=avc1.4D401E',
+      'video/mp4;codecs=avc1.640028',
+      'video/mp4;codecs=hvc1',
+      'video/webm;codecs=vp8',
+      'video/webm;codecs=vp9',
+      'video/webm;codecs=av01',
+    ];
+    L('');
+    L('MediaRecorder:');
+    MIMES.forEach(function(m){
+      L('  ' + (MediaRecorder.isTypeSupported(m) ? 'sim' : 'nao') + '  ' + m);
+    });
+
+    /* WebCodecs VideoEncoder — o que interessa: hardware */
+    L('');
+    if (typeof VideoEncoder !== 'function') {
+      L('WebCodecs VideoEncoder: INDISPONIVEL');
+      window.__done = 'OK';
+      return;
+    }
+    L('WebCodecs VideoEncoder: disponivel');
+    var configs = [
+      { codec: 'avc1.42E01E', width: 1080, height: 1920, bitrate: 4000000, hardwareAcceleration: 'no-preference' },
+      { codec: 'avc1.42E01E', width: 1080, height: 1920, bitrate: 4000000, hardwareAcceleration: 'prefer-hardware' },
+      { codec: 'avc1.42E01E', width: 1080, height: 1920, bitrate: 4000000, hardwareAcceleration: 'prefer-software' },
+    ];
+    var i = 0;
+    (function prox(){
+      if (i >= configs.length) { L(''); L('FIM'); window.__done = 'OK'; return; }
+      var c = configs[i++];
+      VideoEncoder.isConfigSupported(c).then(function(r){
+        L('  ' + (r.supported ? 'SIM' : 'nao') + '  ' + c.hardwareAcceleration +
+          ' (' + c.codec + ' ' + c.width + 'x' + c.height + ')' +
+          (r.config && r.config.hardwareAcceleration ? ' -> ' + r.config.hardwareAcceleration : ''));
+        prox();
+      }).catch(function(e){
+        L('  erro ' + c.hardwareAcceleration + ': ' + e.message);
+        prox();
+      });
+    })();
+  } catch (e) {
+    L('ERRO: ' + e.message);
+    window.__done = 'FAIL';
+  }
+})();
+</script>
+</body></html>

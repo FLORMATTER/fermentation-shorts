@@ -1,0 +1,18 @@
+# ---------------------------------------------------------------------------
+# fermentation-shorts — Python dependencies
+# ---------------------------------------------------------------------------
+# Only the *image* tooling needs third-party packages. The validators
+# (_validar-short.py, _checar-*.py) are pure standard library and run with any
+# Python 3.9+.
+#
+#   python -m venv .venv
+#   .venv/Scripts/pip install -r requirements.txt      # Windows
+#   .venv/bin/pip install -r requirements.txt          # macOS / Linux
+#
+# Used by: _amostrar-png.py, _medir-contraste-*.py, capas-canva/_limpar-texto.py,
+#          capas-canva/_traduzir-capas.py, capas-canva/_medir.py
+# ---------------------------------------------------------------------------
+
+Pillow>=10.0.0
+numpy>=1.24.0
+opencv-python-headless>=4.8.0

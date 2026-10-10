@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shorts animado — Apple and melon kombucha (2nd ferment)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#0f0e0c;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    min-height:100vh; overflow:hidden;
+  }
+  #stage {
+    position:relative; width:405px; height:720px;
+    background:#f4faf3; overflow:hidden; border-radius:16px;
+    box-shadow:0 24px 70px rgba(0,0,0,.7);
+  }
+  @media (max-height:790px){ #stage{ transform:scale(.86);} }
+  @media (max-height:700px){ #stage{ transform:scale(.72);} }
+
+  svg.scene {
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0; visibility:hidden; transition:opacity .18s ease;
+  }
+  svg.scene.on { opacity:1; visibility:visible; }
+
+  .bar { position:absolute; top:0; left:0; right:0; height:5px; background:rgba(0,0,0,.1); z-index:40; }
+  #progress { height:100%; width:0; background:#1d9e75; transition:width .1s linear; }
+
+  .tag {
+    position:absolute; top:26px; left:0; right:0; text-align:center;
+    font-size:11px; font-weight:800; letter-spacing:.22em;
+    text-transform:uppercase; opacity:.45; z-index:30; color:#04342c;
+  }
+  .cap {
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(15,14,12,.86); color:#fff;
+    padding:14px 22px 17px; font-size:16px; font-weight:800;
+    text-align:center; z-index:30; line-height:1.35;
+  }
+  .cap small { display:block; font-size:12px; font-weight:500; opacity:.7; margin-top:4px; }
+
+  .wm { position:absolute; top:22px; right:18px; font-size:10px; font-weight:800;
+        letter-spacing:.1em; opacity:.3; z-index:35; text-transform:uppercase; color:#04342c; }
+
+  .speed-badge {
+    position:absolute; top:52px; left:18px; z-index:36;
+    background:#d97706; color:#fff;
+    font-size:11px; font-weight:800; letter-spacing:.1em;
+    padding:5px 11px; border-radius:999px;
+    animation:pulseBadge 1.1s ease-in-out infinite;
+  }
+  @keyframes pulseBadge { 0%,100%{opacity:1} 50%{opacity:.55} }
+
+  .ui { position:absolute; bottom:86px; left:0; right:0; display:flex;
+        justify-content:center; gap:10px; z-index:40; opacity:0; transition:opacity .25s; }
+  #stage:hover .ui, #stage.touched .ui { opacity:1; }
+  .ui button { border:none; background:rgba(15,14,12,.78); color:#fff; font-size:12px;
+    font-weight:700; font-family:inherit; padding:9px 16px; border-radius:999px; cursor:pointer; }
+  .ui button:hover { background:#000; }
+
+  .cover { position:absolute; inset:0; z-index:50; background:rgba(0,0,0,.45);
+    display:flex; align-items:center; justify-content:center; }
+  .cover.hide { display:none; }
+  .cover button { width:80px; height:80px; border-radius:50%; border:none;
+    background:rgba(255,255,255,.95); color:#111; font-size:28px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding-left:5px; }
+
+  @keyframes chop2x { 0%,100%{transform:rotate(-16deg)} 50%{transform:rotate(8deg)} }
+  @keyframes pour2x { 0%{transform:translateY(-30px) scaleY(.6);opacity:0} 100%{transform:translateY(0) scaleY(1);opacity:1} }
+  @keyframes riseFast { 0%{transform:translateY(0);opacity:0} 25%{opacity:.9} 100%{transform:translateY(-110px);opacity:0} }
+  @keyframes wobble { 0%,100%{transform:rotate(-2.5deg)} 50%{transform:rotate(2.5deg)} }
+  @keyframes tick { 0%,100%{transform:rotate(-4deg)} 50%{transform:rotate(4deg)} }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div class="bar"><div id="progress"></div></div>
+  <div class="tag" id="tag">KOMBUCHA 1 / 7</div>
+  <div class="wm">@yourchannel</div>
+  <div class="speed-badge">🍎 + 🍈</div>
+
+    <svg class="scene on" id="s0" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fffaf0"/>
+    <circle cx="252" cy="300" r="152" fill="#fdf1e2" opacity=".8"/>
+    <g transform="translate(86,300)"><rect x="-13" y="-150" width="26" height="300" rx="13" fill="#f3ece0" stroke="#c9bda8" stroke-width="2.5"/><line x1="-29" y1="-6" x2="29" y2="-6" stroke="#8a6a2f" stroke-width="3" stroke-dasharray="7 5"/><text x="35" y="2.84217e-14" font-size="15" font-weight="800" fill="#8a6a2f" font-family="system-ui">4.6</text><text x="0" y="174" text-anchor="middle" font-size="13" font-weight="800" fill="#a08a5c" font-family="system-ui">2</text><text x="0" y="-162" text-anchor="middle" font-size="13" font-weight="800" fill="#a08a5c" font-family="system-ui">7</text></g>
+    <g transform="translate(248,212)">
+      <g style="animation:wobble 3.0s ease-in-out infinite">
+        <g transform="translate(0,0) scale(0.85)"><circle r="78" fill="#8f9c53" stroke="#6f7c3d" stroke-width="3"/><circle r="69" fill="#c3cd93"/><circle r="62" fill="#ece6cc"/><circle r="53" fill="#f0a24a"/><circle r="53" fill="#f7bb72" opacity=".28"/><ellipse rx="18" ry="12" fill="#f7dcb0"/><ellipse cx="-6" cy="-3" rx="3.2" ry="4.6" fill="#d99a4a"/><ellipse cx="6" cy="4" rx="3.2" ry="4.6" fill="#d99a4a"/><ellipse cx="1" cy="-6" rx="3.2" ry="4.6" fill="#d99a4a"/><ellipse cx="-3" cy="6" rx="3.2" ry="4.6" fill="#d99a4a"/></g>
+      </g>
+    </g>
+    <g transform="translate(248,402)">
+      <g style="animation:wobble 2.6s ease-in-out infinite">
+        <g transform="scale(0.7)"><path d="M-40,-56 L-40,70 Q-40,88 -22,88 L22,88 Q40,88 40,70 L40,-56 Q40,-70 26,-80 L14,-92 L14,-124 L-14,-124 L-14,-92 L-26,-80 Q-40,-70 -40,-56 Z" fill="#fdf6ea" stroke="#8a6a2f" stroke-width="4"/><path d="M-34,-28 L-34,66 Q-34,82 -20,82 L20,82 Q34,82 34,66 L34,-28 Q34,-42 22,-52 L12,-62 L12,-118 L-12,-118 L-12,-62 L-22,-52 Q-34,-42 -34,-28 Z" fill="#d9a441"/><ellipse cx="-19" cy="18" rx="7" ry="42" fill="#fff" opacity=".22"/><rect x="-19" y="-140" width="38" height="16" rx="5" fill="#cfd8c4" stroke="#8a6a2f" stroke-width="3"/><line x1="0" y1="-140" x2="0" y2="-124" stroke="#8a6a2f" stroke-width="2"/></g>
+      </g>
+    </g>
+    <g transform="translate(202,556)">
+      <rect x="-176" y="-46" width="352" height="92" rx="12" fill="#fff" stroke="#e07b2e" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="18" font-weight="800" fill="#b45c17" font-family="system-ui">MELON SITS ABOVE THE LINE</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#c98a5c" font-family="system-ui">pH 6.0 - the only fruit here that is not acid</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s1" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fffaf0"/>
+    <g transform="translate(202,268)"><path d="M6.24,-17 H-139 A17,17 0 0 0 -139,17 H6.24 Z" fill="#d9efe3"/><path d="M6.24,-17 H139 A17,17 0 0 1 139,17 H6.24 Z" fill="#fbe0cd"/><rect x="-156" y="-17" width="312" height="34" rx="17" fill="none" stroke="#c9bda8" stroke-width="2.5"/><line x1="6.24" y1="-26" x2="6.24" y2="26" stroke="#8a6a2f" stroke-width="3"/><text x="6.24" y="-34" text-anchor="middle" font-size="15" font-weight="800" fill="#8a6a2f" font-family="system-ui">4.6</text><circle cx="-93.6" cy="0" r="9" fill="#1d9e75" stroke="#fff" stroke-width="2.5"/><text x="-93.6" y="42" text-anchor="middle" font-size="13" font-weight="800" fill="#1d9e75" font-family="system-ui">KOMBUCHA</text><circle cx="115.44" cy="0" r="9" fill="#e07b2e" stroke="#fff" stroke-width="2.5"/><text x="115.44" y="42" text-anchor="middle" font-size="13" font-weight="800" fill="#e07b2e" font-family="system-ui">MELON</text></g>
+    <g transform="translate(202,470)">
+      <rect x="-172" y="-46" width="344" height="92" rx="12" fill="#fff" stroke="#8a6a2f" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="18" font-weight="800" fill="#8a6a2f" font-family="system-ui">ABOVE 4.6, BACTERIA GROW</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#b08f4e" font-family="system-ui">below it, they do not - that is the whole trick</text>
+    </g>
+    <g transform="translate(202,580)">
+      <text x="0" y="0" text-anchor="middle" font-size="14" font-weight="700" fill="#5c7a29" font-family="system-ui">THE KOMBUCHA DRAGS THE MELON UNDER IT</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s2" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fffaf0"/>
+    <circle cx="202" cy="336" r="146" fill="#fdf1e2" opacity=".7"/>
+    <g transform="translate(202,336)">
+      <g style="animation:wobble 2.8s ease-in-out infinite">
+        <g transform="scale(1)"><path d="M-62,-104 L-62,84 Q-62,104 -42,104 L42,104 Q62,104 62,84 L62,-104 Z" fill="#fdf6ea" stroke="#8a6a2f" stroke-width="4"/><path d="M-54,-72 L-54,80 Q-54,96 -38,96 L38,96 Q54,96 54,80 L54,-72 Z" fill="#f8dfb8"/><ellipse cx="-38" cy="-10" rx="7" ry="46" fill="#fff" opacity=".28"/></g>
+        <path d="M-34,-40 L-8,-52 L4,-30 L-22,-16 Z" fill="#e07b2e" stroke="#b45c17" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M10,-18 L36,-28 L44,-6 L16,4 Z" fill="#e07b2e" stroke="#b45c17" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M-30,10 L-4,0 L6,22 L-20,32 Z" fill="#f0a24a" stroke="#b45c17" stroke-width="2.5" stroke-linejoin="round"/>
+      </g>
+    </g>
+    <g transform="translate(202,340)"><g style="animation:riseFast 1.4s ease-out infinite"><circle cx="-10" cy="52" r="4" fill="#fff" opacity=".8"/><circle cx="14" cy="62" r="3.2" fill="#fff" opacity=".75"/></g><g style="animation:riseFast 1.4s ease-out .5s infinite"><circle cx="2" cy="44" r="3.6" fill="#fff" opacity=".7"/><circle cx="-24" cy="58" r="3" fill="#fff" opacity=".65"/></g></g>
+    <g transform="translate(202,206)">
+      <g style="animation:pour2x 1.6s ease-out infinite">
+        <path d="M-9,-46 L9,-46 L13,8 Q0,20 -13,8 Z" fill="#d9a441" opacity=".92"/>
+      </g>
+    </g>
+    <g transform="translate(202,560)">
+      <rect x="-176" y="-46" width="352" height="92" rx="12" fill="#fff" stroke="#1d9e75" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="18" font-weight="800" fill="#0f6e56" font-family="system-ui">THE KOMBUCHA IS THE ACID</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#4a8a6e" font-family="system-ui">pH 2.5 to 3.5 when the first ferment is done</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s3" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fffaf0"/>
+    <g transform="translate(202,186)">
+      <rect x="-176" y="-52" width="352" height="104" rx="14" fill="#fff" stroke="#e07b2e" stroke-width="3.5"/>
+      <text x="0" y="-14" text-anchor="middle" font-size="18" font-weight="800" fill="#b45c17" font-family="system-ui">THE APPLE IS THE INSURANCE</text>
+      <text x="0" y="16" text-anchor="middle" font-size="13" font-weight="600" fill="#c98a5c" font-family="system-ui">it pulls the jar back under the line</text>
+    </g>
+    <g transform="translate(104,306)">
+      <g style="animation:wobble 2.9s ease-in-out infinite"><g transform="translate(0,0) scale(0.72)"><line x1="0" y1="-44" x2="0" y2="-72" stroke="#7a5a2a" stroke-width="5" stroke-linecap="round"/><path d="M0,-64 C16,-82 34,-74 32,-60 C24,-50 8,-52 0,-64 Z" fill="#4e7a26"/><path d="M0,-44 C24,-66 60,-54 62,-14 C64,24 36,54 0,54 C-36,54 -64,24 -62,-14 C-60,-54 -24,-66 0,-44 Z" fill="#8cc152" stroke="#4e7a26" stroke-width="3.5"/><ellipse cx="-24" cy="-14" rx="9" ry="16" fill="#fff" opacity=".3"/></g></g>
+    </g>
+    <g transform="translate(300,306)">
+      <g style="animation:wobble 3.1s ease-in-out infinite"><g transform="translate(0,0) scale(0.6)"><circle r="78" fill="#8f9c53" stroke="#6f7c3d" stroke-width="3"/><circle r="69" fill="#c3cd93"/><circle r="62" fill="#ece6cc"/><circle r="53" fill="#f0a24a"/><circle r="53" fill="#f7bb72" opacity=".28"/><ellipse rx="18" ry="12" fill="#f7dcb0"/><ellipse cx="-6" cy="-3" rx="3.2" ry="4.6" fill="#d99a4a"/><ellipse cx="6" cy="4" rx="3.2" ry="4.6" fill="#d99a4a"/><ellipse cx="1" cy="-6" rx="3.2" ry="4.6" fill="#d99a4a"/><ellipse cx="-3" cy="6" rx="3.2" ry="4.6" fill="#d99a4a"/></g></g>
+    </g>
+    <g transform="translate(202,306)">
+      <path d="M0,-24 L0,18 M-9,8 L0,22 L9,8" stroke="#8a6a2f" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(104,398)">
+      <rect x="-60" y="-28" width="120" height="56" rx="10" fill="#eaf5dc" stroke="#7fb542" stroke-width="2.5"/>
+      <text x="0" y="7" text-anchor="middle" font-size="26" font-weight="800" fill="#2f5c0d" font-family="system-ui">3.0</text>
+    </g>
+    <g transform="translate(300,398)">
+      <rect x="-60" y="-28" width="120" height="56" rx="10" fill="#fdecdb" stroke="#e07b2e" stroke-width="2.5"/>
+      <text x="0" y="7" text-anchor="middle" font-size="26" font-weight="800" fill="#b45c17" font-family="system-ui">6.4</text>
+    </g>
+    <g transform="translate(202,520)">
+      <rect x="-172" y="-42" width="344" height="84" rx="12" fill="#fff8e6" stroke="#d9a441" stroke-width="3"/>
+      <text x="0" y="-6" text-anchor="middle" font-size="15" font-weight="800" fill="#8a6a2f" font-family="system-ui">ABOUT 2500 TIMES MORE ACID</text>
+      <text x="0" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="#b08f4e" font-family="system-ui">each pH point is ten times more acid</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s4" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fffaf0"/>
+    <circle cx="202" cy="256" r="130" fill="#fdf1e2" opacity=".75"/>
+    <g transform="translate(202,232)"><g transform="translate(0,0) scale(1.35)"><g style="animation:chop2x 1.6s ease-in-out infinite"><path d="M2,-66 L11,-62 L4,2 L-5,0 Z" fill="#c9d8c0" stroke="#5c7a29" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="-6" cy="16" rx="27" ry="17" fill="#c9d8c0" stroke="#5c7a29" stroke-width="3"/><ellipse cx="-6" cy="16" rx="19" ry="11" fill="#d9a441"/></g></g></g>
+    <g transform="translate(112,352)">
+      <g style="animation:tick 2.2s ease-in-out infinite">
+        <path d="M0,20 L-10,2 L10,2 Z" fill="#7fb542"/>
+      </g>
+    </g>
+    <g transform="translate(112,422)">
+      <rect x="-70" y="-38" width="140" height="76" rx="12" fill="#eaf5dc" stroke="#7fb542" stroke-width="3"/>
+      <text x="0" y="-4" text-anchor="middle" font-size="17" font-weight="800" fill="#2f5c0d" font-family="system-ui">TART</text>
+      <text x="0" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="#6b8f3a" font-family="system-ui">ready</text>
+    </g>
+    <g transform="translate(292,422)">
+      <rect x="-70" y="-38" width="140" height="76" rx="12" fill="#fdeef0" stroke="#e8556d" stroke-width="3"/>
+      <text x="0" y="-4" text-anchor="middle" font-size="17" font-weight="800" fill="#c9334d" font-family="system-ui">SWEET</text>
+      <text x="0" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="#d4757f" font-family="system-ui">not ready</text>
+    </g>
+    <g transform="translate(202,552)">
+      <rect x="-176" y="-46" width="352" height="92" rx="12" fill="#fff" stroke="#d9a441" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="18" font-weight="800" fill="#8a6a2f" font-family="system-ui">TASTE IT BEFORE YOU ADD</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#b08f4e" font-family="system-ui">sweet kombucha is not acid enough to carry fruit</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s5" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fffaf0"/>
+    <circle cx="176" cy="300" r="130" fill="#fdf1e2" opacity=".7"/>
+    <g transform="translate(176,300)">
+      <g style="animation:wobble 2.9s ease-in-out infinite"><g transform="translate(0,0) scale(1)"><circle r="76" fill="#cbb98c" stroke="#a8935f" stroke-width="3.5"/><circle r="73" fill="#e2d3ad"/><path d="M-44,-64 C-32,-24 -32,24 -44,64" fill="none" stroke="#c0ab7d" stroke-width="2.4" opacity=".75"/><path d="M-16,-64 C-2,-24 -2,24 -16,64" fill="none" stroke="#c0ab7d" stroke-width="2.4" opacity=".75"/><path d="M16,-64 C30,-24 30,24 16,64" fill="none" stroke="#c0ab7d" stroke-width="2.4" opacity=".75"/><path d="M44,-64 C56,-24 56,24 44,64" fill="none" stroke="#c0ab7d" stroke-width="2.4" opacity=".75"/><path d="M-56,-47.8 C-51,-21.5 -59.0,21.5 -56,47.8" fill="none" stroke="#f7f0dc" stroke-width="3.4" opacity=".92" stroke-linecap="round"/><path d="M-30,-64.9 C-21,-29.2 -35.4,29.2 -30,64.9" fill="none" stroke="#f7f0dc" stroke-width="3.4" opacity=".92" stroke-linecap="round"/><path d="M-6,-70.5 C0,-31.7 -9.6,31.7 -6,70.5" fill="none" stroke="#f7f0dc" stroke-width="3.4" opacity=".92" stroke-linecap="round"/><path d="M18,-68.7 C28,-30.9 12.0,30.9 18,68.7" fill="none" stroke="#f7f0dc" stroke-width="3.4" opacity=".92" stroke-linecap="round"/><path d="M42,-58.9 C49,-26.5 37.8,26.5 42,58.9" fill="none" stroke="#f7f0dc" stroke-width="3.4" opacity=".92" stroke-linecap="round"/><path d="M58,-45.7 C62,-20.6 55.6,20.6 58,45.7" fill="none" stroke="#f7f0dc" stroke-width="3.4" opacity=".92" stroke-linecap="round"/><path d="M-54.8,-48 C-24.7,-42.0 24.7,-51.6 54.8,-48" fill="none" stroke="#f7f0dc" stroke-width="3.4" opacity=".92" stroke-linecap="round"/><path d="M-67.7,-22 C-30.4,-17.0 30.4,-25.0 67.7,-22" fill="none" stroke="#f7f0dc" stroke-width="3.4" opacity=".92" stroke-linecap="round"/><path d="M-70.7,2 C-31.8,11.0 31.8,-3.4 70.7,2" fill="none" stroke="#f7f0dc" stroke-width="3.4" opacity=".92" stroke-linecap="round"/><path d="M-66.4,26 C-29.9,32.0 29.9,22.4 66.4,26" fill="none" stroke="#f7f0dc" stroke-width="3.4" opacity=".92" stroke-linecap="round"/><path d="M-54.8,48 C-24.7,53.0 24.7,45.0 54.8,48" fill="none" stroke="#f7f0dc" stroke-width="3.4" opacity=".92" stroke-linecap="round"/><ellipse cy="-71" rx="8" ry="5.5" fill="#a8935f"/></g></g>
+    </g>
+    <g transform="translate(132,176) scale(1)"><path d="M0,-15 Q7,-5 7,2 Q7,9 0,9 Q-7,9 -7,2 Q-7,-5 0,-15 Z" fill="#7fc3dd" stroke="#3a8fb0" stroke-width="2"/></g>
+    <g transform="translate(176,158) scale(1.25)"><path d="M0,-15 Q7,-5 7,2 Q7,9 0,9 Q-7,9 -7,2 Q-7,-5 0,-15 Z" fill="#7fc3dd" stroke="#3a8fb0" stroke-width="2"/></g>
+    <g transform="translate(216,184) scale(0.85)"><path d="M0,-15 Q7,-5 7,2 Q7,9 0,9 Q-7,9 -7,2 Q-7,-5 0,-15 Z" fill="#7fc3dd" stroke="#3a8fb0" stroke-width="2"/></g>
+    <g transform="translate(322,238)"><g transform="translate(0,0) rotate(18)"><g style="animation:chop2x 1.7s ease-in-out infinite"><path d="M-15,-68 L15,-64 L17,30 Q17,38 8,38 L-15,38 Z" fill="#cdd6dc" stroke="#7a8a92" stroke-width="2.5" stroke-linejoin="round"/><path d="M-15,-68 L15,-64 L16,-24 L-15,-26 Z" fill="#eef3f6"/><path d="M-15,30 L17,30" stroke="#9aa8b0" stroke-width="2"/><rect x="-13" y="38" width="26" height="52" rx="9" fill="#8a5a34" stroke="#5e3a1f" stroke-width="2.5"/><circle cx="0" cy="53" r="2.6" fill="#5e3a1f"/><circle cx="0" cy="69" r="2.6" fill="#5e3a1f"/></g></g></g>
+    <g transform="translate(202,540)">
+      <rect x="-176" y="-46" width="352" height="92" rx="12" fill="#fff" stroke="#8a9a5b" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="18" font-weight="800" fill="#5c6b2f" font-family="system-ui">WASH THE RIND FIRST</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#7d8a45" font-family="system-ui">the net is where the bacteria actually live</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s6" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fffaf0"/>
+    <circle cx="202" cy="182" r="106" fill="#fdf1e2" opacity=".8"/>
+    <g transform="translate(202,182)"><g transform="translate(0,0) scale(1.5)"><g style="animation:chop2x 1.6s ease-in-out infinite"><path d="M-22,-30 L-18,26 Q-17,32 -10,32 L10,32 Q17,32 18,26 L22,-30 Z" fill="#fdf1e2" stroke="#c9803a" stroke-width="3"/><path d="M-15,2 L-12,26 Q-11,30 -6,30 L6,30 Q11,30 12,26 L15,2 Z" fill="#f0a24a"/><line x1="-14" y1="-8" x2="14" y2="-8" stroke="#c9803a" stroke-width="2" opacity=".7"/><line x1="-15" y1="8" x2="15" y2="8" stroke="#c9803a" stroke-width="2" opacity=".7"/></g></g></g>
+    <g transform="translate(202,350)">
+      <rect x="-176" y="-46" width="352" height="92" rx="12" fill="#fff" stroke="#e07b2e" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="18" font-weight="800" fill="#b45c17" font-family="system-ui">LESS FRUIT, NOT MORE</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#c98a5c" font-family="system-ui">1 part melon to 4 parts kombucha</text>
+    </g>
+    <g transform="translate(202,474)">
+      <rect x="-176" y="-42" width="352" height="84" rx="12" fill="#fff8e6" stroke="#d9a441" stroke-width="3"/>
+      <text x="0" y="-6" text-anchor="middle" font-size="16" font-weight="800" fill="#8a6a2f" font-family="system-ui">AND DRINK IT FAST</text>
+      <text x="0" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="#b08f4e" font-family="system-ui">melon fades before the fizz does</text>
+    </g>
+    <g transform="translate(202,584)">
+      <text x="0" y="0" text-anchor="middle" font-size="15" font-weight="800" fill="#2f5c0d" font-family="system-ui">which one should I ferment next?</text>
+    </g>
+  </svg>
+
+  <div class="cap" id="cap">Apple and melon kombucha<small>the melon is the one that is not acid</small></div>
+
+  <div class="ui">
+    <button onclick="prev()">◀</button>
+    <button onclick="toggle()" id="btnPlay">⏸ Pause</button>
+    <button onclick="next()">▶</button>
+  </div>
+
+  <div class="cover" id="cover"><button onclick="play()">▶</button></div>
+</div>
+
+<script>
+const scenes = [
+  { id:'s0', ms:6400, tag:'KOMBUCHA 1 / 7', cap:'The one fruit that is not acid', sub:'its pH is 6.0 to 6.7', color:'#b45c17' },
+  { id:'s1', ms:6400, tag:'KOMBUCHA 2 / 7', cap:'Why 4.6 is the line', sub:'above it, bacteria can grow', color:'#8a6a2f' },
+  { id:'s2', ms:6200, tag:'KOMBUCHA 3 / 7', cap:'The kombucha is the acid', sub:'pH 2.5 to 3.5 when it is done', color:'#1d9e75' },
+  { id:'s3', ms:6600, tag:'KOMBUCHA 4 / 7', cap:'And the apple is the insurance', sub:'pH 3 against the melon 6', color:'#4e7a26' },
+  { id:'s4', ms:6200, tag:'KOMBUCHA 5 / 7', cap:'Taste it before you add', sub:'sweet means not acid enough', color:'#d9a441' },
+  { id:'s5', ms:6400, tag:'KOMBUCHA 6 / 7', cap:'The rind is the problem', sub:'wash it before the knife goes in', color:'#5c6b2f' },
+  { id:'s6', ms:6400, tag:'KOMBUCHA 7 / 7', cap:'Less fruit, not more', sub:'and drink it before the aroma goes', color:'#2f5c0d' }
+];
+
+const stage = document.getElementById('stage');
+const progress = document.getElementById('progress');
+const capEl = document.getElementById('cap');
+const tagEl = document.getElementById('tag');
+const btnPlay = document.getElementById('btnPlay');
+
+let i = 0, playing = false, tick0 = null, elapsed = 0;
+const RES = 50;
+
+function render() {
+  scenes.forEach((s, n) => {
+    const el = document.getElementById(s.id);
+    el.classList.remove('on');
+    if (n === i) el.classList.add('on');
+  });
+  tagEl.textContent = scenes[i].tag;
+  capEl.innerHTML = scenes[i].cap + '<small>' + scenes[i].sub + '</small>';
+  progress.style.background = scenes[i].color;
+  progress.style.width = '0%';
+}
+
+function loop() {
+  clearInterval(tick0);
+  tick0 = setInterval(() => {
+    if (!playing) return;
+    elapsed += RES;
+    const total = scenes[i].ms;
+    progress.style.width = Math.min(100, (elapsed / total) * 100) + '%';
+    if (elapsed >= total) {
+      if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+      else { stop(); progress.style.width = '100%'; }
+    }
+  }, RES);
+}
+
+function next() {
+  if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+  else { stop(); progress.style.width = '100%'; }
+}
+function prev() { if (i > 0) { i--; elapsed = 0; render(); } }
+function play() {
+  playing = true; elapsed = 0;
+  btnPlay.textContent = '⏸ Pause';
+  document.getElementById('cover').classList.add('hide');
+  stage.classList.add('touched');
+  render(); loop();
+}
+function stop() {
+  playing = false;
+  btnPlay.textContent = '▶ Watch';
+  clearInterval(tick0);
+}
+function toggle(){ playing ? stop() : play(); }
+
+stage.addEventListener('click', e => {
+  if (e.target.closest('button')) return;
+  if (playing) toggle();
+});
+
+render();
+</script>
+
+<script>
+/* ?rec = modo gravacao.
+   Sem ?rec na URL, nada muda: e o short normal.
+   Com ?rec, o quadro preenche 1080x1920 (1920x1080 no video longo),
+   a capa e os botoes somem e a animacao comeca sozinha. */
+(function () {
+  if (location.search.indexOf('rec') < 0) return;
+  var css = '#cover{display:none!important}.ui{display:none!important}'
+          + '#stage{border-radius:0!important;box-shadow:none!important}';
+  var st = document.getElementById('stage');
+  if (st) {
+    var w = st.offsetWidth, h = st.offsetHeight;
+    if (w && h) {
+      css += '#stage{transform:scale(' + ((h > w ? 1920 : 1080) / h)
+           + ')!important;transform-origin:center center!important}';
+    }
+  }
+  if (document.getElementById('frame')) {
+    css += '#frame{transform:scale(1)!important;left:0!important;top:0!important}';
+  }
+  var tag = document.createElement('style');
+  tag.textContent = css;
+  document.head.appendChild(tag);
+  if (typeof showChapters === 'function') showChapters(false);
+  setTimeout(function () { if (typeof play === 'function') play(); }, 500);
+})();
+</script>
+</body>
+</html>

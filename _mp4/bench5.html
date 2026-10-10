@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>bench5</title>
+<style>
+html,body{margin:0;background:#111;color:#ddd;font:12px monospace}
+#palco{position:absolute;left:0;top:0;width:405px;height:720px;overflow:hidden}
+#out{position:absolute;left:430px;top:0;white-space:pre;font:12px monospace;color:#ddd}
+</style>
+</head>
+<body>
+<div id="palco"></div>
+<pre id="out">correndo</pre>
+<script>
+/* _mp4/bench5.html — Image+dataURL  vs  createImageBitmap(blob)
+   Pergunta: da para tirar a rasterizacao do SVG do thread principal?
+   Se createImageBitmap rasterizar num worker, o tique da gravacao deixa de ser
+   bloqueado e o short volta aos 30 quadros/s.
+
+   Mede as duas coisas: (1) latencia de cada metodo e (2) QUANTO O THREAD
+   PRINCIPAL FICOU TRAVADO — que e o numero que importa, medido por uma sonda
+   de setTimeout(2) que roda junto e anota o atraso.
+
+   Uso: node _mp4/rodar.js "file:///.../_mp4/bench5.html?arq=../mosquito/shorts-mosquito-trap-en.html" 180 --file-access */
+window.__log = [];
+function L(s){ window.__log.push(s); document.getElementById('out').textContent = window.__log.join('\n'); }
+
+var ARQ = new URLSearchParams(location.search).get('arq') || '../mosquito/shorts-mosquito-trap-en.html';
+var N = 20;
+
+var f = document.createElement('iframe');
+f.style.cssText = 'width:405px;height:720px;border:0;position:absolute;left:0;top:0';
+f.src = ARQ;
+document.getElementById('palco').appendChild(f);
+
+/* sonda de atraso: roda durante a medicao e soma quanto o thread principal atrasou */
+var sonda = { ligada: false, soma: 0, n: 0, pior: 0, prox: 0 };
+function passo() {
+  if (!sonda.ligada) return;
+  var a = performance.now();
+  var d = a - sonda.prox;
+  if (d > 0) { sonda.soma += d; sonda.n++; if (d > sonda.pior) sonda.pior = d; }
+  sonda.prox = performance.now() + 2;
+  setTimeout(passo, 2);
+}
+function sondaOn(){ sonda.soma=0; sonda.n=0; sonda.pior=0; sonda.prox=performance.now()+2; sonda.ligada=true; setTimeout(passo,2); }
+function sondaOff(){ sonda.ligada=false; return sonda.n ? {med:sonda.soma/sonda.n, pior:sonda.pior, n:sonda.n} : {med:0,pior:0,n:0}; }
+
+f.onload = function(){
+  var d = f.contentDocument, w = f.contentWindow;
+  if (!d || !w) { L('ERRO: nao consegui ler o iframe'); window.__done='FAIL'; return; }
+  var cenas = [].slice.call(d.querySelectorAll('svg.scene'));
+  var animados = {};
+  d.getAnimations().forEach(function(a){
+    var alvo = a.effect && a.effect.target;
+    var sv = alvo && alvo.closest ? alvo.closest('svg.scene') : null;
+    if (!sv) return;
+    var todos = sv.querySelectorAll('*');
+    for (var k=0;k<todos.length;k++){ if (todos[k]===alvo){ (animados[sv.id]=animados[sv.id]||[]).push(k); break; } }
+  });
+  var LADO = 1080;
+  L('cenas: ' + cenas.length + ' | quadro alvo: ' + LADO + 'x' + Math.round(LADO*720/405));
+
+  function bake(idx, local){
+    var id = cenas[idx].id;
+    d.getAnimations().forEach(function(a){
+      var alvo = a.effect && a.effect.target;
+      var sv = alvo && alvo.closest ? alvo.closest('svg.scene') : null;
+      if (sv && sv.id === id) { a.pause(); a.currentTime = local; }
+    });
+    var live = d.getElementById(id);
+    var clone = live.cloneNode(true);
+    var a = live.querySelectorAll('*'), b = clone.querySelectorAll('*');
+    var lista = animados[id] || [];
+    for (var j=0;j<lista.length;j++){
+      var i = lista[j];
+      var cs = w.getComputedStyle(a[i]);
+      var sty = (b[i].getAttribute('style')||'').replace(/animation[^;]*;?/g,'').replace(/transform:[^;]*;?/g,'').replace(/opacity:[^;]*;?/g,'');
+      if (cs.transform && cs.transform!=='none') sty += 'transform:'+cs.transform+';';
+      if (cs.opacity!=='' && cs.opacity!=='1') sty += 'opacity:'+cs.opacity+';';
+      b[i].setAttribute('style', sty);
+    }
+    clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    clone.setAttribute('width', LADO); clone.setAttribute('height', Math.round(LADO*720/405));
+    return new XMLSerializer().serializeToString(clone);
+  }
+
+  var QUAL = [0, 3, 7];
+
+  /* ---------- A: Image + data URL ---------- */
+  function faseA(depois){
+    var lista = [];
+    QUAL.forEach(function(ci){ for (var j=0;j<N;j++) lista.push({ci:ci, local:(j*977)%6000}); });
+    var i = 0, t0 = performance.now(), lat = [];
+    sondaOn();
+    (function prox(){
+      if (i >= lista.length){ var s = sondaOff(); depois({nome:'Image + data URL', ms:(performance.now()-t0)/lista.length, sonda:s}); return; }
+      var p = lista[i];
+      cenas.forEach(function(el,n){ if (n===p.ci) el.classList.add('on'); else el.classList.remove('on'); });
+      var svg = bake(p.ci, p.local);
+      var url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      var t = performance.now();
+      var im = new Image();
+      im.onload = function(){ lat.push(performance.now()-t); i++; prox(); };
+      im.onerror = function(){ L('erro A'); window.__done='FAIL'; };
+      im.src = url;
+    })();
+  }
+
+  /* ---------- B: createImageBitmap(blob) ---------- */
+  function faseB(depois){
+    if (typeof createImageBitmap !== 'function'){ depois(null); return; }
+    var lista = [];
+    QUAL.forEach(function(ci){ for (var j=0;j<N;j++) lista.push({ci:ci, local:(j*977)%6000}); });
+    var i = 0, t0 = performance.now(), lat = [], falhou = false;
+    sondaOn();
+    (function prox(){
+      if (i >= lista.length){ var s = sondaOff(); depois({nome:'createImageBitmap(blob)', ms:(performance.now()-t0)/lista.length, sonda:s}); return; }
+      var p = lista[i];
+      cenas.forEach(function(el,n){ if (n===p.ci) el.classList.add('on'); else el.classList.remove('on'); });
+      var svg = bake(p.ci, p.local);
+      var blob = new Blob([svg], { type: 'image/svg+xml' });
+      var t = performance.now();
+      createImageBitmap(blob, { resizeWidth: LADO, resizeHeight: Math.round(LADO*720/405), resizeQuality: 'high' })
+        .then(function(bmp){
+          lat.push(performance.now()-t);
+          if (bmp.width !== LADO) { if (!falhou) { L('AVISO: bitmap saiu ' + bmp.width + 'x' + bmp.height); falhou = true; } }
+          window.__bmp = bmp;
+          i++; prox();
+        })
+        .catch(function(e){ L('erro B: ' + e.message); window.__done='FAIL'; });
+    })();
+  }
+
+  /* ---------- C: createImageBitmap SEM resize (tamanho do proprio SVG) ---------- */
+  function faseC(depois){
+    if (typeof createImageBitmap !== 'function'){ depois(null); return; }
+    var lista = [];
+    QUAL.forEach(function(ci){ for (var j=0;j<N;j++) lista.push({ci:ci, local:(j*977)%6000}); });
+    var i = 0, t0 = performance.now(), lat = [];
+    sondaOn();
+    (function prox(){
+      if (i >= lista.length){ var s = sondaOff(); depois({nome:'createImageBitmap(sem resize)', ms:(performance.now()-t0)/lista.length, sonda:s}); return; }
+      var p = lista[i];
+      cenas.forEach(function(el,n){ if (n===p.ci) el.classList.add('on'); else el.classList.remove('on'); });
+      var svg = bake(p.ci, p.local);
+      var blob = new Blob([svg], { type: 'image/svg+xml' });
+      var t = performance.now();
+      createImageBitmap(blob)
+        .then(function(bmp){ lat.push(performance.now()-t); i++; prox(); })
+        .catch(function(e){ L('erro C: ' + e.message); window.__done='FAIL'; });
+    })();
+  }
+
+  var resultados = [];
+  faseA(function(rA){
+    resultados.push(rA);
+    faseB(function(rB){
+      if (rB) resultados.push(rB);
+      faseC(function(rC){
+        if (rC) resultados.push(rC);
+        L('');
+        L('metodo                        latencia   atraso do thread principal');
+        L('                                          media     pior');
+        resultados.forEach(function(r){
+          L('  ' + r.nome.padEnd(28) + r.ms.toFixed(1).padStart(6) + ' ms' +
+            '   ' + r.sonda.med.toFixed(1).padStart(7) + ' ms' +
+            '  ' + r.sonda.pior.toFixed(1).padStart(7) + ' ms');
+        });
+        L('');
+        L('regua: 30 quadros/s = 33 ms por quadro. O que importa e o ATRASO:');
+        L('se rasterizar roda em worker, o atraso fica baixo mesmo com latencia alta.');
+        L('FIM');
+        window.__done = 'OK';
+      });
+    });
+  });
+};
+</script>
+</body></html>

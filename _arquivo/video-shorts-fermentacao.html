@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shorts — Fermentação de Legumes</title>
+<style>
+  @font-face { font-family: 'x'; src: local('Arial'); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #14120f;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    color: #fff;
+  }
+
+  #stage {
+    position: relative;
+    width: 405px;
+    height: 720px;
+    background: #000;
+    overflow: hidden;
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.6);
+  }
+
+  @media (max-height: 780px) {
+    #stage { transform: scale(.88); }
+  }
+  @media (max-height: 700px) {
+    #stage { transform: scale(.76); }
+  }
+
+  .scene {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .45s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 54px 30px;
+  }
+  .scene.on { opacity: 1; visibility: visible; }
+
+  .bg1 { background: linear-gradient(160deg,#eaf3de 0%,#c0dd97 100%); color: #173404; }
+  .bg2 { background: linear-gradient(160deg,#e1f5ee 0%,#9fe1cb 100%); color: #04342c; }
+  .bg3 { background: linear-gradient(160deg,#faeeda 0%,#fac775 100%); color: #412402; }
+  .bg4 { background: linear-gradient(160deg,#faece7 0%,#f5c4b3 100%); color: #4a1b0c; }
+  .bg5 { background: linear-gradient(160deg,#eeedfe 0%,#cecbf6 100%); color: #26215c; }
+  .bg6 { background: linear-gradient(160deg,#f1efe8 0%,#d3d1c7 100%); color: #2c2c2a; }
+
+  .tag {
+    font-size: 12px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    font-weight: 700;
+    opacity: .65;
+    margin-bottom: 22px;
+  }
+
+  .big {
+    font-size: 43px;
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -.02em;
+    margin-bottom: 20px;
+  }
+  .big .accent { display: block; }
+  .mid {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.5;
+    opacity: .78;
+    max-width: 300px;
+  }
+
+  .icon { font-size: 76px; margin-bottom: 26px; line-height: 1; }
+
+  .num {
+    position: absolute;
+    top: 34px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .2em;
+    opacity: .5;
+  }
+
+  .bullet {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255,255,255,.5);
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 11px;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: left;
+  }
+  .bullet .dot {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: .35;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+  .bullet .dot::after { content: '✓'; opacity: 2; color: #fff; font-weight: 700; }
+
+  .flash {
+    animation: pop .55s cubic-bezier(.2,.9,.3,1.3);
+  }
+  @keyframes pop {
+    0% { transform: scale(.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: rgba(255,255,255,.25);
+    z-index: 30;
+  }
+  #progress {
+    height: 100%;
+    width: 0;
+    background: currentColor;
+    opacity: .85;
+    transition: width .25s linear;
+  }
+
+  .caption {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,.72);
+    color: #fff;
+    padding: 13px 20px 15px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: .01em;
+    z-index: 25;
+    backdrop-filter: blur(6px);
+  }
+
+  .ui {
+    position: absolute;
+    bottom: 76px;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    z-index: 40;
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  #stage:hover .ui, #stage.touched .ui { opacity: 1; }
+
+  .ui button {
+    border: none;
+    background: rgba(0,0,0,.72);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    padding: 10px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+  }
+  .ui button:hover { background: rgba(0,0,0,.9); }
+
+  .center-ui {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 45;
+    background: rgba(0,0,0,.35);
+  }
+  .center-ui button {
+    width: 84px; height: 84px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,.94);
+    color: #14120f;
+    font-size: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 6px;
+  }
+  .center-ui.hide { display: none; }
+
+  .watermark {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    opacity: .4;
+    z-index: 35;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div id="stage" class="bg1">
+  <div class="bar"><div id="progress" style="background:#173404"></div></div>
+  <div class="watermark" id="wm">@seucanal</div>
+
+  <div class="scene on bg1" id="s0">
+    <div class="num">CENA 1 / 7</div>
+    <div class="icon">🥬</div>
+    <div class="big">Vou fermentar<br>esse repolho</div>
+    <div class="mid">por 7 dias.</div>
+  </div>
+
+  <div class="scene bg1" id="s1">
+    <div class="num">CENA 2 / 7</div>
+    <div class="big">Só preciso de<br><span class="accent">2 coisas</span></div>
+    <div style="width:100%;margin-top:14px">
+      <div class="bullet" style="color:#173404"><span class="dot"></span>Repolho fatiado fino</div>
+      <div class="bullet" style="color:#173404"><span class="dot"></span>Sal sem iodo — 2% do peso</div>
+    </div>
+  </div>
+
+  <div class="scene bg2" id="s2">
+    <div class="num">CENA 3 / 7</div>
+    <div class="icon">🧂</div>
+    <div class="big">1,5 kg de<br>repolho</div>
+    <div class="mid">= 30 g de sal.</div>
+  </div>
+
+  <div class="scene bg3" id="s3">
+    <div class="num">CENA 4 / 7</div>
+    <div class="icon">🤲</div>
+    <div class="big">Massageia<br>10 minutos</div>
+    <div class="mid">o repolho vai murchar e soltar água sozinho.</div>
+  </div>
+
+  <div class="scene bg4" id="s4">
+    <div class="num">CENA 5 / 7</div>
+    <div class="icon">🫙</div>
+    <div class="big">Prensa tudo<br>pra baixo</div>
+    <div class="mid">o repolho precisa ficar coberto pelo próprio líquido.</div>
+  </div>
+
+  <div class="scene bg5" id="s5">
+    <div class="num">CENA 6 / 7</div>
+    <div class="icon">⏳</div>
+    <div class="big">Agora é só<br><span class="accent">esperar</span></div>
+    <div class="mid">7 dias. abre o pote todo dia e aperta pra baixo.</div>
+  </div>
+
+  <div class="scene bg6" id="s6">
+    <div class="num">CENA 7 / 7</div>
+    <div class="icon">✅</div>
+    <div class="big">Dia 7:<br>ficou pronto</div>
+    <div class="mid">azedo, crocante e conservado.<br>guarda na geladeira por meses.</div>
+  </div>
+
+  <div class="caption" id="cap">Vou fermentar esse repolho por 7 dias</div>
+
+  <div class="ui">
+    <button onclick="prev()">◀ Anterior</button>
+    <button onclick="toggle()" id="btnPlay">⏸ Pausar</button>
+    <button onclick="next()">Próxima ▶</button>
+  </div>
+
+  <div class="center-ui" id="cover">
+    <button onclick="start()">▶</button>
+  </div>
+</div>
+
+<script>
+const scenes = [
+  { id:'s0', cls:'bg1', color:'#173404', cap:'Vou fermentar esse repolho por 7 dias', ms:4200 },
+  { id:'s1', cls:'bg1', color:'#173404', cap:'Só repolho e sal. Nada mais.', ms:4600 },
+  { id:'s2', cls:'bg2', color:'#04342c', cap:'Sal é 2% do peso. 1,5 kg = 30 g', ms:4200 },
+  { id:'s3', cls:'bg3', color:'#412402', cap:'Massageia 10 min até soltar água', ms:5000 },
+  { id:'s4', cls:'bg4', color:'#4a1b0c', cap:'Prensa tudo pra baixo do líquido', ms:4600 },
+  { id:'s5', cls:'bg5', color:'#26215c', cap:'7 dias. Volta pra ver no que deu.', ms:4600 },
+  { id:'s6', cls:'bg6', color:'#2c2c2a', cap:'Dia 7: deu certo. Guarda na geladeira.', ms:5000 }
+];
+
+const stage = document.getElementById('stage');
+const bar = document.getElementById('progress');
+const cap = document.getElementById('cap');
+const wm = document.getElementById('wm');
+const btnPlay = document.getElementById('btnPlay');
+
+let i = 0, playing = false, timer = null, tick = null, elapsed = 0;
+const TICK = 80;
+
+wm.textContent = '@seucanal';
+
+function render() {
+  scenes.forEach((s, n) => {
+    const el = document.getElementById(s.id);
+    el.classList.remove('on', 'flash');
+    if (n === i) { el.classList.add('on', 'flash'); }
+  });
+  stage.className = scenes[i].cls + (stage.classList.contains('touched') ? ' touched' : '');
+  cap.textContent = scenes[i].cap;
+  bar.style.background = scenes[i].color;
+  bar.style.width = '0%';
+}
+
+function loop() {
+  clearInterval(tick);
+  tick = setInterval(() => {
+    if (!playing) return;
+    elapsed += TICK;
+    const total = scenes[i].ms;
+    bar.style.width = Math.min(100, (elapsed / total) * 100) + '%';
+    if (elapsed >= total) { next(true); }
+  }, TICK);
+}
+
+function next(auto) {
+  if (i < scenes.length - 1) {
+    i++; elapsed = 0; render();
+    if (auto) loop();
+  } else {
+    stop(); elapsed = 0;
+    bar.style.width = '100%';
+  }
+}
+
+function prev() {
+  if (i > 0) { i--; elapsed = 0; render(); if (playing) loop(); }
+}
+
+function play() {
+  playing = true;
+  btnPlay.textContent = '⏸ Pausar';
+  document.getElementById('cover').classList.add('hide');
+  stage.classList.add('touched');
+  elapsed = 0; render(); loop();
+}
+
+function stop() {
+  playing = false;
+  btnPlay.textContent = '▶ Assistir';
+  clearInterval(tick);
+}
+
+function toggle() {
+  if (playing) stop(); else play();
+}
+
+function start() { play(); }
+
+document.getElementById('stage').addEventListener('click', (e) => {
+  if (e.target.closest('button')) return;
+  if (playing) toggle();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shorts animado — Watermelon and apple kombucha (2nd ferment)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#0f0e0c;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    min-height:100vh; overflow:hidden;
+  }
+  #stage {
+    position:relative; width:405px; height:720px;
+    background:#f4faf3; overflow:hidden; border-radius:16px;
+    box-shadow:0 24px 70px rgba(0,0,0,.7);
+  }
+  @media (max-height:790px){ #stage{ transform:scale(.86);} }
+  @media (max-height:700px){ #stage{ transform:scale(.72);} }
+
+  svg.scene {
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0; visibility:hidden; transition:opacity .18s ease;
+  }
+  svg.scene.on { opacity:1; visibility:visible; }
+
+  .bar { position:absolute; top:0; left:0; right:0; height:5px; background:rgba(0,0,0,.1); z-index:40; }
+  #progress { height:100%; width:0; background:#1d9e75; transition:width .1s linear; }
+
+  .tag {
+    position:absolute; top:26px; left:0; right:0; text-align:center;
+    font-size:11px; font-weight:800; letter-spacing:.22em;
+    text-transform:uppercase; opacity:.45; z-index:30; color:#04342c;
+  }
+  .cap {
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(15,14,12,.86); color:#fff;
+    padding:14px 22px 17px; font-size:16px; font-weight:800;
+    text-align:center; z-index:30; line-height:1.35;
+  }
+  .cap small { display:block; font-size:12px; font-weight:500; opacity:.7; margin-top:4px; }
+
+  .wm { position:absolute; top:22px; right:18px; font-size:10px; font-weight:800;
+        letter-spacing:.1em; opacity:.3; z-index:35; text-transform:uppercase; color:#04342c; }
+
+  .speed-badge {
+    position:absolute; top:52px; left:18px; z-index:36;
+    background:#d97706; color:#fff;
+    font-size:11px; font-weight:800; letter-spacing:.1em;
+    padding:5px 11px; border-radius:999px;
+    animation:pulseBadge 1.1s ease-in-out infinite;
+  }
+  @keyframes pulseBadge { 0%,100%{opacity:1} 50%{opacity:.55} }
+
+  .ui { position:absolute; bottom:86px; left:0; right:0; display:flex;
+        justify-content:center; gap:10px; z-index:40; opacity:0; transition:opacity .25s; }
+  #stage:hover .ui, #stage.touched .ui { opacity:1; }
+  .ui button { border:none; background:rgba(15,14,12,.78); color:#fff; font-size:12px;
+    font-weight:700; font-family:inherit; padding:9px 16px; border-radius:999px; cursor:pointer; }
+  .ui button:hover { background:#000; }
+
+  .cover { position:absolute; inset:0; z-index:50; background:rgba(0,0,0,.45);
+    display:flex; align-items:center; justify-content:center; }
+  .cover.hide { display:none; }
+  .cover button { width:80px; height:80px; border-radius:50%; border:none;
+    background:rgba(255,255,255,.95); color:#111; font-size:28px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding-left:5px; }
+
+  @keyframes chop2x { 0%,100%{transform:rotate(-16deg)} 50%{transform:rotate(8deg)} }
+  @keyframes pour2x { 0%{transform:translateY(-30px) scaleY(.6);opacity:0} 100%{transform:translateY(0) scaleY(1);opacity:1} }
+  @keyframes riseFast { 0%{transform:translateY(0);opacity:0} 25%{opacity:.9} 100%{transform:translateY(-110px);opacity:0} }
+  @keyframes wobble { 0%,100%{transform:rotate(-2.5deg)} 50%{transform:rotate(2.5deg)} }
+  @keyframes tick { 0%,100%{transform:rotate(-4deg)} 50%{transform:rotate(4deg)} }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div class="bar"><div id="progress"></div></div>
+  <div class="tag" id="tag">KOMBUCHA 1 / 7</div>
+  <div class="wm">@yourchannel</div>
+  <div class="speed-badge">🍉 + 🍎</div>
+
+    <svg class="scene on" id="s0" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fff6f2"/>
+    <circle cx="202" cy="296" r="152" fill="#fde3e6" opacity=".7"/>
+    <g transform="translate(202,296)">
+      <g style="animation:wobble 2.6s ease-in-out infinite">
+        <g transform="scale(1)"><path d="M-40,-56 L-40,70 Q-40,88 -22,88 L22,88 Q40,88 40,70 L40,-56 Q40,-70 26,-80 L14,-92 L14,-124 L-14,-124 L-14,-92 L-26,-80 Q-40,-70 -40,-56 Z" fill="#fdeef0" stroke="#c9334d" stroke-width="4"/><path d="M-34,-28 L-34,66 Q-34,82 -20,82 L20,82 Q34,82 34,66 L34,-28 Q34,-42 22,-52 L12,-62 L12,-118 L-12,-118 L-12,-62 L-22,-52 Q-34,-42 -34,-28 Z" fill="#e8556d"/><ellipse cx="-19" cy="18" rx="7" ry="42" fill="#fff" opacity=".22"/><rect x="-19" y="-140" width="38" height="16" rx="5" fill="#cfd8c4" stroke="#8a6a2f" stroke-width="3"/><line x1="0" y1="-140" x2="0" y2="-124" stroke="#8a6a2f" stroke-width="2"/></g>
+        <g style="animation:riseFast 1.4s ease-out infinite"><circle cx="-10" cy="52" r="4" fill="#fff" opacity=".8"/><circle cx="14" cy="62" r="3.2" fill="#fff" opacity=".8"/></g><g style="animation:riseFast 1.4s ease-out .5s infinite"><circle cx="2" cy="44" r="3.6" fill="#fff" opacity=".8"/><circle cx="-24" cy="58" r="3" fill="#fff" opacity=".8"/></g>
+      </g>
+    </g>
+    <g transform="translate(300,196)">
+      <g style="animation:tick 1.6s ease-in-out infinite">
+        <path d="M0,-28 L6,-9 L28,-7 L11,6 L17,28 L0,15 L-17,28 L-11,6 L-28,-7 L-6,-9 Z" fill="#f2c14e" stroke="#c98a1f" stroke-width="2.5" stroke-linejoin="round"/>
+      </g>
+    </g>
+    <g transform="translate(202,506)">
+      <rect x="-172" y="-46" width="344" height="92" rx="12" fill="#fff" stroke="#c9334d" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="20" font-weight="800" fill="#c9334d" font-family="system-ui">SEAL IT AND IT CAN BLOW</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#d4757f" font-family="system-ui">the sugar is still alive in there</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s1" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fff6f2"/>
+    <circle cx="118" cy="286" r="104" fill="#fde3e6" opacity=".75"/>
+    <circle cx="292" cy="286" r="98" fill="#eaf5dc" opacity=".85"/>
+    <g transform="translate(118,320)">
+      <g style="animation:wobble 3.0s ease-in-out infinite">
+        <g transform="translate(0,0) scale(1)"><path d="M-86,0 A86,86 0 0 1 86,0 Z" fill="#7fb542" stroke="#4e7a26" stroke-width="3"/><path d="M-76,0 A76,76 0 0 1 76,0 Z" fill="#f4f7e8"/><path d="M-68,0 A68,68 0 0 1 68,0 Z" fill="#e8556d"/><ellipse cx="-30" cy="-30" rx="4" ry="6" fill="#3a2b2b"/><ellipse cx="6" cy="-40" rx="4" ry="6" fill="#3a2b2b"/><ellipse cx="38" cy="-20" rx="4" ry="6" fill="#3a2b2b"/><ellipse cx="-10" cy="-16" rx="4" ry="6" fill="#3a2b2b"/></g>
+      </g>
+    </g>
+    <g transform="translate(292,296)">
+      <g style="animation:wobble 2.7s ease-in-out infinite">
+        <g transform="translate(0,0) scale(0.85)"><line x1="0" y1="-44" x2="0" y2="-72" stroke="#7a5a2a" stroke-width="5" stroke-linecap="round"/><path d="M0,-64 C16,-82 34,-74 32,-60 C24,-50 8,-52 0,-64 Z" fill="#4e7a26"/><path d="M0,-44 C24,-66 60,-54 62,-14 C64,24 36,54 0,54 C-36,54 -64,24 -62,-14 C-60,-54 -24,-66 0,-44 Z" fill="#8cc152" stroke="#4e7a26" stroke-width="3.5"/><ellipse cx="-24" cy="-14" rx="9" ry="16" fill="#fff" opacity=".3"/></g>
+      </g>
+    </g>
+    <text x="118" y="424" text-anchor="middle" font-size="14" font-weight="800" fill="#c9334d" font-family="system-ui">WATER</text>
+    <text x="292" y="424" text-anchor="middle" font-size="14" font-weight="800" fill="#4e7a26" font-family="system-ui">SUGAR</text>
+    <g transform="translate(202,516)">
+      <rect x="-172" y="-46" width="344" height="92" rx="12" fill="#fff" stroke="#7fb542" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="19" font-weight="800" fill="#2f5c0d" font-family="system-ui">ONE THINS, ONE FEEDS</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#6b8f3a" font-family="system-ui">and the apple is the one that fizzes</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s2" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fff6f2"/>
+    <g transform="translate(202,222)">
+      <rect x="-172" y="-76" width="344" height="152" rx="14" fill="#fff" stroke="#c9334d" stroke-width="3.5"/>
+      <text x="0" y="18" text-anchor="middle" font-size="56" font-weight="800" fill="#c9334d" font-family="system-ui">1 : 3</text>
+      <text x="0" y="54" text-anchor="middle" font-size="14" font-weight="700" fill="#d4757f" font-family="system-ui">juice to kombucha</text>
+    </g>
+    <g transform="translate(316,138)"><g style="animation:chop2x 1.6s ease-in-out infinite"><path d="M-22,-30 L-18,26 Q-17,32 -10,32 L10,32 Q17,32 18,26 L22,-30 Z" fill="#fdeef0" stroke="#c9334d" stroke-width="3"/><path d="M-15,2 L-12,26 Q-11,30 -6,30 L6,30 Q11,30 12,26 L15,2 Z" fill="#e8556d"/><line x1="-14" y1="-8" x2="14" y2="-8" stroke="#c9334d" stroke-width="2" opacity=".7"/><line x1="-15" y1="8" x2="15" y2="8" stroke="#c9334d" stroke-width="2" opacity=".7"/></g></g>
+    <g transform="translate(112,412)">
+      <rect x="-66" y="-34" width="132" height="68" rx="10" fill="#fdeef0" stroke="#e8556d" stroke-width="2.5"/>
+      <text x="0" y="2" text-anchor="middle" font-size="24" font-weight="800" fill="#c9334d" font-family="system-ui">1</text>
+      <text x="0" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#d4757f" font-family="system-ui">watermelon</text>
+    </g>
+    <g transform="translate(292,412)">
+      <rect x="-66" y="-34" width="132" height="68" rx="10" fill="#fff8e6" stroke="#d9a441" stroke-width="2.5"/>
+      <text x="0" y="2" text-anchor="middle" font-size="24" font-weight="800" fill="#8a6a2f" font-family="system-ui">3</text>
+      <text x="0" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#b08f4e" font-family="system-ui">kombucha</text>
+    </g>
+    <g transform="translate(202,528)">
+      <text x="0" y="0" text-anchor="middle" font-size="15" font-weight="800" fill="#2f5c0d" font-family="system-ui">WATERMELON IS 92% WATER</text>
+      <text x="0" y="24" text-anchor="middle" font-size="13" font-weight="600" fill="#6b8f3a" font-family="system-ui">equal parts and you drink pink water</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s3" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fff6f2"/>
+    <circle cx="202" cy="300" r="150" fill="#fde3e6" opacity=".6"/>
+    <g transform="translate(202,300)">
+      <g style="animation:wobble 2.9s ease-in-out infinite">
+        <g transform="scale(1)"><path d="M-40,-56 L-40,70 Q-40,88 -22,88 L22,88 Q40,88 40,70 L40,-56 Q40,-70 26,-80 L14,-92 L14,-124 L-14,-124 L-14,-92 L-26,-80 Q-40,-70 -40,-56 Z" fill="#fdeef0" stroke="#c9334d" stroke-width="4"/><path d="M-34,-28 L-34,66 Q-34,82 -20,82 L20,82 Q34,82 34,66 L34,-28 Q34,-42 22,-52 L12,-62 L12,-118 L-12,-118 L-12,-62 L-22,-52 Q-34,-42 -34,-28 Z" fill="#e8556d"/><ellipse cx="-19" cy="18" rx="7" ry="42" fill="#fff" opacity=".22"/><rect x="-19" y="-140" width="38" height="16" rx="5" fill="#cfd8c4" stroke="#8a6a2f" stroke-width="3"/><line x1="0" y1="-140" x2="0" y2="-124" stroke="#8a6a2f" stroke-width="2"/></g>
+      </g>
+    </g>
+    <g transform="translate(202,258)">
+      <line x1="-96" y1="0" x2="96" y2="0" stroke="#c98a1f" stroke-width="3" stroke-dasharray="7 5"/>
+      <path d="M96,-8 L112,0 L96,8 Z" fill="#c98a1f"/>
+      <path d="M-96,-8 L-112,0 L-96,8 Z" fill="#c98a1f"/>
+    </g>
+    <g transform="translate(202,196)">
+      <rect x="-96" y="-24" width="192" height="40" rx="9" fill="#fff8e6" stroke="#d9a441" stroke-width="2.5"/>
+      <text x="0" y="5" text-anchor="middle" font-size="16" font-weight="800" fill="#8a6a2f" font-family="system-ui">ONE INCH OF AIR</text>
+    </g>
+    <g transform="translate(202,512)">
+      <rect x="-172" y="-46" width="344" height="92" rx="12" fill="#fff" stroke="#d9a441" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="19" font-weight="800" fill="#8a6a2f" font-family="system-ui">FILL IT TO THE MARK</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#b08f4e" font-family="system-ui">too much air and it just stays flat</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s4" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fff6f2"/>
+    <g transform="translate(202,214)">
+      <rect x="-170" y="-56" width="340" height="112" rx="14" fill="#fff8e6" stroke="#d9a441" stroke-width="3.5"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="17" font-weight="800" fill="#8a6a2f" font-family="system-ui">THE APPLE, NOT THE MELON</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#b08f4e" font-family="system-ui">fructose is the sugar yeast eats first</text>
+    </g>
+    <g transform="translate(202,372)">
+      <g style="animation:tick 2.4s ease-in-out infinite">
+        <path d="M0,-14 L8,-30 L-8,-30 Z" fill="#8a6a2f"/>
+      </g>
+      <line x1="-150" y1="0" x2="150" y2="0" stroke="#e6d9b6" stroke-width="3"/>
+      <circle cx="-150" cy="0" r="11" fill="#d9a441"/>
+      <circle cx="0" cy="0" r="11" fill="#8cc152"/>
+      <circle cx="150" cy="0" r="11" fill="#4e7a26"/>
+      <text x="-150" y="36" text-anchor="middle" font-size="11" font-weight="800" fill="#8a6a2f" font-family="system-ui">DAY 1</text>
+      <text x="0" y="36" text-anchor="middle" font-size="11" font-weight="800" fill="#4e7a26" font-family="system-ui">DAY 2</text>
+      <text x="150" y="36" text-anchor="middle" font-size="11" font-weight="800" fill="#2f5c0d" font-family="system-ui">DAY 3</text>
+      <text x="-150" y="60" text-anchor="middle" font-size="12" font-weight="600" fill="#b08f4e" font-family="system-ui">still</text>
+      <text x="0" y="60" text-anchor="middle" font-size="12" font-weight="600" fill="#6b8f3a" font-family="system-ui">fizzing</text>
+      <text x="150" y="60" text-anchor="middle" font-size="12" font-weight="600" fill="#4e7a26" font-family="system-ui">firm</text>
+    </g>
+    <g transform="translate(202,516)">
+      <rect x="-166" y="-40" width="332" height="80" rx="12" fill="#fff" stroke="#7fb542" stroke-width="3"/>
+      <text x="0" y="-6" text-anchor="middle" font-size="16" font-weight="800" fill="#2f5c0d" font-family="system-ui">TWO DAYS IS USUALLY ENOUGH</text>
+      <text x="0" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="#6b8f3a" font-family="system-ui">room temperature, out of the sun</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s5" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fff6f2"/>
+    <circle cx="202" cy="308" r="146" fill="#fde3e6" opacity=".6"/>
+    <g transform="translate(202,308)">
+      <g style="animation:wobble 2.5s ease-in-out infinite">
+        <g transform="scale(1)"><path d="M-40,-56 L-40,70 Q-40,88 -22,88 L22,88 Q40,88 40,70 L40,-56 Q40,-70 26,-80 L14,-92 L14,-124 L-14,-124 L-14,-92 L-26,-80 Q-40,-70 -40,-56 Z" fill="#fdeef0" stroke="#c9334d" stroke-width="4"/><path d="M-34,-28 L-34,66 Q-34,82 -20,82 L20,82 Q34,82 34,66 L34,-28 Q34,-42 22,-52 L12,-62 L12,-118 L-12,-118 L-12,-62 L-22,-52 Q-34,-42 -34,-28 Z" fill="#e8556d"/><ellipse cx="-19" cy="18" rx="7" ry="42" fill="#fff" opacity=".22"/></g>
+      </g>
+    </g>
+    <g transform="translate(202,152)">
+      <g style="animation:pour2x 1.6s ease-out infinite">
+        <rect x="-19" y="-8" width="38" height="16" rx="5" fill="#cfd8c4" stroke="#8a6a2f" stroke-width="3"/>
+      </g>
+    </g>
+    <g transform="translate(202,104)" stroke="#c98a1f" stroke-width="3.5" fill="none" stroke-linecap="round">
+      <path d="M-40,10 C-30,-6 -18,-10 -8,-8"/>
+      <path d="M0,2 L0,-16"/>
+      <path d="M40,10 C30,-6 18,-10 8,-8"/>
+    </g>
+    <g transform="translate(202,502)">
+      <rect x="-172" y="-46" width="344" height="92" rx="12" fill="#fff" stroke="#c98a1f" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="19" font-weight="800" fill="#8a6a2f" font-family="system-ui">OPEN IT EVERY DAY</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#b08f4e" font-family="system-ui">over the sink, then close it again</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s6" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fff6f2"/>
+    <circle cx="168" cy="286" r="128" fill="#fde3e6" opacity=".65"/>
+    <g transform="translate(168,286)">
+      <g style="animation:wobble 2.8s ease-in-out infinite">
+        <g transform="scale(1)"><path d="M-40,-56 L-40,70 Q-40,88 -22,88 L22,88 Q40,88 40,70 L40,-56 Q40,-70 26,-80 L14,-92 L14,-124 L-14,-124 L-14,-92 L-26,-80 Q-40,-70 -40,-56 Z" fill="#fdeef0" stroke="#c9334d" stroke-width="4"/><path d="M-34,-28 L-34,66 Q-34,82 -20,82 L20,82 Q34,82 34,66 L34,-28 Q34,-42 22,-52 L12,-62 L12,-118 L-12,-118 L-12,-62 L-22,-52 Q-34,-42 -34,-28 Z" fill="#e8556d"/><ellipse cx="-19" cy="18" rx="7" ry="42" fill="#fff" opacity=".22"/><rect x="-19" y="-140" width="38" height="16" rx="5" fill="#cfd8c4" stroke="#8a6a2f" stroke-width="3"/><line x1="0" y1="-140" x2="0" y2="-124" stroke="#8a6a2f" stroke-width="2"/></g>
+      </g>
+    </g>
+    <g transform="translate(322,196)">
+      <g style="animation:tick 3.0s ease-in-out infinite">
+        <g transform="translate(0,0)"><line x1="-30" y1="-0" x2="30" y2="0" stroke="#3a8fb0" stroke-width="3.5" stroke-linecap="round"/><line x1="-15" y1="-25.9808" x2="15" y2="25.9808" stroke="#3a8fb0" stroke-width="3.5" stroke-linecap="round"/><line x1="15" y1="-25.9808" x2="-15" y2="25.9808" stroke="#3a8fb0" stroke-width="3.5" stroke-linecap="round"/><line x1="16.5" y1="0" x2="23.5921" y2="-5.54095" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="16.5" y1="0" x2="23.5921" y2="5.54095" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="30" y1="0" x2="37.0921" y2="-5.54095" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="30" y1="0" x2="37.0921" y2="5.54095" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="8.25" y1="14.2894" x2="16.5947" y2="17.6609" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="8.25" y1="14.2894" x2="6.99744" y2="23.2018" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="15" y1="25.9808" x2="23.3447" y2="29.3522" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="15" y1="25.9808" x2="13.7474" y2="34.8932" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="-8.25" y1="14.2894" x2="-6.99744" y2="23.2018" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="-8.25" y1="14.2894" x2="-16.5947" y2="17.6609" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="-15" y1="25.9808" x2="-13.7474" y2="34.8932" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="-15" y1="25.9808" x2="-23.3447" y2="29.3522" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="-16.5" y1="2.02067e-15" x2="-23.5921" y2="5.54095" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="-16.5" y1="2.02067e-15" x2="-23.5921" y2="-5.54095" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="-30" y1="3.67394e-15" x2="-37.0921" y2="5.54095" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="-30" y1="3.67394e-15" x2="-37.0921" y2="-5.54095" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="-8.25" y1="-14.2894" x2="-16.5947" y2="-17.6609" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="-8.25" y1="-14.2894" x2="-6.99744" y2="-23.2018" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="-15" y1="-25.9808" x2="-23.3447" y2="-29.3522" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="-15" y1="-25.9808" x2="-13.7474" y2="-34.8932" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="8.25" y1="-14.2894" x2="6.99744" y2="-23.2018" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="8.25" y1="-14.2894" x2="16.5947" y2="-17.6609" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="15" y1="-25.9808" x2="13.7474" y2="-34.8932" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/><line x1="15" y1="-25.9808" x2="23.3447" y2="-29.3522" stroke="#3a8fb0" stroke-width="2.45" stroke-linecap="round"/></g>
+      </g>
+    </g>
+    <g transform="translate(322,316)">
+      <rect x="-62" y="-30" width="124" height="60" rx="10" fill="#eef6fb" stroke="#3a8fb0" stroke-width="2.5"/>
+      <text x="0" y="-2" text-anchor="middle" font-size="15" font-weight="800" fill="#1f5f7d" font-family="system-ui">FRIDGE</text>
+      <text x="0" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#4a7f96" font-family="system-ui">slows, never stops</text>
+    </g>
+    <g transform="translate(202,428)">
+      <rect x="-176" y="-44" width="352" height="88" rx="12" fill="#fff" stroke="#c9334d" stroke-width="3"/>
+      <text x="0" y="-10" text-anchor="middle" font-size="18" font-weight="800" fill="#c9334d" font-family="system-ui">FIRM MEANS READY</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#d4757f" font-family="system-ui">cold slows the yeast, it does not kill it</text>
+    </g>
+    <g transform="translate(202,530)">
+      <text x="0" y="0" text-anchor="middle" font-size="15" font-weight="800" fill="#2f5c0d" font-family="system-ui">AND THEN YOU CHILL IT</text>
+      <text x="0" y="24" text-anchor="middle" font-size="13" font-weight="600" fill="#6b8f3a" font-family="system-ui">which one should I ferment next?</text>
+    </g>
+  </svg>
+
+  <div class="cap" id="cap">Watermelon and apple kombucha<small>the bottle that fights back</small></div>
+
+  <div class="ui">
+    <button onclick="prev()">◀</button>
+    <button onclick="toggle()" id="btnPlay">⏸ Pause</button>
+    <button onclick="next()">▶</button>
+  </div>
+
+  <div class="cover" id="cover"><button onclick="play()">▶</button></div>
+</div>
+
+<script>
+const scenes = [
+  { id:'s0', ms:6400, tag:'KOMBUCHA 1 / 7', cap:'It can blow', sub:'the sugar is still alive in there', color:'#c9334d' },
+  { id:'s1', ms:6200, tag:'KOMBUCHA 2 / 7', cap:'Two fruits, two jobs', sub:'one brings water, the other brings sugar', color:'#8cc152' },
+  { id:'s2', ms:6600, tag:'KOMBUCHA 3 / 7', cap:'One to three', sub:'juice to kombucha, and no more', color:'#e8556d' },
+  { id:'s3', ms:6400, tag:'KOMBUCHA 4 / 7', cap:'Leave an inch', sub:'too much air and it stays flat', color:'#d9a441' },
+  { id:'s4', ms:6800, tag:'KOMBUCHA 5 / 7', cap:'The apple does the work', sub:'fructose is the sugar yeast eats first', color:'#4e7a26' },
+  { id:'s5', ms:6400, tag:'KOMBUCHA 6 / 7', cap:'Open it every day', sub:'over the sink, then close it again', color:'#8a6a2f' },
+  { id:'s6', ms:6600, tag:'KOMBUCHA 7 / 7', cap:'Firm means ready', sub:'the fridge slows it, it never stops it', color:'#2f5c0d' }
+];
+
+const stage = document.getElementById('stage');
+const progress = document.getElementById('progress');
+const capEl = document.getElementById('cap');
+const tagEl = document.getElementById('tag');
+const btnPlay = document.getElementById('btnPlay');
+
+let i = 0, playing = false, tick0 = null, elapsed = 0;
+const RES = 50;
+
+function render() {
+  scenes.forEach((s, n) => {
+    const el = document.getElementById(s.id);
+    el.classList.remove('on');
+    if (n === i) el.classList.add('on');
+  });
+  tagEl.textContent = scenes[i].tag;
+  capEl.innerHTML = scenes[i].cap + '<small>' + scenes[i].sub + '</small>';
+  progress.style.background = scenes[i].color;
+  progress.style.width = '0%';
+}
+
+function loop() {
+  clearInterval(tick0);
+  tick0 = setInterval(() => {
+    if (!playing) return;
+    elapsed += RES;
+    const total = scenes[i].ms;
+    progress.style.width = Math.min(100, (elapsed / total) * 100) + '%';
+    if (elapsed >= total) {
+      if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+      else { stop(); progress.style.width = '100%'; }
+    }
+  }, RES);
+}
+
+function next() {
+  if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+  else { stop(); progress.style.width = '100%'; }
+}
+function prev() { if (i > 0) { i--; elapsed = 0; render(); } }
+function play() {
+  playing = true; elapsed = 0;
+  btnPlay.textContent = '⏸ Pause';
+  document.getElementById('cover').classList.add('hide');
+  stage.classList.add('touched');
+  render(); loop();
+}
+function stop() {
+  playing = false;
+  btnPlay.textContent = '▶ Watch';
+  clearInterval(tick0);
+}
+function toggle(){ playing ? stop() : play(); }
+
+stage.addEventListener('click', e => {
+  if (e.target.closest('button')) return;
+  if (playing) toggle();
+});
+
+render();
+</script>
+
+<script>
+/* ?rec = modo gravacao.
+   Sem ?rec na URL, nada muda: e o short normal.
+   Com ?rec, o quadro preenche 1080x1920 (1920x1080 no video longo),
+   a capa e os botoes somem e a animacao comeca sozinha. */
+(function () {
+  if (location.search.indexOf('rec') < 0) return;
+  var css = '#cover{display:none!important}.ui{display:none!important}'
+          + '#stage{border-radius:0!important;box-shadow:none!important}';
+  var st = document.getElementById('stage');
+  if (st) {
+    var w = st.offsetWidth, h = st.offsetHeight;
+    if (w && h) {
+      css += '#stage{transform:scale(' + ((h > w ? 1920 : 1080) / h)
+           + ')!important;transform-origin:center center!important}';
+    }
+  }
+  if (document.getElementById('frame')) {
+    css += '#frame{transform:scale(1)!important;left:0!important;top:0!important}';
+  }
+  var tag = document.createElement('style');
+  tag.textContent = css;
+  document.head.appendChild(tag);
+  if (typeof showChapters === 'function') showChapters(false);
+  setTimeout(function () { if (typeof play === 'function') play(); }, 500);
+})();
+</script>
+</body>
+</html>

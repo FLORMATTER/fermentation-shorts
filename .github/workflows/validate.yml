@@ -1,0 +1,67 @@
+name: Validate animated shorts
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate every short
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # _validar-short.py is pure standard library, so there is nothing to
+      # install. It checks each file for the bugs that text search cannot see:
+      # animations that override a transform attribute, <text> inside <rect>,
+      # keyword transform-origin values, orphan url(#id) references, unused
+      # keyframes, suspicious hex colours and text hidden behind the caption bar.
+      #
+      # Excluded, because the validator assumes a 405x720 short and these are
+      # not shorts. Each one reports false positives on its CSS id selectors
+      # (#car, #cap, #cbar, #cfact, #fbar, #ffi), which look like hex colours:
+      #   video-longo/*.html      the 16:9 long-form player
+      #   repolho/cartao-*.html   the 8-scene card templates
+      #   galeria-shorts.html     the generated gallery
+      - name: Validate
+        shell: bash
+        run: |
+          status=0
+          checked=0
+
+          while IFS= read -r f; do
+            checked=$((checked + 1))
+            if ! out=$(python _validar-short.py "$f" 2>&1); then
+              echo "::error file=$f::validation failed"
+              printf '%s\n' "$out"
+              status=1
+            fi
+          done < <(find . -name '*.html' \
+              -not -path './_arquivo/*' \
+              -not -path './_revisao/*' \
+              -not -path './_teste-rec/*' \
+              -not -path './aulas/*' \
+              -not -path './video-longo/*' \
+              -not -name 'galeria-shorts.html' \
+              -not -name 'cartao-*.html' | sort)
+
+          echo "Checked $checked animated shorts."
+
+          if [ "$status" -ne 0 ]; then
+            echo "::error::One or more animated shorts failed validation."
+          fi
+
+          exit $status

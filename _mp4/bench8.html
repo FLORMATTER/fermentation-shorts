@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>bench8</title>
+<style>html,body{margin:0;background:#111}pre{color:#ddd;font:12px monospace;padding:8px}</style>
+</head>
+<body>
+<pre id="out">correndo</pre>
+<script>
+/* _mp4/bench8.html — QUEM e' o gargalo: o codificador ou o trabalho de SVG?
+
+   O render real mostra ~100 ms de travamento do thread principal por tique. Ja
+   sabemos que assar custa ~5 ms e que rasterizar um SVG unico custa ~3 ms. Sobra
+   o codificador — mas isso nunca foi medido isolado.
+
+   Aqui a gente grava o MESMO pipeline (canvas -> captureStream(0) ->
+   requestFrame -> MediaRecorder H.264) desenhando um retangulo idiota, sem SVG
+   nenhum. O que sobrar de custo e' do codificador + leitura do canvas.
+
+   Uso: node _mp4/rodar.js "file:///.../_mp4/bench8.html" 150 --file-access */
+window.__log = [];
+window.__erro = '';
+function L(s){ window.__log.push(s); document.getElementById('out').textContent = window.__log.join('\n'); }
+
+var TAM = [1080, 720, 540];
+var SEGUNDOS = 4;
+
+function umTeste(lado, depois){
+  try {
+    var H = Math.round(lado * 16 / 9);
+    var cv = document.createElement('canvas');
+    cv.width = lado; cv.height = H;
+    var cx = cv.getContext('2d');
+
+    var stream = cv.captureStream(0);
+    var trilha = stream.getVideoTracks()[0];
+    if (!trilha) throw new Error('captureStream(0) nao deu trilha');
+
+    var MIMES = ['video/mp4;codecs=avc1.42E01E', 'video/mp4'];
+    var mime = '';
+    for (var i = 0; i < MIMES.length; i++) if (MediaRecorder.isTypeSupported(MIMES[i])) { mime = MIMES[i]; break; }
+    if (!mime) throw new Error('sem codec mp4');
+
+    var rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8000000 });
+    var chunks = [];
+    rec.ondataavailable = function(e){ if (e.data && e.data.size) chunks.push(e.data); };
+
+    var n = 0, tiques = 0, travado = 0, prox = 0, t0 = 0, ligado = false;
+    function sonda(){
+      if (!ligado) return;
+      var a = performance.now(), d = a - prox;
+      if (d > 0) travado += d;
+      prox = performance.now() + 2;
+      setTimeout(sonda, 2);
+    }
+
+    rec.onstop = function(){
+      var b = new Blob(chunks, { type: 'video/mp4' });
+      L('      mp4 de teste: ' + b.size + ' bytes');
+      depois();
+    };
+
+    rec.onstart = function(){
+      t0 = performance.now(); prox = performance.now() + 2; ligado = true;
+      setTimeout(sonda, 2);
+      (function tique(){
+        if (!ligado) return;
+        var t = performance.now() - t0;
+        if (t >= SEGUNDOS * 1000) {
+          ligado = false;
+          var dur = (performance.now() - t0) / 1000;
+          L('  ' + (lado + 'x' + H).padEnd(11) + ' -> ' + (n / dur).toFixed(1) +
+            ' quadros/s | travado ' + (tiques ? (travado / tiques).toFixed(1) : '0') +
+            ' ms/tique | ' + tiques + ' tiques');
+          setTimeout(function(){ rec.stop(); }, 150);
+          return;
+        }
+        /* desenho idiota: retangulo que muda de cor, custo ~0 */
+        cx.fillStyle = 'rgb(' + (n % 255) + ',80,140)';
+        cx.fillRect(0, 0, lado, H);
+        cx.fillStyle = '#fff';
+        cx.fillRect(20, 20, 200, 60);
+        trilha.requestFrame();
+        n++; tiques++;
+        setTimeout(tique, 2);
+      })();
+    };
+
+    rec.start();
+  } catch (e) {
+    L('ERRO em ' + lado + ': ' + e.message);
+    window.__erro = e.message;
+    window.__done = 'FAIL';
+  }
+}
+
+var i = 0;
+(function proximo(){
+  if (i >= TAM.length) {
+    L('');
+    L('Se 1080x1920 chegar perto de 30 quadros/s desenhando um retangulo, o gargalo');
+    L('NAO e o codificador — e o trabalho de SVG/assar. Se ficar em ~13, o');
+    L('codificador sozinho ja e o teto e nao ha o que otimizar do nosso lado.');
+    L('FIM');
+    window.__done = 'OK';
+    return;
+  }
+  var lado = TAM[i++];
+  L('gravando ' + lado + 'x' + Math.round(lado * 16 / 9) + ' por ' + SEGUNDOS + 's...');
+  umTeste(lado, proximo);
+})();
+</script>
+</body></html>

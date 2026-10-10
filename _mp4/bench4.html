@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>bench4</title>
+<style>html,body{margin:0;background:#111}pre{color:#ddd;font:12px monospace;padding:8px}</style>
+</head>
+<body>
+<pre id="out">correndo</pre>
+<script>
+/* _mp4/bench4.html — quanto custa RASTERIZAR o SVG em cada tamanho.
+   O bench2 deu 12,7 ms em 1080x1920 e estava ERRADO: ele reusava a MESMA data URL,
+   entao o Chrome devolvia a rasterizacao do cache. Aqui cada quadro e diferente
+   (muda o currentTime), entao nao tem cache — e o numero vale.
+
+   Uso: node _mp4/rodar.js "file:///.../_mp4/bench4.html?arq=../mosquito/shorts-mosquito-trap-en.html" 120 --file-access */
+window.__log = [];
+function L(s){ window.__log.push(s); document.getElementById('out').textContent = window.__log.join('\n'); }
+
+var ARQ = new URLSearchParams(location.search).get('arq') || '../mosquito/shorts-mosquito-trap-en.html';
+var N = 12;
+var TAMANHOS = [405, 540, 810, 1080];
+
+var f = document.createElement('iframe');
+f.style.cssText = 'width:405px;height:720px;border:0;position:absolute;left:-3000px';
+f.src = ARQ;
+document.body.appendChild(f);
+
+f.onload = function(){
+  var d = f.contentDocument, w = f.contentWindow;
+  if (!d || !w) { L('ERRO: nao consegui ler o iframe'); window.__done='FAIL'; return; }
+  var cenas = [].slice.call(d.querySelectorAll('svg.scene'));
+  var animados = {};
+  d.getAnimations().forEach(function(a){
+    var alvo = a.effect && a.effect.target;
+    var sv = alvo && alvo.closest ? alvo.closest('svg.scene') : null;
+    if (!sv) return;
+    var todos = sv.querySelectorAll('*');
+    for (var k=0;k<todos.length;k++){ if (todos[k]===alvo){ (animados[sv.id]=animados[sv.id]||[]).push(k); break; } }
+  });
+  L('cenas: ' + cenas.length);
+
+  /* cenas que a gente vai medir: a 1 (mais cheia), a 4 e a 8 */
+  var QUAL = [0, 3, 7];
+
+  function bake(idx, local, lado){
+    var id = cenas[idx].id;
+    d.getAnimations().forEach(function(a){
+      var alvo = a.effect && a.effect.target;
+      var sv = alvo && alvo.closest ? alvo.closest('svg.scene') : null;
+      if (sv && sv.id === id) { a.pause(); a.currentTime = local; }
+    });
+    var live = d.getElementById(id);
+    var clone = live.cloneNode(true);
+    var a = live.querySelectorAll('*'), b = clone.querySelectorAll('*');
+    var lista = animados[id] || [];
+    for (var j=0;j<lista.length;j++){
+      var i = lista[j];
+      var cs = w.getComputedStyle(a[i]);
+      var sty = (b[i].getAttribute('style')||'').replace(/animation[^;]*;?/g,'').replace(/transform:[^;]*;?/g,'').replace(/opacity:[^;]*;?/g,'');
+      if (cs.transform && cs.transform!=='none') sty += 'transform:'+cs.transform+';';
+      if (cs.opacity!=='' && cs.opacity!=='1') sty += 'opacity:'+cs.opacity+';';
+      b[i].setAttribute('style', sty);
+    }
+    clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    clone.setAttribute('width', lado);
+    clone.setAttribute('height', Math.round(lado*720/405));
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(clone));
+  }
+
+  /* roda tudo: para cada tamanho, N quadros DIFERENTES de cada cena escolhida */
+  var plano = [];
+  TAMANHOS.forEach(function(lado){
+    QUAL.forEach(function(ci){ plano.push({ lado: lado, ci: ci }); });
+  });
+  var res = {};
+  var pi = 0, j = 0, t0 = 0, urlAtual = '';
+
+  function passo(){
+    if (pi >= plano.length){ relatorio(); return; }
+    var p = plano[pi];
+    var cenas3 = cenas;
+    cenas3.forEach(function(el, n){ if (n===p.ci) el.classList.add('on'); else el.classList.remove('on'); });
+    if (j === 0) t0 = performance.now();
+    var lado = p.lado;
+    /* local bem espalhado para o quadro ser diferente a cada vez */
+    var local = (j * 977) % 6000;
+    urlAtual = bake(p.ci, local, lado);
+    var im = new Image();
+    im.onload = function(){
+      j++;
+      if (j >= N){
+        var chave = p.lado + '|' + cenas[p.ci].id;
+        res[chave] = (performance.now() - t0) / N;
+        j = 0; pi++;
+      }
+      passo();
+    };
+    im.onerror = function(){ L('erro ao rasterizar ' + p.lado); window.__done='FAIL'; };
+    im.src = urlAtual;
+  }
+
+  function relatorio(){
+    L('');
+    L('custo de rasterizar (quadros UNICOS, sem cache):');
+    TAMANHOS.forEach(function(lado){
+      var linha = '  ' + String(lado + 'x' + Math.round(lado*720/405)).padEnd(11) + ' :';
+      QUAL.forEach(function(ci){
+        var v = res[lado + '|' + cenas[ci].id];
+        linha += '  ' + cenas[ci].id + ' ' + (v === undefined ? '  -  ' : v.toFixed(1).padStart(6)) + ' ms';
+      });
+      var vals = QUAL.map(function(ci){ return res[lado + '|' + cenas[ci].id]; }).filter(function(v){ return v !== undefined; });
+      var med = vals.reduce(function(a,b){ return a+b; }, 0) / vals.length;
+      linha += '   | media ' + med.toFixed(1) + ' ms  -> teto ' + (1000 / (med + 5 + 2)).toFixed(0) + ' q/s';
+      L(linha);
+    });
+    L('');
+    L('regua: 30 quadros/s = 33 ms por quadro (assar ~5 + desenhar ~2 + rasterizar)');
+    L('FIM');
+    window.__done = 'OK';
+  }
+
+  passo();
+};
+</script>
+</body></html>

@@ -1,0 +1,43 @@
+# prova A/B: versao COM os keyframes x versao SEM eles
+# render: _revisar-cenas.py --final (estado final congelado)
+# identico = remover a regra nao mudou 1 pixel
+# controle negativo em `python _provar-keyframes.py --teste`
+
+alho/shorts-garlic-honey-en.html | identico | removidos: crushGarlic, dropIn
+beterraba/shorts-beterraba-animado-en.html | identico | removidos: pulse
+beterraba/shorts-beterraba-animado.html | identico | removidos: pulse
+beterraba/shorts-beterraba-camadas-en.html | MUDOU: shorts-beterraba-camadas-en-2-final.png (27008 vs 27013 bytes)
+beterraba/shorts-beterraba-camadas.html | MUDOU: shorts-beterraba-camadas-2-final.png (26878 vs 26882 bytes)
+beterraba/shorts-beterraba-couve-en.html | identico | removidos: colorShift, pressDown
+beterraba/shorts-beterraba-couve.html | identico | removidos: colorShift, pressDown
+beterraba/shorts-beterraba-svg-puro-en.html | identico | removidos: massageL, massageR, pressDown
+beterraba/shorts-beterraba-svg-puro.html | identico | removidos: massageL, massageR, pressDown
+cenoura/shorts-cenoura-animado-en.html | identico | removidos: drop, pulse, slideIn
+cenoura/shorts-cenoura-animado.html | identico | removidos: drop, pulse, slideIn
+couve-flor/shorts-couveflor-animado-en.html | identico | removidos: breakFloret, chopHand
+couve-flor/shorts-couveflor-animado.html | identico | removidos: breakFloret, chopHand
+pepino/shorts-pepino-speed-en.html | identico | removidos: blink, wobble, zoomIn
+pepino/shorts-pepino-speed.html | identico | removidos: blink, wobble, zoomIn
+rabanete/shorts-rabanete-animado-en.html | identico | removidos: heatShimmer, pressDown, riseSlow
+rabanete/shorts-rabanete-animado.html | identico | removidos: heatShimmer, pressDown, riseSlow
+video-longo/player-video-longo-7-legumes-en.html | identico | removidos: spin
+video-longo/player-video-longo-7-legumes.html | identico | removidos: spin
+
+# ---------------------------------------------------------------------------
+# VEREDITO: os 42 @keyframes removidos NAO mudaram nada na tela.
+#
+# 17 arquivos: PNG identico byte a byte.
+#  2 arquivos (beterraba/shorts-beterraba-camadas[-en].html) acusaram diferenca de
+#  4-5 bytes na folha 2 — e o A/A provou que e' RUIDO DO RENDER, nao conteudo:
+#
+#    python _provar-keyframes.py --ruido --vezes 4 beterraba/shorts-beterraba-camadas.html
+#      folha 2 do MESMO arquivo, 4 renders: (64570, 26122) | (64570, 26882)
+#    ...-en.html, 4 renders: (64194, 26248) | (64194, 26249) | (64194, 27008) | (64194, 27012)
+#
+#  A variacao da MESMA entrada chega a 760 bytes — maior que os 5 bytes do A/B.
+#  Licao: comparacao byte a byte so' vale com o piso de ruido medido antes (A/A).
+#
+# CONTROLE NEGATIVO (o comparador enxerga diferenca de verdade):
+#   python _provar-keyframes.py --teste
+#   -> arrancou o keyframe USADO "chop" de cenoura/shorts-cenoura-animado.html
+#   -> acusou: shorts-cenoura-animado-1-final.png (48880 vs 50088 bytes)

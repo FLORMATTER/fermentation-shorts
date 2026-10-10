@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animação SVG — Fermentação de Beterraba</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#0f0e0c;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    min-height:100vh; overflow:hidden;
+  }
+  #stage {
+    position:relative; width:405px; height:720px;
+    background:#fbf3f6; overflow:hidden; border-radius:16px;
+    box-shadow:0 24px 70px rgba(0,0,0,.7);
+  }
+  @media (max-height:790px){ #stage{ transform:scale(.86);} }
+  @media (max-height:700px){ #stage{ transform:scale(.72);} }
+
+  svg.scene {
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0; visibility:hidden; transition:opacity .42s ease;
+  }
+  svg.scene.on { opacity:1; visibility:visible; }
+
+  .bar { position:absolute; top:0; left:0; right:0; height:4px; background:rgba(0,0,0,.12); z-index:40; }
+  #progress { height:100%; width:0; background:#a0215b; transition:width .2s linear; }
+
+  .tag {
+    position:absolute; top:22px; left:0; right:0; text-align:center;
+    font-size:10px; font-weight:800; letter-spacing:.2em;
+    text-transform:uppercase; opacity:.5; z-index:30; color:#2c2c2a;
+  }
+  .wm { position:absolute; top:18px; right:16px; font-size:9px; font-weight:800;
+        letter-spacing:.1em; opacity:.35; z-index:35; text-transform:uppercase; color:#2c2c2a; }
+
+  .ui { position:absolute; bottom:82px; left:0; right:0; display:flex;
+        justify-content:center; gap:9px; z-index:40; opacity:0; transition:opacity .25s; }
+  #stage:hover .ui, #stage.touched .ui { opacity:1; }
+  .ui button { border:none; background:rgba(15,14,12,.8); color:#fff; font-size:11.5px;
+    font-weight:700; font-family:inherit; padding:8px 15px; border-radius:999px; cursor:pointer; }
+  .ui button:hover { background:#000; }
+
+  .cover { position:absolute; inset:0; z-index:50; background:rgba(0,0,0,.5);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
+  .cover.hide { display:none; }
+  .cover button { width:78px; height:78px; border-radius:50%; border:none;
+    background:rgba(255,255,255,.95); color:#111; font-size:27px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding-left:5px; }
+  .cover p { color:#fff; font-size:12px; font-weight:700; letter-spacing:.08em; opacity:.85; text-transform:uppercase; }
+
+  .cap {
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(15,14,12,.86); color:#fff;
+    padding:14px 22px 17px; font-size:16px; font-weight:800;
+    text-align:center; z-index:30; line-height:1.35;
+  }
+  .cap small { display:block; font-size:12px; font-weight:500; opacity:.72; margin-top:4px; }
+
+  @keyframes peelKnife {
+    0%   { transform: translateY(-20px) rotate(-14deg) }
+    50%  { transform: translateY(10px) rotate(6deg) }
+    100% { transform: translateY(-20px) rotate(-14deg) }
+  }
+  @keyframes peelStrip {
+    0%   { transform: translateX(0); opacity: 1 }
+    100% { transform: translateX(-74px); opacity: 0 }
+  }
+  @keyframes diceCut {
+    0%   { transform: translateY(-26px) }
+    50%  { transform: translateY(12px) }
+    100% { transform: translateY(-26px) }
+  }
+  @keyframes riseF {
+    0%   { transform: translateY(0); opacity: 0 }
+    30%  { opacity: .85 }
+    100% { transform: translateY(-88px); opacity: 0 }
+  }
+  @keyframes bleedWave {
+    0%   { transform: translateY(0) scaleY(.4); opacity: 0 }
+    25%  { opacity: .7 }
+    100% { transform: translateY(88px) scaleY(1.6); opacity: 0 }
+  }
+  @keyframes spin3d {
+    0%   { transform: rotateY(0deg) }
+    100% { transform: rotateY(360deg) }
+  }
+  @keyframes spinFlat {
+    0%   { transform: rotate(0deg) }
+    100% { transform: rotate(360deg) }
+  }
+  @keyframes spinRev {
+    0%   { transform: rotate(0deg) }
+    100% { transform: rotate(-360deg) }
+  }
+  @keyframes floatUpDown {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(-7px) }
+  }
+  @keyframes fadeSlide { 0%{opacity:0;transform:translateY(8px)} 100%{opacity:1;transform:translateY(0)} }
+  @keyframes pulseRing {
+    0%   { transform: scale(.55); opacity: .7 }
+    100% { transform: scale(1.9); opacity: 0 }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div class="bar"><div id="progress"></div></div>
+  <div class="tag" id="tag">BEET 1 / 7</div>
+  <div class="wm">@yourchannel</div>
+
+  <!-- ══════════ CENA 1 — A BETERRABA INTEIRA (SVG puro) ══════════ -->
+  <svg class="scene on" id="s0" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <!-- gradiente radial SVG puro -->
+    <defs>
+      <radialGradient id="beetBody" cx="36%" cy="30%" r="78%">
+        <stop offset="0%"  stop-color="#c94b7d"/>
+        <stop offset="35%" stop-color="#a0215b"/>
+        <stop offset="72%" stop-color="#6d0f3f"/>
+        <stop offset="100%" stop-color="#470326"/>
+      </radialGradient>
+      <linearGradient id="leafGrad" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%"  stop-color="#4a6b22"/>
+        <stop offset="60%" stop-color="#6f9433"/>
+        <stop offset="100%" stop-color="#9dc456"/>
+      </linearGradient>
+      <linearGradient id="stemGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#c94b7d"/>
+        <stop offset="100%" stop-color="#7d1245"/>
+      </linearGradient>
+      <radialGradient id="floorGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"  stop-color="#c9a7b8" stop-opacity=".6"/>
+        <stop offset="100%" stop-color="#c9a7b8" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+
+    <rect width="405" height="720" fill="#fdf7f9"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#b09aa4" font-family="system-ui" letter-spacing="2">TOP VIEW · THE BEET</text>
+    <ellipse cx="202" cy="520" rx="180" ry="60" fill="url(#floorGrad)"/>
+
+    <g transform="translate(202,392)"><g style="animation:floatUpDown 3.2s ease-in-out infinite">
+      <!-- folhas com gradiente -->
+      <g stroke="url(#leafGrad)" fill="none" stroke-linecap="round">
+        <path d="M-8,-64 Q-52,-118 -46,-186" stroke-width="13"/>
+        <path d="M0,-66 Q10,-130 -2,-200" stroke-width="14"/>
+        <path d="M8,-64 Q56,-116 52,-180" stroke-width="13"/>
+      </g>
+      <g stroke="#8db548" fill="none" stroke-linecap="round" opacity=".85">
+        <path d="M-8,-64 Q-52,-118 -46,-186" stroke-width="3.4"/>
+        <path d="M0,-66 Q10,-130 -2,-200" stroke-width="3.6"/>
+        <path d="M8,-64 Q56,-116 52,-180" stroke-width="3.4"/>
+      </g>
+      <!-- pecíolos -->
+      <path d="M-12,-54 L-9,-22 L-3,-22 L-5,-54Z" fill="url(#stemGrad)"/>
+      <path d="M3,-56 L2,-22 L9,-22 L9,-56Z" fill="url(#stemGrad)"/>
+
+      <!-- corpo com gradiente radial -->
+      <ellipse cx="0" cy="30" rx="78" ry="76" fill="url(#beetBody)"/>
+      <!-- raiz fina -->
+      <path d="M-4,104 Q2,142 0,168" stroke="#5c0a34" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <path d="M-4,104 Q2,142 0,168" stroke="#7d1245" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <!-- brilho especular -->
+      <ellipse cx="-28" cy="-2" rx="26" ry="20" fill="#ffffff" opacity=".16" transform="rotate(-24 -28 -2)"/>
+      <ellipse cx="-20" cy="-14" rx="12" ry="8" fill="#ffffff" opacity=".22" transform="rotate(-24 -20 -14)"/>
+      <!-- anéis de casca -->
+      <g fill="none" stroke="#8d2a5c" stroke-width="1.5" opacity=".45">
+        <path d="M-62,56 Q0,86 62,56"/>
+        <path d="M-44,80 Q0,100 44,80"/>
+      </g>
+    </g></g>
+
+    <g style="animation:fadeSlide .6s ease-in-out .25s both">
+      <rect x="34" y="576" width="337" height="52" rx="6" fill="#a0215b" opacity=".95"/>
+      <text x="202" y="598" text-anchor="middle" font-size="20" font-weight="900" fill="#fff" font-family="system-ui">FERMENTED BEET</text>
+      <text x="202" y="619" text-anchor="middle" font-size="16" font-weight="800" fill="#fbdce8" font-family="system-ui">THE PRETTIEST AND THE SLOWEST</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 2 — DESCASCANDO (SVG puro) ══════════ -->
+  <svg class="scene" id="s1" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="beetHalf" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"  stop-color="#b8336a"/>
+        <stop offset="55%" stop-color="#8e1a51"/>
+        <stop offset="100%" stop-color="#5c0a34"/>
+      </linearGradient>
+      <linearGradient id="peelStrip" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"  stop-color="#5c0a34"/>
+        <stop offset="100%" stop-color="#9c2b60"/>
+      </linearGradient>
+    </defs>
+
+    <rect width="405" height="720" fill="#f7eef2"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#b09aa4" font-family="system-ui" letter-spacing="2">PEELING · DISCARD THE SKIN</text>
+    <ellipse cx="202" cy="516" rx="168" ry="46" fill="#c9a7b8" opacity=".38"/>
+
+    <!-- tábua -->
+    <rect x="52" y="392" width="300" height="118" rx="14" fill="#e5d6c0" stroke="#cdb9a0" stroke-width="3"/>
+    <rect x="52" y="392" width="300" height="12" rx="6" fill="#f0e4d2" opacity=".7"/>
+
+    <!-- beterraba descascada (metade) -->
+    <g transform="translate(196,420)">
+      <ellipse cx="0" cy="34" rx="76" ry="60" fill="url(#beetHalf)"/>
+      <ellipse cx="-24" cy="12" rx="22" ry="16" fill="#ffffff" opacity=".18" transform="rotate(-24 -24 12)"/>
+      <ellipse cx="0" cy="34" rx="76" ry="60" fill="none" stroke="#470326" stroke-width="2" opacity=".5"/>
+    </g>
+
+    <!-- casquinhas saindo (SVG puro: gradiente + transform) -->
+    <g>
+      <path d="M0,0 Q16,-9 34,-2 Q18,7 0,0Z" fill="url(#peelStrip)" style="animation:peelStrip 2s ease-out infinite"/>
+      <path d="M0,14 Q15,6 31,12 Q15,20 0,14Z" fill="url(#peelStrip)" style="animation:peelStrip 2s ease-out .45s infinite"/>
+      <path d="M0,28 Q14,21 29,26 Q14,34 0,28Z" fill="url(#peelStrip)" style="animation:peelStrip 2s ease-out .9s infinite"/>
+      <path d="M0,42 Q13,36 26,40 Q13,48 0,42Z" fill="url(#peelStrip)" style="animation:peelStrip 2s ease-out 1.35s infinite"/>
+    </g>
+
+    <!-- faca descascando -->
+    <g transform="translate(296,344)"><g style="animation:peelKnife 1s ease-in-out infinite">
+      <rect x="-6" y="-84" width="12" height="46" rx="5" fill="#4a4a48"/>
+      <path d="M-7,-40 L7,-40 L10,22 L-10,22Z" fill="#cfcdc6"/>
+      <path d="M-7,-40 L7,-40 L8,-6 L-8,-6Z" fill="#eceae4"/>
+    </g></g>
+
+    <g style="animation:fadeSlide .6s ease-in-out .25s both">
+      <rect x="34" y="576" width="337" height="52" rx="6" fill="#7d1245" opacity=".95"/>
+      <text x="202" y="598" text-anchor="middle" font-size="20" font-weight="900" fill="#fff" font-family="system-ui">PEEL THE WHOLE SKIN OFF</text>
+      <text x="202" y="619" text-anchor="middle" font-size="16" font-weight="800" fill="#fbdce8" font-family="system-ui">SKIN = BITTER AND TOUGH</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 3 — CORTANDO EM CUBOS (SVG puro) ══════════ -->
+  <svg class="scene" id="s2" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="cubeFace" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"  stop-color="#c4457b"/>
+        <stop offset="100%" stop-color="#8e1a51"/>
+      </linearGradient>
+      <linearGradient id="cubeTop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#e07ba5"/>
+        <stop offset="100%" stop-color="#b8336a"/>
+      </linearGradient>
+    </defs>
+
+    <rect width="405" height="720" fill="#faeff4"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#b09aa4" font-family="system-ui" letter-spacing="2">CUTTING INTO CUBES · 2 CM</text>
+    <ellipse cx="202" cy="520" rx="168" ry="46" fill="#c9a7b8" opacity=".38"/>
+
+    <!-- tábua -->
+    <rect x="46" y="398" width="313" height="126" rx="14" fill="#e5d6c0" stroke="#cdb9a0" stroke-width="3"/>
+
+    <!-- cubos em pseudo-3D com 2 polígonos (SVG puro) -->
+    <g transform="translate(202,432)">
+      <g>
+        <!-- cubo 1 -->
+        <polygon points="-92,10 -72,0 -52,10 -72,20" fill="url(#cubeTop)"/>
+        <polygon points="-92,10 -72,20 -72,40 -92,30" fill="url(#cubeFace)"/>
+        <polygon points="-52,10 -72,20 -72,40 -52,30" fill="#7d1245"/>
+        <!-- cubo 2 -->
+        <polygon points="-46,16 -26,6 -6,16 -26,26" fill="url(#cubeTop)"/>
+        <polygon points="-46,16 -26,26 -26,46 -46,36" fill="url(#cubeFace)"/>
+        <polygon points="-6,16 -26,26 -26,46 -6,36" fill="#7d1245"/>
+        <!-- cubo 3 -->
+        <polygon points="0,10 20,0 40,10 20,20" fill="url(#cubeTop)"/>
+        <polygon points="0,10 20,20 20,40 0,30" fill="url(#cubeFace)"/>
+        <polygon points="40,10 20,20 20,40 40,30" fill="#7d1245"/>
+        <!-- cubo 4 -->
+        <polygon points="46,16 66,6 86,16 66,26" fill="url(#cubeTop)"/>
+        <polygon points="46,16 66,26 66,46 46,36" fill="url(#cubeFace)"/>
+        <polygon points="86,16 66,26 66,46 86,36" fill="#7d1245"/>
+        <!-- cubo 5 (caindo) -->
+        <g style="animation:peelStrip 2.4s ease-out infinite">
+          <polygon points="-20,-40 0,-50 20,-40 0,-30" fill="url(#cubeTop)"/>
+          <polygon points="-20,-40 0,-30 0,-10 -20,-20" fill="url(#cubeFace)"/>
+          <polygon points="20,-40 0,-30 0,-10 20,-20" fill="#7d1245"/>
+        </g>
+      </g>
+    </g>
+
+    <!-- faca cortando -->
+    <g transform="translate(258,318)"><g style="animation:diceCut .82s ease-in-out infinite">
+      <rect x="-6" y="-92" width="12" height="50" rx="5" fill="#4a4a48"/>
+      <path d="M-7,-44 L7,-44 L10,26 L-10,26Z" fill="#cfcdc6"/>
+      <path d="M-7,-44 L7,-44 L8,-4 L-8,-4Z" fill="#eceae4"/>
+    </g></g>
+
+    <!-- suco respingando (SVG puro) -->
+    <g fill="#a0215b" opacity=".7">
+      <circle cx="152" cy="452" r="3.4" style="animation:riseF 1.3s ease-out infinite"/>
+      <circle cx="214" cy="462" r="3" style="animation:riseF 1.3s ease-out .4s infinite"/>
+      <circle cx="266" cy="450" r="3.6" style="animation:riseF 1.3s ease-out .8s infinite"/>
+    </g>
+
+    <g style="animation:fadeSlide .6s ease-in-out .25s both">
+      <rect x="34" y="576" width="337" height="52" rx="6" fill="#8e1a51" opacity=".95"/>
+      <text x="202" y="598" text-anchor="middle" font-size="20" font-weight="900" fill="#fff" font-family="system-ui">2-CENTIMETRE CUBES</text>
+      <text x="202" y="619" text-anchor="middle" font-size="16" font-weight="800" fill="#fbdce8" font-family="system-ui">ALL THE SAME SIZE</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 4 — SAL 2% (SVG puro: gradiente cônico simulado) ══════════ -->
+  <svg class="scene" id="s3" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="salGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#ffffff"/>
+        <stop offset="100%" stop-color="#e8e4d8"/>
+      </linearGradient>
+      <radialGradient id="balanceGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"  stop-color="#ba7517" stop-opacity=".35"/>
+        <stop offset="100%" stop-color="#ba7517" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+
+    <rect width="405" height="720" fill="#fbf3f6"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#b09aa4" font-family="system-ui" letter-spacing="2">SALT 2% OF THE WEIGHT · NON-IODIZED</text>
+
+    <!-- balança -->
+    <g transform="translate(202,330)">
+      <ellipse cx="0" cy="120" rx="140" ry="72" fill="url(#balanceGlow)"/>
+      <ellipse cx="0" cy="70" rx="118" ry="26" fill="#d8cfd4"/>
+      <rect x="-110" y="44" width="220" height="28" rx="10" fill="#ece5e9" stroke="#c9bcc4" stroke-width="2"/>
+      <ellipse cx="0" cy="44" rx="110" ry="23" fill="#f7f2f5" stroke="#c9bcc4" stroke-width="2"/>
+
+      <!-- tigela com cubos -->
+      <g>
+        <ellipse cx="0" cy="36" rx="80" ry="21" fill="#faeff4"/>
+        <polygon points="-72,26 -58,18 -44,26 -58,34" fill="#c4457b"/>
+        <polygon points="-40,30 -26,22 -12,30 -26,38" fill="#b8336a"/>
+        <polygon points="-8,24 6,16 20,24 6,32" fill="#c4457b"/>
+        <polygon points="24,30 38,22 52,30 38,38" fill="#b8336a"/>
+        <polygon points="-24,38 -10,30 4,38 -10,46" fill="#a0215b"/>
+        <polygon points="8,42 22,34 36,42 22,50" fill="#a0215b"/>
+      </g>
+
+      <!-- visor -->
+      <rect x="-66" y="86" width="132" height="38" rx="6" fill="#2c2c2a"/>
+      <text x="0" y="114" text-anchor="middle" font-size="25" font-weight="900" fill="#c94b7d" font-family="monospace">300 g</text>
+      <rect x="-17" y="132" width="34" height="14" rx="4" fill="#c9bcc4"/>
+
+      <!-- saco de sal inclinando (gradiente) -->
+      <g transform="translate(-92,10) rotate(28)" style="">
+        <path d="M-30,-40 L30,-40 L34,32 Q0,42 -34,32Z" fill="url(#salGrad)" stroke="#cfc7b6" stroke-width="2"/>
+        <rect x="-24" y="-48" width="48" height="12" rx="5" fill="#e3ded0" stroke="#cfc7b6" stroke-width="2"/>
+        <text x="0" y="4" text-anchor="middle" font-size="12" font-weight="900" fill="#8a8577" font-family="system-ui">SALT</text>
+      </g>
+    </g>
+
+    <!-- cristais caindo -->
+    <g>
+      <circle cx="126" cy="316" r="3.4" fill="#fff" stroke="#cfc7b6" stroke-width="1" style="animation:riseF 1.1s ease-out infinite"/>
+      <circle cx="142" cy="326" r="2.8" fill="#fff" stroke="#cfc7b6" stroke-width="1" style="animation:riseF 1.1s ease-out .32s infinite"/>
+      <circle cx="158" cy="316" r="3.2" fill="#fff" stroke="#cfc7b6" stroke-width="1" style="animation:riseF 1.1s ease-out .64s infinite"/>
+      <circle cx="118" cy="330" r="2.4" fill="#fff" stroke="#cfc7b6" stroke-width="1" style="animation:riseF 1.1s ease-out .86s infinite"/>
+    </g>
+
+    <g style="animation:fadeSlide .6s ease-in-out .25s both">
+      <rect x="34" y="576" width="337" height="52" rx="6" fill="#ba7517" opacity=".95"/>
+      <text x="202" y="598" text-anchor="middle" font-size="20" font-weight="900" fill="#fff" font-family="system-ui">300 g = 6 g OF SALT</text>
+      <text x="202" y="619" text-anchor="middle" font-size="16" font-weight="800" fill="#faeeda" font-family="system-ui">ONLY 2%. THE SALT DOES THE WORK.</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 5 — A COR SANGRANDO (SVG puro: gradiente líquido) ══════════ -->
+  <svg class="scene" id="s4" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="liquidGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#e07ba5" stop-opacity=".25"/>
+        <stop offset="45%" stop-color="#c4457b" stop-opacity=".7"/>
+        <stop offset="100%" stop-color="#6d0f3f" stop-opacity=".95"/>
+      </linearGradient>
+      <linearGradient id="jarGlass" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"   stop-color="#ffffff" stop-opacity=".85"/>
+        <stop offset="18%"  stop-color="#ffffff" stop-opacity=".25"/>
+        <stop offset="82%"  stop-color="#ffffff" stop-opacity=".25"/>
+        <stop offset="100%" stop-color="#ffffff" stop-opacity=".85"/>
+      </linearGradient>
+      <clipPath id="jarClip">
+        <path d="M-88,160 L-88,-14 Q-88,-34 -70,-34 L70,-34 Q88,-34 88,-14 L88,160 Z"/>
+      </clipPath>
+    </defs>
+
+    <rect width="405" height="720" fill="#fbf3f6"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#b09aa4" font-family="system-ui" letter-spacing="2">THE COLOUR DYES EVERYTHING · NORMAL</text>
+    <ellipse cx="202" cy="576" rx="146" ry="26" fill="#b09aa4" opacity=".35"/>
+
+    <g transform="translate(202,392)">
+      <!-- pote -->
+      <g clip-path="url(#jarClip)">
+        <rect x="-88" y="-34" width="176" height="194" fill="#fbfdff"/>
+        <!-- camada de cubos -->
+        <g>
+          <polygon points="-64,120 -44,108 -24,120 -44,132" fill="#a0215b"/>
+          <polygon points="-20,124 0,112 20,124 0,136" fill="#8e1a51"/>
+          <polygon points="26,120 46,108 66,120 46,132" fill="#a0215b"/>
+          <polygon points="-46,86 -26,74 -6,86 -26,98" fill="#b8336a"/>
+          <polygon points="0,90 20,78 40,90 20,102" fill="#a0215b"/>
+          <polygon points="-24,52 -4,40 16,52 -4,64" fill="#c4457b"/>
+          <polygon points="24,54 44,42 64,54 44,66" fill="#b8336a"/>
+          <polygon points="-44,20 -24,8 -4,20 -24,32" fill="#c4457b"/>
+          <polygon points="6,22 26,10 46,22 26,34" fill="#b8336a"/>
+        </g>
+        <!-- salmoura tingindo (gradiente) -->
+        <rect x="-88" y="30" width="176" height="130" fill="url(#liquidGrad)"/>
+        <!-- onda de cor descendo -->
+        <g style="animation:bleedWave 3.2s ease-in-out infinite">
+          <ellipse cx="0" cy="-6" rx="92" ry="16" fill="#d1568a" opacity=".55"/>
+        </g>
+        <g style="animation:bleedWave 3.2s ease-in-out 1.1s infinite">
+          <ellipse cx="0" cy="-6" rx="92" ry="14" fill="#e07ba5" opacity=".45"/>
+        </g>
+        <!-- bolhas -->
+        <g>
+          <circle cx="-52" cy="120" r="5" fill="#fff" opacity=".75" style="animation:riseF 2.2s ease-out infinite"/>
+          <circle cx="0" cy="132" r="5.6" fill="#fff" opacity=".75" style="animation:riseF 2.2s ease-out .7s infinite"/>
+          <circle cx="50" cy="124" r="4.4" fill="#fff" opacity=".75" style="animation:riseF 2.2s ease-out 1.4s infinite"/>
+          <circle cx="-20" cy="140" r="3.8" fill="#fff" opacity=".7" style="animation:riseF 2.2s ease-out 1.8s infinite"/>
+        </g>
+      </g>
+      <!-- vidro (reflexo por gradiente) -->
+      <rect x="-88" y="-34" width="176" height="194" fill="url(#jarGlass)"/>
+      <path d="M-88,160 L-88,-14 Q-88,-34 -70,-34 L70,-34 Q88,-34 88,-14 L88,160 Z"
+            fill="none" stroke="#8e1a51" stroke-width="4"/>
+      <rect x="-88" y="-34" width="176" height="22" rx="6" fill="#f2c9dd" stroke="#8e1a51" stroke-width="4"/>
+    </g>
+
+    <g style="animation:fadeSlide .6s ease-in-out .25s both">
+      <rect x="34" y="576" width="337" height="52" rx="6" fill="#6d0f3f" opacity=".95"/>
+      <text x="202" y="598" text-anchor="middle" font-size="20" font-weight="900" fill="#fff" font-family="system-ui">EVERYTHING TURNS PURPLE</text>
+      <text x="202" y="619" text-anchor="middle" font-size="16" font-weight="800" fill="#fbdce8" font-family="system-ui">YOUR HAND WILL TURN PINK. ACCEPT IT.</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 6 — POR DENTRO / FERMENTAÇÃO (SVG puro) ══════════ -->
+  <svg class="scene" id="s5" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="bactGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"  stop-color="#c4457b" stop-opacity=".5"/>
+        <stop offset="100%" stop-color="#c4457b" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"  stop-color="#c4457b" stop-opacity=".9"/>
+        <stop offset="100%" stop-color="#a0215b" stop-opacity=".25"/>
+      </linearGradient>
+    </defs>
+
+    <rect width="405" height="720" fill="#faeff4"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#b09aa4" font-family="system-ui" letter-spacing="2">INSIDE · THE SUGAR TURNS INTO ACID</text>
+
+    <!-- núcleo girando 3D -->
+    <g transform="translate(202,222)">
+      <circle cx="0" cy="0" r="104" fill="url(#bactGlow)"/>
+      <g style="animation:pulseRing 2.6s ease-out infinite">
+        <circle cx="0" cy="0" r="64" fill="none" stroke="#c4457b" stroke-width="2" opacity=".6"/>
+      </g>
+      <g style="animation:pulseRing 2.6s ease-out .85s infinite">
+        <circle cx="0" cy="0" r="64" fill="none" stroke="#c4457b" stroke-width="2" opacity=".6"/>
+      </g>
+      <!-- anéis contra-rotativos (SVG puro) -->
+      <g style="animation:spinFlat 9s linear infinite">
+        <circle cx="0" cy="0" r="84" fill="none" stroke="url(#ringGrad)" stroke-width="3"/>
+        <circle cx="84" cy="0" r="6" fill="#a0215b"/>
+        <circle cx="-84" cy="0" r="5" fill="#c4457b"/>
+      </g>
+      <g style="animation:spinRev 6.4s linear infinite">
+        <circle cx="0" cy="0" r="64" fill="none" stroke="url(#ringGrad)" stroke-width="2.6"/>
+        <circle cx="0" cy="-64" r="5.4" fill="#e07ba5"/>
+      </g>
+      <g style="animation:spinFlat 4.2s linear infinite">
+        <circle cx="0" cy="0" r="44" fill="none" stroke="url(#ringGrad)" stroke-width="2.2"/>
+        <circle cx="0" cy="44" r="4.6" fill="#c4457b"/>
+      </g>
+      <!-- cubo central girando 3D -->
+      <g style="animation:spin3d 4.6s linear infinite">
+        <polygon points="-30,4 -10,-8 10,4 -10,16" fill="#c4457b"/>
+        <polygon points="-30,4 -10,16 -10,38 -30,26" fill="#8e1a51"/>
+        <polygon points="10,4 -10,16 -10,38 10,26" fill="#6d0f3f"/>
+      </g>
+    </g>
+
+    <!-- comparativo antes/depois -->
+    <g transform="translate(202,404)">
+      <text x="-72" y="-32" text-anchor="middle" font-size="11" font-weight="800" fill="#b09aa4" font-family="system-ui">DAY 0</text>
+      <rect x="-132" y="-24" width="120" height="66" rx="8" fill="#fdf7f9" stroke="#e0cfd8" stroke-width="2"/>
+      <polygon points="-92,-4 -76,-14 -60,-4 -76,6" fill="#c4457b"/>
+      <polygon points="-58,0 -42,-10 -26,0 -42,10" fill="#b8336a"/>
+      <polygon points="-76,18 -60,8 -44,18 -60,28" fill="#c4457b"/>
+
+      <text x="72" y="-32" text-anchor="middle" font-size="11" font-weight="800" fill="#6d0f3f" font-family="system-ui">DAY 7</text>
+      <rect x="12" y="-24" width="120" height="66" rx="8" fill="#f7e3ee" stroke="#8e1a51" stroke-width="2"/>
+      <polygon points="52,-4 68,-14 84,-4 68,6" fill="#8e1a51"/>
+      <polygon points="86,0 102,-10 118,0 102,10" fill="#7d1245"/>
+      <polygon points="68,18 84,8 100,18 84,28" fill="#6d0f3f"/>
+
+      <path d="M-8,-2 L6,-2" stroke="#8e1a51" stroke-width="3.4" stroke-linecap="round"/>
+      <path d="M4,-10 L6,-2 L4,6" fill="none" stroke="#8e1a51" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- barras de pH -->
+    <g transform="translate(202,516)">
+      <text x="-140" y="0" font-size="10" font-weight="800" fill="#8a7f88" font-family="system-ui">pH</text>
+      <rect x="-108" y="-9" width="216" height="18" rx="9" fill="#f0e2ea"/>
+      <rect x="-108" y="-9" width="216" height="18" rx="9" fill="#8e1a51" opacity=".85" style="animation:fadeSlide 3s ease-in-out infinite alternate"/>
+      <text x="122" y="0" font-size="10" font-weight="800" fill="#6d0f3f" font-family="system-ui">6 → 3.5</text>
+    </g>
+
+    <g style="animation:fadeSlide .6s ease-in-out .25s both">
+      <rect x="34" y="576" width="337" height="52" rx="6" fill="#3b6d11" opacity=".95"/>
+      <text x="202" y="598" text-anchor="middle" font-size="20" font-weight="900" fill="#fff" font-family="system-ui">THE SUGAR TURNED INTO ACID</text>
+      <text x="202" y="619" text-anchor="middle" font-size="16" font-weight="800" fill="#eaf3de" font-family="system-ui">THIS IS WHAT PRESERVES IT</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 7 — FECHO (SVG puro) ══════════ -->
+  <svg class="scene" id="s6" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="finalGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"  stop-color="#c4457b" stop-opacity=".35"/>
+        <stop offset="100%" stop-color="#c4457b" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="finalLiquid" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#c4457b" stop-opacity=".55"/>
+        <stop offset="100%" stop-color="#6d0f3f" stop-opacity=".9"/>
+      </linearGradient>
+    </defs>
+
+    <rect width="405" height="720" fill="#fdf7f9"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#b09aa4" font-family="system-ui" letter-spacing="2">READY · 7 TO 10 DAYS · FRIDGE</text>
+
+    <g transform="translate(202,300)"><g style="animation:floatUpDown 3.4s ease-in-out infinite">
+      <circle cx="0" cy="0" r="118" fill="url(#finalGlow)"/>
+      <g style="animation:pulseRing 3s ease-out infinite">
+        <circle cx="0" cy="0" r="96" fill="none" stroke="#c4457b" stroke-width="2" opacity=".5"/>
+      </g>
+      <path d="M-84,140 L-84,-6 Q-84,-26 -66,-26 L66,-26 Q84,-26 84,-6 L84,140 Z"
+            fill="#fdf7f9" stroke="#8e1a51" stroke-width="4"/>
+      <path d="M-84,140 L-84,24 Q-84,8 -66,8 L66,8 Q84,8 84,24 L84,140 Z" fill="url(#finalLiquid)"/>
+      <g>
+        <polygon points="-56,110 -38,98 -20,110 -38,122" fill="#8e1a51"/>
+        <polygon points="-14,114 4,102 22,114 4,126" fill="#7d1245"/>
+        <polygon points="26,110 44,98 62,110 44,122" fill="#8e1a51"/>
+        <polygon points="-38,78 -20,66 -2,78 -20,90" fill="#a0215b"/>
+        <polygon points="4,82 22,70 40,82 22,94" fill="#8e1a51"/>
+        <polygon points="-18,46 0,34 18,46 0,58" fill="#b8336a"/>
+        <polygon points="22,50 40,38 58,50 40,62" fill="#a0215b"/>
+      </g>
+      <rect x="-84" y="-26" width="168" height="22" rx="6" fill="#f2c9dd" stroke="#8e1a51" stroke-width="4"/>
+      <!-- reflexo -->
+      <rect x="-68" y="0" width="14" height="124" rx="7" fill="#fff" opacity=".28"/>
+    </g></g>
+
+    <g style="animation:fadeSlide .6s ease-in-out .25s both">
+      <rect x="34" y="576" width="337" height="52" rx="6" fill="#2c2c2a" opacity=".95"/>
+      <text x="202" y="598" text-anchor="middle" font-size="20" font-weight="900" fill="#fff" font-family="system-ui">7 TO 10 DAYS IN BRINE</text>
+      <text x="202" y="619" text-anchor="middle" font-size="16" font-weight="800" fill="#f2c9dd" font-family="system-ui">EAT IT IN SALAD, SANDWICH OR PLAIN</text>
+    </g>
+  </svg>
+
+  <div class="cap" id="cap">Fermented beet<small>2% salt · 7 to 10 days</small></div>
+
+  <div class="ui">
+    <button onclick="prev()">◀</button>
+    <button onclick="toggle()" id="btnPlay">⏸ Pause</button>
+    <button onclick="next()">▶</button>
+  </div>
+
+  <div class="cover" id="cover">
+    <button onclick="play()">▶</button>
+    <p>Beet SVG · 7 scenes · 45s</p>
+  </div>
+</div>
+
+<script>
+const scenes = [
+  { id:'s0', ms:5500, tag:'BEET 1 / 7', cap:'Fermented beet', sub:'the prettiest and the slowest', color:'#a0215b' },
+  { id:'s1', ms:6000, tag:'BEET 2 / 7', cap:'Peel the whole skin off', sub:'skin = bitter and tough', color:'#7d1245' },
+  { id:'s2', ms:6000, tag:'BEET 3 / 7', cap:'2-centimetre cubes', sub:'all the same size', color:'#8e1a51' },
+  { id:'s3', ms:6000, tag:'BEET 4 / 7', cap:'300 g = 6 g of salt', sub:'only 2%. the salt does the work.', color:'#ba7517' },
+  { id:'s4', ms:7000, tag:'BEET 5 / 7', cap:'Everything turns purple', sub:'your hand will turn pink. accept it.', color:'#6d0f3f' },
+  { id:'s5', ms:7000, tag:'BEET 6 / 7', cap:'The sugar turned into acid', sub:'this is what preserves the vegetable', color:'#3b6d11' },
+  { id:'s6', ms:6500, tag:'BEET 7 / 7', cap:'7 to 10 days', sub:'salad, sandwich or plain', color:'#2c2c2a' }
+];
+
+const stage = document.getElementById('stage');
+const progress = document.getElementById('progress');
+const capEl = document.getElementById('cap');
+const tagEl = document.getElementById('tag');
+const btnPlay = document.getElementById('btnPlay');
+
+let i = 0, playing = false, tick0 = null, elapsed = 0;
+const RES = 70;
+
+function render() {
+  scenes.forEach((s, n) => {
+    const el = document.getElementById(s.id);
+    el.classList.remove('on');
+    if (n === i) el.classList.add('on');
+  });
+  tagEl.textContent = scenes[i].tag;
+  capEl.innerHTML = scenes[i].cap + '<small>' + scenes[i].sub + '</small>';
+  progress.style.background = scenes[i].color;
+  progress.style.width = '0%';
+}
+
+function loop() {
+  clearInterval(tick0);
+  tick0 = setInterval(() => {
+    if (!playing) return;
+    elapsed += RES;
+    const total = scenes[i].ms;
+    progress.style.width = Math.min(100, (elapsed / total) * 100) + '%';
+    if (elapsed >= total) {
+      if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+      else { stop(); progress.style.width = '100%'; }
+    }
+  }, RES);
+}
+
+function next() {
+  if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+  else { stop(); progress.style.width = '100%'; }
+}
+function prev() { if (i > 0) { i--; elapsed = 0; render(); } }
+function play() {
+  playing = true; elapsed = 0;
+  btnPlay.textContent = '⏸ Pause';
+  document.getElementById('cover').classList.add('hide');
+  stage.classList.add('touched');
+  render(); loop();
+}
+function stop() {
+  playing = false;
+  btnPlay.textContent = '▶ Watch';
+  clearInterval(tick0);
+}
+function toggle(){ playing ? stop() : play(); }
+
+stage.addEventListener('click', e => {
+  if (e.target.closest('button')) return;
+  if (playing) toggle();
+});
+
+render();
+</script>
+
+<script>
+/* ?rec = modo gravacao.
+   Sem ?rec na URL, nada muda: e o short normal.
+   Com ?rec, o quadro preenche 1080x1920 (1920x1080 no video longo),
+   a capa e os botoes somem e a animacao comeca sozinha. */
+(function () {
+  if (location.search.indexOf('rec') < 0) return;
+  var css = '#cover{display:none!important}.ui{display:none!important}'
+          + '#stage{border-radius:0!important;box-shadow:none!important}';
+  var st = document.getElementById('stage');
+  if (st) {
+    var w = st.offsetWidth, h = st.offsetHeight;
+    if (w && h) {
+      css += '#stage{transform:scale(' + ((h > w ? 1920 : 1080) / h)
+           + ')!important;transform-origin:center center!important}';
+    }
+  }
+  if (document.getElementById('frame')) {
+    css += '#frame{transform:scale(1)!important;left:0!important;top:0!important}';
+  }
+  var tag = document.createElement('style');
+  tag.textContent = css;
+  document.head.appendChild(tag);
+  if (typeof showChapters === 'function') showChapters(false);
+  setTimeout(function () { if (typeof play === 'function') play(); }, 500);
+})();
+</script>
+</body>
+</html>

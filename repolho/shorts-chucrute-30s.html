@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chucrute em 30 segundos — versão acelerada (só as mãos)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#0f0e0c;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    min-height:100vh; overflow:hidden;
+  }
+  #stage {
+    position:relative; width:405px; height:720px;
+    background:#f4efe4; overflow:hidden; border-radius:16px;
+    box-shadow:0 24px 70px rgba(0,0,0,.7);
+  }
+  @media (max-height:790px){ #stage{ transform:scale(.86);} }
+  @media (max-height:700px){ #stage{ transform:scale(.72);} }
+
+  svg.scene {
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0; visibility:hidden; transition:opacity .3s ease;
+  }
+  svg.scene.on { opacity:1; visibility:visible; }
+
+  .bar { position:absolute; top:0; left:0; right:0; height:5px; background:rgba(0,0,0,.12); z-index:40; }
+  #progress { height:100%; width:0; background:#3b6d11; transition:width .2s linear; }
+
+  /* cronômetro grande — o "acelerado" precisa ser visível */
+  .clock {
+    position:absolute; top:16px; left:16px; z-index:38;
+    font-size:12px; font-weight:900; letter-spacing:.06em;
+    color:#2c2c2a; opacity:.55; font-variant-numeric:tabular-nums;
+  }
+  .speed {
+    position:absolute; top:14px; right:16px; z-index:38;
+    background:#3b6d11; color:#fff; font-size:10px; font-weight:900;
+    letter-spacing:.14em; padding:5px 10px; border-radius:999px;
+    text-transform:uppercase;
+  }
+  .wm { position:absolute; top:44px; right:16px; font-size:9px; font-weight:800;
+        letter-spacing:.1em; opacity:.35; z-index:35; text-transform:uppercase; color:#2c2c2a; }
+
+  .ui { position:absolute; bottom:82px; left:0; right:0; display:flex;
+        justify-content:center; gap:9px; z-index:40; opacity:0; transition:opacity .25s; }
+  #stage:hover .ui, #stage.touched .ui { opacity:1; }
+  .ui button { border:none; background:rgba(15,14,12,.8); color:#fff; font-size:11.5px;
+    font-weight:700; font-family:inherit; padding:8px 15px; border-radius:999px; cursor:pointer; }
+  .ui button:hover { background:#000; }
+
+  .cover { position:absolute; inset:0; z-index:50; background:rgba(0,0,0,.62);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
+  .cover.hide { display:none; }
+  .cover button { width:78px; height:78px; border-radius:50%; border:none;
+    background:rgba(255,255,255,.95); color:#111; font-size:27px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding-left:5px; }
+  .cover h1 { color:#fff; font-size:19px; font-weight:900; letter-spacing:-.4px; text-align:center; }
+  .cover p { color:#fff; font-size:12px; font-weight:700; letter-spacing:.08em; opacity:.85;
+    text-transform:uppercase; text-align:center; line-height:1.6; max-width:300px; }
+
+  .cap {
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(15,14,12,.88); color:#fff;
+    padding:14px 22px 17px; font-size:17px; font-weight:900;
+    text-align:center; z-index:30; line-height:1.32;
+  }
+  .cap small { display:block; font-size:12px; font-weight:600; opacity:.72; margin-top:4px; }
+
+  @keyframes swayLeaf {
+    0%,100% { transform: translate(0,0) rotate(0deg) }
+    50%     { transform: translate(3px,-4px) rotate(4deg) }
+  }
+  @keyframes chopFast {
+    0%   { transform: translateY(-26px) rotate(-19deg) }
+    45%  { transform: translateY(9px) rotate(6deg) }
+    100% { transform: translateY(-26px) rotate(-19deg) }
+  }
+  @keyframes shredFall {
+    0%   { transform: translateY(0) scale(1); opacity:1 }
+    100% { transform: translateY(64px) scale(.85); opacity:0 }
+  }
+  @keyframes massageL {
+    0%,100% { transform: translate(0,0) scale(1,1) }
+    50%     { transform: translate(14px,-7px) scale(.9,1.09) }
+  }
+  @keyframes massageR {
+    0%,100% { transform: translate(0,0) scale(1,1) }
+    50%     { transform: translate(-14px,-7px) scale(.9,1.09) }
+  }
+  @keyframes holdSteady {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(-5px) }
+  }
+  @keyframes pourSalt {
+    0%,100% { transform: translateY(-15px) rotate(-24deg) }
+    35%     { transform: translateY(5px) rotate(-5deg) }
+    65%     { transform: translateY(1px) rotate(3deg) }
+  }
+  @keyframes saltFall {
+    0%   { transform: translateY(0) translateX(0); opacity: 0 }
+    16%  { opacity: .95 }
+    100% { transform: translateY(98px) translateX(7px); opacity: 0 }
+  }
+  @keyframes liquidRise {
+    0%   { transform: translateY(60px); opacity: 0 }
+    100% { transform: translateY(0); opacity: .86 }
+  }
+  @keyframes bubbleRise {
+    0%   { transform: translateY(0) scale(.6); opacity: 0 }
+    28%  { opacity: .9 }
+    100% { transform: translateY(-96px) scale(1.25); opacity: 0 }
+  }
+  @keyframes floatJar {
+    0%,100% { transform: translateY(0) rotate(0deg) }
+    50%     { transform: translateY(-9px) rotate(1.2deg) }
+  }
+  @keyframes popInSeq {
+    0%   { transform: scale(.4); opacity: 0 }
+    60%  { transform: scale(1.08); opacity: 1 }
+    100% { transform: scale(1); opacity: 1 }
+  }
+  @keyframes fadeSlide {
+    0%   { opacity: 0; transform: translateY(8px) }
+    100% { opacity: 1; transform: translateY(0) }
+  }
+  @keyframes tickTick {
+    0%,100% { transform: rotate(-4deg) }
+    50%     { transform: rotate(4deg) }
+  }
+  /* varredura de velocidade — a "câmera" passando rápido */
+  @keyframes speedSweep {
+    0%   { transform: translateX(-120%); opacity: 0 }
+    35%  { opacity: .9 }
+    100% { transform: translateX(120%); opacity: 0 }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div class="bar"><div id="progress"></div></div>
+  <div class="clock" id="clock">00:00</div>
+  <div class="speed">30 SEGUNDOS</div>
+  <div class="wm">@seucanal</div>
+
+  <!-- ══════════ CENA 1 — GANCHO: 1 REPOLHO, 2% DE SAL, 7 DIAS ══════════ -->
+  <svg class="scene on" id="s0" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="gCab" cx="36%" cy="26%" r="76%">
+        <stop offset="0%" stop-color="#f2f9e4"/>
+        <stop offset="55%" stop-color="#d3e9b4"/>
+        <stop offset="100%" stop-color="#8fb854"/>
+      </radialGradient>
+      <linearGradient id="gBd" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#e6d3b4"/>
+        <stop offset="100%" stop-color="#c9ab84"/>
+      </linearGradient>
+    </defs>
+    <rect width="405" height="720" fill="#f1ece0"/>
+
+    <!-- faixa de velocidade atravessando -->
+    <rect x="-200" y="300" width="180" height="6" rx="3" fill="#3b6d11" opacity=".5"
+          style="animation:speedSweep 1.6s ease-in-out infinite"/>
+
+    <ellipse cx="202" cy="470" rx="180" ry="44" fill="#cfc0a6" opacity=".45"/>
+    <rect x="46" y="330" width="313" height="34" rx="15" fill="url(#gBd)"/>
+    <rect x="46" y="330" width="313" height="12" rx="6" fill="#f0e0c6" opacity=".6"/>
+
+    <!-- repolho inteiro, girando um pouco -->
+    <g transform="translate(202,262)"><g style="animation:holdSteady 1.4s ease-in-out infinite">
+      <ellipse cx="0" cy="8" rx="96" ry="80" fill="url(#gCab)"/>
+      <ellipse cx="0" cy="-6" rx="72" ry="58" fill="#e2f0c8" opacity=".7"/>
+      <path d="M0,-62 Q26,-30 0,4 Q-26,-30 0,-62Z" fill="#a9cc70" opacity=".85"/>
+      <path d="M-84,6 Q-40,-16 0,6 Q-40,30 -84,6Z" fill="#a9cc70" opacity=".8"/>
+      <path d="M84,6 Q40,-16 0,6 Q40,30 84,6Z" fill="#a9cc70" opacity=".8"/>
+      <ellipse cx="0" cy="8" rx="26" ry="20" fill="#c6dd9c"/>
+    </g></g>
+
+    <!-- MÃO de criança entrando pela direita -->
+    <g transform="translate(316,246)"><g style="animation:swayLeaf .8s ease-in-out infinite">
+      <ellipse cx="-22" cy="-22" rx="10" ry="17" fill="#6b4636" transform="rotate(-30 -22 -22)"/>
+      <ellipse cx="-21.5" cy="-29" rx="5" ry="5.5" fill="#e8c9b8" opacity=".92"/>
+      <ellipse cx="-28" cy="-2" rx="9.5" ry="16" fill="#6b4636" transform="rotate(-16 -28 -2)"/>
+      <ellipse cx="-27.5" cy="-9" rx="4.8" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+      <ellipse cx="-24" cy="18" rx="8.5" ry="14" fill="#6b4636" transform="rotate(-6 -24 18)"/>
+      <ellipse cx="-23.5" cy="11" rx="4.4" ry="5" fill="#e8c9b8" opacity=".92"/>
+      <ellipse cx="0" cy="0" rx="30" ry="26" fill="#6b4636"/>
+      <ellipse cx="0" cy="0" rx="30" ry="26" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+      <ellipse cx="12" cy="-23" rx="11" ry="9" fill="#6b4636" transform="rotate(20 12 -23)"/>
+      <ellipse cx="15" cy="-29" rx="5.5" ry="4.5" fill="#e8c9b8" opacity=".92"/>
+    </g></g>
+
+    <!-- os 3 números do vídeo -->
+    <g style="animation:popInSeq .4s ease-out .1s both; transform-origin:202px 430px">
+      <rect x="34" y="392" width="337" height="46" rx="8" fill="#2c2c2a"/>
+      <text x="202" y="422" text-anchor="middle" font-size="22" font-weight="900" fill="#fff" font-family="system-ui">1 REPOLHO · 2% DE SAL</text>
+    </g>
+    <g style="animation:popInSeq .4s ease-out .35s both">
+      <rect x="34" y="446" width="337" height="46" rx="8" fill="#3b6d11"/>
+      <text x="202" y="476" text-anchor="middle" font-size="22" font-weight="900" fill="#fff" font-family="system-ui">7 DIAS · SEM ÁGUA</text>
+    </g>
+    <g style="animation:fadeSlide .4s ease-out .6s both">
+      <text x="202" y="536" text-anchor="middle" font-size="15" font-weight="800" fill="#5c5c58" font-family="system-ui">só isso. sem equipamento nenhum.</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 2 — LAVA + CORTA FINO (tudo junto, rápido) ══════════ -->
+  <svg class="scene" id="s1" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#e7eff2"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#7d8f94" font-family="system-ui" letter-spacing="2">LAVA · TIRA AS FOLHAS · CORTA 2 mm</text>
+
+    <ellipse cx="202" cy="470" rx="176" ry="46" fill="#b9c8cc" opacity=".5"/>
+    <ellipse cx="202" cy="458" rx="162" ry="40" fill="#d6e2e6"/>
+
+    <!-- torneira + jato -->
+    <rect x="188" y="128" width="26" height="76" rx="10" fill="#a9b8bc"/>
+    <path d="M188,146 Q188,120 214,120 L244,120 Q264,120 264,140 L264,162" fill="none" stroke="#a9b8bc" stroke-width="24" stroke-linecap="round"/>
+    <rect x="250" y="156" width="30" height="28" rx="8" fill="#8fa0a4"/>
+    <g>
+      <rect x="256" y="182" width="18" height="96" rx="8" fill="#8ec9e8" opacity=".5" style="animation:shredFall .7s linear infinite"/>
+      <rect x="260" y="182" width="11" height="90" rx="5" fill="#c9e6f6" opacity=".75" style="animation:shredFall .7s linear infinite .1s"/>
+    </g>
+
+    <!-- repolho cortado em tiras caindo sobre a tábua -->
+    <g transform="translate(202,300)">
+      <ellipse cx="0" cy="6" rx="92" ry="74" fill="#eaf3de"/>
+      <ellipse cx="0" cy="6" rx="79" ry="62" fill="#d4e8b8"/>
+      <g>
+        <path d="M44,-30 Q56,-8 40,18 Q30,-6 44,-30Z" fill="#b7d484" style="animation:shredFall .85s linear infinite"/>
+        <path d="M60,-18 Q72,4 56,30 Q46,4 60,-18Z" fill="#a9cc70" style="animation:shredFall .85s linear infinite .22s"/>
+        <path d="M74,-4 Q86,18 70,44 Q60,18 74,-4Z" fill="#c2dc92" style="animation:shredFall .85s linear infinite .44s"/>
+      </g>
+    </g>
+
+    <!-- faca descendo rápido -->
+    <g transform="translate(150,206)"><g style="animation:chopFast .55s ease-in-out infinite">
+      <rect x="-5" y="0" width="10" height="46" rx="4" fill="#5f5e5a"/>
+      <path d="M-4,46 L4,46 L7,112 L-7,112Z" fill="#b4b2a9"/>
+      <path d="M-7,112 L7,112 L5,120 L-5,120Z" fill="#8f8d85"/>
+    </g></g>
+
+    <!-- MÃO segurando o repolho -->
+    <g transform="translate(250,268)"><g style="animation:holdSteady .7s ease-in-out infinite">
+      <ellipse cx="-20" cy="-20" rx="10" ry="17" fill="#6b4636" transform="rotate(28 -20 -20)"/>
+      <ellipse cx="-19.5" cy="-27" rx="5" ry="5.5" fill="#e8c9b8" opacity=".92"/>
+      <ellipse cx="-26" cy="-2" rx="9.5" ry="16" fill="#6b4636" transform="rotate(16 -26 -2)"/>
+      <ellipse cx="-25.5" cy="-9" rx="4.8" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+      <ellipse cx="0" cy="0" rx="30" ry="37" fill="#6b4636"/>
+      <ellipse cx="0" cy="0" rx="30" ry="37" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+      <ellipse cx="-13" cy="-30" rx="11" ry="9.5" fill="#6b4636" transform="rotate(-18 -13 -30)"/>
+      <ellipse cx="-16" cy="-36" rx="5.5" ry="4.8" fill="#e8c9b8" opacity=".92"/>
+    </g></g>
+
+    <g style="animation:fadeSlide .4s ease-out .2s both">
+      <rect x="34" y="548" width="337" height="46" rx="8" fill="#2b6a80"/>
+      <text x="202" y="578" text-anchor="middle" font-size="21" font-weight="900" fill="#fff" font-family="system-ui">FINO. 2 a 3 mm.</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 3 — MASSAGEIA 10 MIN EM 8 SEGUNDOS ══════════ -->
+  <svg class="scene" id="s2" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gBowl" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#f4efe4"/>
+        <stop offset="100%" stop-color="#d9cfbb"/>
+      </linearGradient>
+    </defs>
+    <rect width="405" height="720" fill="#f7f2e8"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#a8907c" font-family="system-ui" letter-spacing="2">10 MINUTOS · SEM ADICIONAR ÁGUA</text>
+
+    <!-- contador de minutos correndo rápido -->
+    <g transform="translate(202,148)">
+      <circle cx="0" cy="0" r="52" fill="#fff" stroke="#3b6d11" stroke-width="4"/>
+      <path d="M0,-42 L0,0 L30,20" stroke="#3b6d11" stroke-width="5" stroke-linecap="round" fill="none"
+            style="animation:tickTick .5s ease-in-out infinite; transform-origin:202px 148px"/>
+      <circle cx="0" cy="0" r="5" fill="#3b6d11"/>
+      <text x="0" y="76" text-anchor="middle" font-size="15" font-weight="900" fill="#3b6d11" font-family="system-ui">10 MIN → 8 SEG</text>
+    </g>
+
+    <!-- bacia -->
+    <ellipse cx="202" cy="530" rx="178" ry="54" fill="#c9bfa8" opacity=".45"/>
+    <ellipse cx="202" cy="512" rx="170" ry="50" fill="url(#gBowl)"/>
+    <ellipse cx="202" cy="502" rx="152" ry="40" fill="#e8e0cd"/>
+
+    <!-- tiras de repolho dentro -->
+    <g transform="translate(202,486)">
+      <path d="M-96,-4 Q-50,-22 -8,-4 Q-40,12 -96,-4Z" fill="#c2dc92"/>
+      <path d="M-20,-10 Q30,-28 78,-8 Q40,10 -20,-10Z" fill="#a9cc70"/>
+      <path d="M-70,10 Q-24,-6 22,10 Q-20,26 -70,10Z" fill="#b7d484"/>
+      <path d="M10,16 Q56,0 100,16 Q58,32 10,16Z" fill="#c2dc92"/>
+    </g>
+
+    <!-- água saindo de DENTRO (sem adicionar nada) -->
+    <g style="animation:liquidRise 1.2s ease-out infinite">
+      <ellipse cx="202" cy="500" rx="150" ry="38" fill="#8fbf4a" opacity=".55"/>
+    </g>
+
+    <!-- MÃO ESQUERDA e DIREITA massageando -->
+    <g transform="translate(120,436)"><g style="animation:massageL .55s ease-in-out infinite">
+      <ellipse cx="20" cy="-20" rx="10" ry="17" fill="#6b4636" transform="rotate(28 20 -20)"/>
+      <ellipse cx="19.5" cy="-27" rx="5" ry="5.5" fill="#e8c9b8" opacity=".92"/>
+      <ellipse cx="26" cy="-2" rx="9.5" ry="16" fill="#6b4636" transform="rotate(16 26 -2)"/>
+      <ellipse cx="25.5" cy="-9" rx="4.8" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+      <ellipse cx="0" cy="0" rx="30" ry="37" fill="#6b4636"/>
+      <ellipse cx="0" cy="0" rx="30" ry="37" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+      <ellipse cx="-13" cy="-30" rx="11" ry="9.5" fill="#6b4636" transform="rotate(-18 -13 -30)"/>
+      <ellipse cx="-16" cy="-36" rx="5.5" ry="4.8" fill="#e8c9b8" opacity=".92"/>
+    </g></g>
+    <g transform="translate(286,436)"><g style="animation:massageR .55s ease-in-out infinite">
+      <ellipse cx="-22" cy="-22" rx="10" ry="17" fill="#6b4636" transform="rotate(-30 -22 -22)"/>
+      <ellipse cx="-21.5" cy="-29" rx="5" ry="5.5" fill="#e8c9b8" opacity=".92"/>
+      <ellipse cx="-28" cy="-2" rx="9.5" ry="16" fill="#6b4636" transform="rotate(-16 -28 -2)"/>
+      <ellipse cx="-27.5" cy="-9" rx="4.8" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+      <ellipse cx="-24" cy="18" rx="8.5" ry="14" fill="#6b4636" transform="rotate(-6 -24 18)"/>
+      <ellipse cx="-23.5" cy="11" rx="4.4" ry="5" fill="#e8c9b8" opacity=".92"/>
+      <ellipse cx="0" cy="0" rx="30" ry="26" fill="#6b4636"/>
+      <ellipse cx="0" cy="0" rx="30" ry="26" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+      <ellipse cx="12" cy="-23" rx="11" ry="9" fill="#6b4636" transform="rotate(20 12 -23)"/>
+      <ellipse cx="15" cy="-29" rx="5.5" ry="4.5" fill="#e8c9b8" opacity=".92"/>
+    </g></g>
+
+    <g style="animation:fadeSlide .4s ease-out .2s both">
+      <rect x="30" y="592" width="345" height="46" rx="8" fill="#d85a30"/>
+      <text x="202" y="622" text-anchor="middle" font-size="21" font-weight="900" fill="#fff" font-family="system-ui">A ÁGUA SAI DELA MESMA</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 4 — 30 g DE SAL MEDIDO + POTES CHEIOS ══════════ -->
+  <svg class="scene" id="s3" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gJar" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity=".5"/>
+        <stop offset="22%" stop-color="#ffffff" stop-opacity=".08"/>
+        <stop offset="70%" stop-color="#ffffff" stop-opacity=".05"/>
+        <stop offset="100%" stop-color="#ffffff" stop-opacity=".34"/>
+      </linearGradient>
+    </defs>
+    <rect width="405" height="720" fill="#f9f5ec"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#a8907c" font-family="system-ui" letter-spacing="2">2% DO PESO · SAL SEM IODO</text>
+
+    <!-- conta: 1500 g → 30 g -->
+    <g transform="translate(202,150)">
+      <rect x="-136" y="-52" width="272" height="104" rx="12" fill="#fff" stroke="#ba7517" stroke-width="3"/>
+      <text x="-92" y="-8" text-anchor="middle" font-size="29" font-weight="900" fill="#5f5e5a" font-family="system-ui">1.500 g</text>
+      <text x="-10" y="4" text-anchor="middle" font-size="26" font-weight="900" fill="#ba7517" font-family="system-ui">→</text>
+      <text x="72" y="-8" text-anchor="middle" font-size="29" font-weight="900" fill="#ba7517" font-family="system-ui">30 g</text>
+      <text x="0" y="26" text-anchor="middle" font-size="16" font-weight="900" fill="#3b6d11" font-family="system-ui">2% = SAL SEM IODO</text>
+    </g>
+
+    <!-- pote de vidro enchendo -->
+    <g transform="translate(202,420)">
+      <rect x="-86" y="-158" width="172" height="300" rx="16" fill="#eef6f0" opacity=".55"/>
+      <rect x="-86" y="-158" width="172" height="300" rx="16" fill="url(#gJar)"/>
+      <rect x="-86" y="-158" width="172" height="300" rx="16" fill="none" stroke="#b9c8cc" stroke-width="4"/>
+      <!-- tiras dentro subindo -->
+      <g style="animation:liquidRise 1.5s ease-out infinite">
+        <rect x="-78" y="-40" width="156" height="176" rx="10" fill="#b7d484" opacity=".9"/>
+        <path d="M-70,-14 Q-24,-32 22,-14 Q-24,4 -70,-14Z" fill="#c2dc92" opacity=".9"/>
+        <path d="M-20,-20 Q26,-38 72,-18 Q26,0 -20,-20Z" fill="#a9cc70" opacity=".9"/>
+        <path d="M-60,20 Q-14,2 32,20 Q-14,38 -60,20Z" fill="#c2dc92" opacity=".9"/>
+        <path d="M-6,44 Q40,26 80,46 Q40,64 -6,44Z" fill="#b7d484" opacity=".9"/>
+      </g>
+      <!-- bolhas subindo (fermentando) -->
+      <g>
+        <circle cx="-40" cy="94" r="5.5" fill="#fff" opacity=".85" style="animation:bubbleRise 1.5s ease-out infinite"/>
+        <circle cx="8" cy="110" r="4.4" fill="#fff" opacity=".85" style="animation:bubbleRise 1.5s ease-out .45s infinite"/>
+        <circle cx="52" cy="100" r="5" fill="#fff" opacity=".85" style="animation:bubbleRise 1.5s ease-out .9s infinite"/>
+      </g>
+      <!-- tampa -->
+      <rect x="-98" y="-176" width="196" height="26" rx="9" fill="#8fa0a4"/>
+      <rect x="-98" y="-176" width="196" height="10" rx="5" fill="#b0c0c4"/>
+    </g>
+
+    <!-- montinho de sal + mão -->
+    <g transform="translate(96,330)">
+      <ellipse cx="0" cy="14" rx="46" ry="17" fill="#e8e0cd"/>
+      <path d="M-34,12 Q-26,-18 0,-22 Q26,-18 34,12Z" fill="#fff"/>
+      <path d="M-22,8 Q-16,-14 0,-17 Q16,-14 22,8Z" fill="#f4f4f2"/>
+    </g>
+    <g transform="translate(96,262)"><g style="animation:pourSalt .8s ease-in-out infinite">
+      <ellipse cx="-22" cy="-22" rx="10" ry="17" fill="#6b4636" transform="rotate(-30 -22 -22)"/>
+      <ellipse cx="-21.5" cy="-29" rx="5" ry="5.5" fill="#e8c9b8" opacity=".92"/>
+      <ellipse cx="-28" cy="-2" rx="9.5" ry="16" fill="#6b4636" transform="rotate(-16 -28 -2)"/>
+      <ellipse cx="-27.5" cy="-9" rx="4.8" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+      <ellipse cx="-24" cy="18" rx="8.5" ry="14" fill="#6b4636" transform="rotate(-6 -24 18)"/>
+      <ellipse cx="-23.5" cy="11" rx="4.4" ry="5" fill="#e8c9b8" opacity=".92"/>
+      <ellipse cx="0" cy="0" rx="30" ry="26" fill="#6b4636"/>
+      <ellipse cx="0" cy="0" rx="30" ry="26" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+      <ellipse cx="12" cy="-23" rx="11" ry="9" fill="#6b4636" transform="rotate(20 12 -23)"/>
+      <ellipse cx="15" cy="-29" rx="5.5" ry="4.5" fill="#e8c9b8" opacity=".92"/>
+    </g></g>
+    <g>
+      <circle cx="92" cy="300" r="4" fill="#fff" opacity=".95" style="animation:saltFall .9s linear infinite"/>
+      <circle cx="104" cy="300" r="3.4" fill="#fff" opacity=".95" style="animation:saltFall .9s linear infinite .3s"/>
+      <circle cx="86" cy="300" r="3" fill="#fff" opacity=".95" style="animation:saltFall .9s linear infinite .6s"/>
+    </g>
+
+    <g style="animation:fadeSlide .4s ease-out .2s both">
+      <rect x="34" y="600" width="337" height="46" rx="8" fill="#ba7517"/>
+      <text x="202" y="630" text-anchor="middle" font-size="20" font-weight="900" fill="#fff" font-family="system-ui">PRENSA ATÉ COBRIR DE LÍQUIDO</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 5 — 7 DIAS (PASSANDO RÁPIDO) + CTA ══════════ -->
+  <svg class="scene" id="s4" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#eaf3de"/>
+
+    <!-- dias passando em velocidade -->
+    <g transform="translate(202,140)">
+      <text x="0" y="0" text-anchor="middle" font-size="15" font-weight="900" fill="#5f5e5a" font-family="system-ui" letter-spacing="3">DIAS PASSANDO</text>
+      <g>
+        <text x="-104" y="52" text-anchor="middle" font-size="24" font-weight="900" fill="#b4b2a9" font-family="system-ui" opacity=".5">2</text>
+        <text x="-52" y="52" text-anchor="middle" font-size="28" font-weight="900" fill="#9ede76" font-family="system-ui" opacity=".7">3</text>
+        <text x="0" y="52" text-anchor="middle" font-size="34" font-weight="900" fill="#639922" font-family="system-ui">4</text>
+        <text x="52" y="52" text-anchor="middle" font-size="28" font-weight="900" fill="#9ede76" font-family="system-ui" opacity=".7">5</text>
+        <text x="104" y="52" text-anchor="middle" font-size="24" font-weight="900" fill="#b4b2a9" font-family="system-ui" opacity=".5">6</text>
+      </g>
+      <g style="animation:speedSweep 1.5s ease-in-out infinite">
+        <rect x="-140" y="66" width="120" height="5" rx="2.5" fill="#639922" opacity=".55"/>
+      </g>
+    </g>
+
+    <!-- pote pronto, flutuando -->
+    <g transform="translate(202,412)"><g style="animation:floatJar 1.8s ease-in-out infinite">
+      <rect x="-92" y="-150" width="184" height="286" rx="18" fill="#eef6f0" opacity=".5"/>
+      <rect x="-92" y="-150" width="184" height="286" rx="18" fill="url(#gJar)"/>
+      <rect x="-92" y="-150" width="184" height="286" rx="18" fill="none" stroke="#639922" stroke-width="4"/>
+      <rect x="-84" y="-32" width="168" height="164" rx="12" fill="#b7d484" opacity=".92"/>
+      <path d="M-76,-6 Q-30,-24 16,-6 Q-30,12 -76,-6Z" fill="#c2dc92" opacity=".9"/>
+      <path d="M-26,-12 Q20,-30 66,-10 Q20,8 -26,-12Z" fill="#a9cc70" opacity=".9"/>
+      <path d="M-66,28 Q-20,10 26,28 Q-20,46 -66,28Z" fill="#c2dc92" opacity=".9"/>
+      <g>
+        <circle cx="-44" cy="100" r="5" fill="#fff" opacity=".8" style="animation:bubbleRise 1.6s ease-out infinite"/>
+        <circle cx="4" cy="114" r="4" fill="#fff" opacity=".8" style="animation:bubbleRise 1.6s ease-out .5s infinite"/>
+        <circle cx="48" cy="104" r="4.6" fill="#fff" opacity=".8" style="animation:bubbleRise 1.6s ease-out 1s infinite"/>
+      </g>
+      <rect x="-104" y="-168" width="208" height="26" rx="9" fill="#8fa0a4"/>
+      <rect x="-104" y="-168" width="208" height="10" rx="5" fill="#b0c0c4"/>
+      <!-- selo de pronto -->
+      <g transform="translate(74,116)">
+        <circle cx="0" cy="0" r="30" fill="#3b6d11"/>
+        <path d="M-13,1 L-4,11 L14,-10" stroke="#fff" stroke-width="5.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+    </g></g>
+
+    <g style="animation:popInSeq .45s ease-out .15s both">
+      <rect x="34" y="580" width="337" height="52" rx="8" fill="#2c2c2a"/>
+      <text x="202" y="603" text-anchor="middle" font-size="21" font-weight="900" fill="#fff" font-family="system-ui">7 DIAS. PRONTO.</text>
+      <text x="202" y="622" text-anchor="middle" font-size="14" font-weight="800" fill="#c0dd97" font-family="system-ui">crocante · azedinho · dura meses</text>
+    </g>
+  </svg>
+</div>
+
+<div class="ui">
+  <button onclick="prev()">◀</button>
+  <button id="btnPlay" onclick="toggle()">⏸ Pausar</button>
+  <button onclick="next()">▶</button>
+</div>
+
+<div class="cover" id="cover">
+  <h1>Chucrute em 30 segundos</h1>
+  <p>1 repolho · 2% de sal · 7 dias<br>só as mãos, sem rosto</p>
+  <button onclick="play()">▶</button>
+  <p style="opacity:.6; text-transform:none; font-weight:600; letter-spacing:0">
+    Grave a tela no OBS em 405×720 (ou 1080×1920)
+  </p>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   VERSÃO ACELERADA — 30 segundos no total.
+   Mesma história do short de 8 cenas, comprimida em 5 cenas.
+   O relógio no canto mostra o tempo real: é ele que prova
+   que o vídeo é "acelerado" e não só um vídeo curto.
+   ═══════════════════════════════════════════════════════════════ */
+
+const scenes = [
+  { id:'s0', ms:6000, tag:'CHUCRUTE 1 / 5', cap:'1 repolho. 2% de sal. 7 dias.', sub:'sem equipamento nenhum',        color:'#2c2c2a' },
+  { id:'s1', ms:6000, tag:'CHUCRUTE 2 / 5', cap:'Lava, tira as folhas e corta fino', sub:'2 a 3 mm — grosso fica duro', color:'#2b6a80' },
+  { id:'s2', ms:6000, tag:'CHUCRUTE 3 / 5', cap:'Massageia 10 minutos sem água',   sub:'a água sai do próprio repolho',  color:'#d85a30' },
+  { id:'s3', ms:6000, tag:'CHUCRUTE 4 / 5', cap:'30 g de sal sem iodo, prensado',  sub:'2% do peso, sempre sem iodo',    color:'#ba7517' },
+  { id:'s4', ms:6000, tag:'CHUCRUTE 5 / 5', cap:'7 dias e está pronto',            sub:'crocante, dura meses na geladeira', color:'#3b6d11' }
+];
+
+const progress = document.getElementById('progress');
+const capEl    = document.getElementById('cap') || (() => {
+  const d = document.createElement('div');
+  d.className = 'cap'; d.id = 'cap'; d.innerHTML = '—<small>—</small>';
+  document.getElementById('stage').appendChild(d);
+  return d;
+})();
+const clockEl  = document.getElementById('clock');
+const btnPlay  = document.getElementById('btnPlay');
+const stage    = document.getElementById('stage');
+
+let i = 0, playing = false, tick0 = null, elapsed = 0, shown = 0;
+const RES = 70;
+
+function mmss(ms) {
+  const s = Math.floor(ms / 1000);
+  return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+}
+
+function render() {
+  scenes.forEach((s, n) => {
+    const el = document.getElementById(s.id);
+    el.classList.remove('on');
+    if (n === i) el.classList.add('on');
+  });
+  capEl.innerHTML = scenes[i].cap + '<small>' + scenes[i].sub + '</small>';
+  progress.style.background = scenes[i].color;
+  progress.style.width = '0%';
+}
+
+function loop() {
+  clearInterval(tick0);
+  tick0 = setInterval(() => {
+    if (!playing) return;
+    elapsed += RES;
+    shown += RES;
+    clockEl.textContent = mmss(shown);
+    const total = scenes[i].ms;
+    progress.style.width = Math.min(100, (elapsed / total) * 100) + '%';
+    if (elapsed >= total) {
+      if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+      else { stop(); progress.style.width = '100%'; clockEl.textContent = '00:30'; }
+    }
+  }, RES);
+}
+
+function next()  { if (i < scenes.length - 1) { i++; elapsed = 0; render(); } else { stop(); progress.style.width = '100%'; } }
+function prev()  { if (i > 0) { i--; elapsed = 0; render(); } }
+
+function play() {
+  playing = true; elapsed = 0;
+  btnPlay.textContent = '⏸ Pausar';
+  document.getElementById('cover').classList.add('hide');
+  stage.classList.add('touched');
+  render(); loop();
+}
+function stop() {
+  playing = false;
+  btnPlay.textContent = '▶ Assistir';
+  clearInterval(tick0);
+}
+function toggle() { playing ? stop() : play(); }
+
+stage.addEventListener('click', e => {
+  if (e.target.closest('button')) return;
+  if (playing) toggle();
+});
+
+render();
+</script>
+
+</body>
+</html>

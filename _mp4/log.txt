@@ -1,0 +1,14 @@
+a gravar: 1 short(s)
+
+== mosquito/shorts-mosquito-trap-en.html
+  gravando   0%     gravando   1%     gravando   2%     gravando   3%     gravando   4%     gravando   5%     gravando   6%     gravando   7%     gravando   8%     gravando   9%     gravando  10%     gravando  11%     gravando  12%     gravando  13%     gravando  14%     gravando  15%     gravando  16%     gravando  17%     gravando  18%     gravando  19%     gravando  20%     gravando  21%     gravando  22%     gravando  23%     gravando  24%     gravando  25%     gravando  26%     gravando  27%     gravando  28%     gravando  29%     gravando  30%     gravando  31%     gravando  32%     gravando  33%     gravando  35%     gravando  36%     gravando  37%     gravando  39%     gravando  41%     gravando  43%     gravando  45%     gravando  49%     gravando  53%     gravando  61%     gravando  69%     gravando  88%     gravando  99%   
+    legenda: 73px do cartao (topo y=647)
+    marca d'agua OMITIDA no mp4 (e placeholder: @yourchannel)
+    elementos animados: 67
+    codec: video/mp4;codecs=avc1.42E01E a 8 Mbps
+    overlays prontos
+    quadro 0 pronto apos 1 tentativas
+    PRONTO 1466499 bytes | quadros 1605 | duracao 53.5s | quadros repetidos por atraso: 124
+  puxando do navegador 100%     OK -> mosquito/shorts-mosquito-trap-en.mp4  (1.4 MB, 53.5s)
+
+1/1 gravado(s).

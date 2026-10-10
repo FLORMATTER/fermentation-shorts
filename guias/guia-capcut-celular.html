@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia CapCut — do HTML ao Short postável</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#fdf9f3;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    color:#2c2c2a; line-height:1.6;
+    padding:0 0 80px;
+  }
+  header {
+    background:linear-gradient(160deg,#1a1a18 0%,#2c2c2a 100%);
+    color:#fff; padding:48px 24px 40px; text-align:center;
+  }
+  header .kicker {
+    font-size:11px; font-weight:800; letter-spacing:.24em;
+    text-transform:uppercase; color:#9fd35c; opacity:.95;
+  }
+  header h1 {
+    font-size:31px; font-weight:900; letter-spacing:-.8px;
+    margin:14px 0 10px; line-height:1.15;
+  }
+  header p { font-size:14px; opacity:.75; max-width:520px; margin:0 auto; }
+  header .badge {
+    display:inline-block; margin-top:20px; padding:7px 16px;
+    background:rgba(159,211,92,.16); border:1.5px solid rgba(159,211,92,.45);
+    border-radius:999px; font-size:11.5px; font-weight:800;
+    letter-spacing:.12em; text-transform:uppercase; color:#b8e07a;
+  }
+
+  main { max-width:820px; margin:0 auto; padding:0 22px; }
+
+  .fase {
+    margin-top:44px; display:flex; align-items:center; gap:14px;
+    padding-bottom:14px; border-bottom:2.5px solid #e8e2d4;
+  }
+  .fase .num {
+    flex:none; width:44px; height:44px; border-radius:13px;
+    background:#2c2c2a; color:#fff; font-size:19px; font-weight:900;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .fase h2 { font-size:22px; font-weight:900; letter-spacing:-.4px; }
+  .fase .sub { font-size:12.5px; color:#8a8478; font-weight:600; margin-top:2px; }
+
+  .passo {
+    background:#fff; border:1.5px solid #e8e2d4; border-radius:15px;
+    padding:20px 22px; margin-top:16px;
+  }
+  .passo .titulo {
+    display:flex; align-items:center; gap:10px;
+    font-size:16.5px; font-weight:900; margin-bottom:12px;
+  }
+  .passo .titulo .b {
+    flex:none; width:26px; height:26px; border-radius:8px;
+    background:#eaf3ec; color:#3b6d11; font-size:13px; font-weight:900;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .passo p { font-size:14px; margin-bottom:9px; }
+  .passo p:last-child { margin-bottom:0; }
+  .passo ol, .passo ul { margin:0 0 9px 20px; font-size:14px; }
+  .passo li { margin-bottom:6px; }
+  kbd {
+    display:inline-block; background:#2c2c2a; color:#eaf3de;
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:11.5px; font-weight:700; padding:2px 7px;
+    border-radius:5px; letter-spacing:.02em;
+  }
+  .app {
+    display:inline-block; background:#eef3fb; color:#1e4b8f;
+    font-size:12px; font-weight:800; padding:2px 9px;
+    border-radius:6px; border:1.3px solid #cfdff5;
+  }
+
+  .dica {
+    background:#eaf3ec; border-left:4px solid #5c8a2e;
+    border-radius:9px; padding:12px 15px; margin:12px 0 0;
+    font-size:13px;
+  }
+  .dica b { color:#2f5a12; }
+  .alerta {
+    background:#fdf0e2; border-left:4px solid #e08a2e;
+    border-radius:9px; padding:12px 15px; margin:12px 0 0;
+    font-size:13px;
+  }
+  .alerta b { color:#a8541a; }
+  .perigo {
+    background:#fdeceb; border-left:4px solid #c93a2c;
+    border-radius:9px; padding:12px 15px; margin:12px 0 0;
+    font-size:13px;
+  }
+  .perigo b { color:#9c2418; }
+
+  .fone { background:#f5f1e6; border-radius:13px; padding:16px; margin-top:14px; }
+  .fone .lbl {
+    font-size:10.5px; font-weight:800; letter-spacing:.18em;
+    text-transform:uppercase; color:#9a927e; margin-bottom:11px;
+  }
+
+  table {
+    width:100%; border-collapse:collapse; font-size:13.5px; margin-top:14px;
+  }
+  th {
+    background:#2c2c2a; color:#fff; font-size:11.5px; font-weight:800;
+    letter-spacing:.08em; text-transform:uppercase;
+    padding:10px 13px; text-align:left;
+  }
+  th:first-child { border-radius:10px 0 0 0; }
+  th:last-child  { border-radius:0 10px 0 0; }
+  td { padding:11px 13px; border-bottom:1.5px solid #ece7db; vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tbody tr:nth-child(even) { background:#faf7f0; }
+  td strong { font-weight:800; }
+
+  .resumo {
+    background:#2c2c2a; color:#eaf3de; border-radius:16px;
+    padding:26px 24px; margin-top:44px;
+  }
+  .resumo h3 { font-size:18px; font-weight:900; color:#fff; margin-bottom:16px; }
+  .resumo ol { margin-left:22px; font-size:14px; }
+  .resumo li { margin-bottom:9px; color:#d8e0cc; }
+  .resumo li b { color:#a8e06a; }
+
+  footer {
+    text-align:center; font-size:12px; color:#a8a293;
+    margin-top:52px; padding:0 22px;
+  }
+  .voltar {
+    display:inline-block; margin-top:30px; padding:12px 24px;
+    background:#2c2c2a; color:#fff; border-radius:11px;
+    font-size:13.5px; font-weight:800; text-decoration:none;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kicker">Guia prático · celular</div>
+  <h1>Do HTML ao Short postável<br>usando o CapCut</h1>
+  <p>Todos os botões, na ordem certa. Feito pra quem nunca gravou a tela nem abriu o CapCut.</p>
+  <div class="badge">📱 Android &amp; iPhone</div>
+</header>
+
+<main>
+
+<!-- ══════════════ FASE 1 ══════════════ -->
+<div class="fase">
+  <div class="num">1</div>
+  <div>
+    <h2>Levar o arquivo pro celular</h2>
+    <div class="sub">O vídeo animado está no computador — precisa chegar no celular</div>
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">A</span>Escolha o caminho mais fácil pra você</div>
+  <p>O arquivo <kbd>.html</kbd> está na pasta <strong>youtube-work</strong> (Área de Trabalho). Escolha <b>UMA</b> opção:</p>
+  <ul>
+    <li><b>WhatsApp pra você mesmo</b> — mais fácil. Anexe o arquivo na conversa "Você", abra no celular e baixe.</li>
+    <li><b>Google Drive</b> — suba o arquivo no Drive do PC, abra o app Drive no celular e baixe.</li>
+    <li><b>Cabo USB</b> — conecte o celular, arraste o arquivo para a pasta <b>Download</b>.</li>
+    <li><b>E-mail pra você mesmo</b> — anexe, abra no celular, baixe o anexo.</li>
+  </ul>
+  <div class="fone">
+    <div class="lbl">Onde o arquivo vai ficar</div>
+    <p style="font-size:13.5px;margin:0">Na pasta <strong>Download</strong> do celular. Anote o nome dele — você vai precisar procurar por ele daqui a pouco.</p>
+  </div>
+  <div class="dica">
+    <b>Dica:</b> renomeie o arquivo com o nome do legume antes de mandar. Tipo <kbd>repolho.html</kbd>. Fica muito mais fácil de achar no meio de outros arquivos.
+  </div>
+</div>
+
+<!-- ══════════════ FASE 2 ══════════════ -->
+<div class="fase">
+  <div class="num">2</div>
+  <div>
+    <h2>Abrir no navegador do celular</h2>
+    <div class="sub">O arquivo não abre sozinho — tem que mandar ele abrir no Chrome</div>
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">B</span>Android</div>
+  <ol>
+    <li>Abra o app <span class="app">Arquivos</span> (ou <span class="app">Meus Arquivos</span>, depende da marca)</li>
+    <li>Toque em <b>Downloads</b></li>
+    <li>Ache o arquivo <kbd>.html</kbd> e <b>toque nele</b></li>
+    <li>Vai aparecer uma pergunta: <b>"Abrir com..."</b></li>
+    <li>Escolha <span class="app">Chrome</span></li>
+  </ol>
+  <div class="alerta">
+    <b>Não achou o "Abrir com"?</b> Toque e segure no arquivo → <b>Mais</b> → <b>Abrir com</b> → Chrome. Ou abra o Chrome, digite <kbd>file:///sdcard/Download/</kbd> na barra e toque no arquivo.
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">B</span>iPhone</div>
+  <ol>
+    <li>Abra o app <span class="app">Arquivos</span></li>
+    <li>Toque em <b>Downloads</b> (embaixo) ou <b>No meu iPhone</b></li>
+    <li>Ache o arquivo <kbd>.html</kbd> e <b>toque nele</b></li>
+    <li>Se abrir uma prévia estranha, toque em <b>Compartilhar</b> → escolha <span class="app">Safari</span></li>
+  </ol>
+  <div class="alerta">
+    <b>Se o Safari abrir a página em branco:</b> o arquivo precisa ter a extensão <kbd>.html</kbd> exata. Confira o nome — às vezes o Download salva como <kbd>.html.txt</kbd>.
+  </div>
+</div>
+
+<!-- ══════════════ FASE 3 ══════════════ -->
+<div class="fase">
+  <div class="num">3</div>
+  <div>
+    <h2>Gravar a tela</h2>
+    <div class="sub">A parte que mais dá errado — leia esta fase inteira antes de começar</div>
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">C</span>Preparar antes de apertar gravar</div>
+  <table>
+    <tr><th style="width:52%">O que fazer</th><th>Por quê</th></tr>
+    <tr><td><strong>Gire o celular na vertical</strong> e trave a rotação</td><td>Senão o vídeo sai deitado e fica horrível no Shorts</td></tr>
+    <tr><td><strong>Ative o Modo Avião</strong> ou silencie tudo</td><td>Uma notificação no meio arruína a gravação</td></tr>
+    <tr><td><strong>Aumente o brilho no máximo</strong></td><td>O vídeo sai mais nítido e com cor melhor</td></tr>
+    <tr><td><strong>Feche os outros apps</strong></td><td>Evita travar e evita "pop-up" aparecendo</td></tr>
+    <tr><td><strong>Deixe o arquivo já aberto no Chrome</strong></td><td>Você não quer ficar procurando arquivo com a gravação rodando</td></tr>
+    <tr><td><strong>Aumente o tempo de tela</strong> (não deixe apagar)</td><td>A tela apagando no meio = gravação perdida</td></tr>
+  </table>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">D</span>Ligar o gravador de tela</div>
+  <p><b>Android:</b></p>
+  <ol>
+    <li>Puxe a barra de notificações <b>duas vezes</b> (pra abrir os ícones todos)</li>
+    <li>Procure <b>"Gravador de tela"</b> ou <b>"Captura de tela"</b></li>
+    <li>Não achou? Deslize o painel pro lado — tem mais ícones escondidos</li>
+    <li>Ainda não achou? Vá em <span class="app">Configurações</span> → pesquise <b>"gravar tela"</b></li>
+    <li>Toque nele → escolha <b>Sem áudio / Microfone desligado</b> → <b>Qualidade: alta</b></li>
+  </ol>
+  <p style="margin-top:12px"><b>iPhone:</b></p>
+  <ol>
+    <li>Vá em <span class="app">Ajustes</span> → <b>Central de Controle</b></li>
+    <li>Adicione <b>Gravação de Tela</b></li>
+    <li>Puxe a Central de Controle → toque no ícone de <b>bolinha dupla</b></li>
+  </ol>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">E</span>A ordem certa de gravar ⭐</div>
+  <p>Aqui está o segredo. <b>Não inverta esta ordem:</b></p>
+  <ol>
+    <li>Aperte <b>GRAVAR</b> primeiro</li>
+    <li><b>Espere 3 segundos</b> parado (isso vira sobra pra cortar depois)</li>
+    <li>Agora toque no <b>▶</b> da animação</li>
+    <li><b>Não encoste na tela.</b> Nada. Deixe rodar até o fim</li>
+    <li>Quando acabar, <b>espere mais 3 segundos</b></li>
+    <li>Só então <b>PARE</b> a gravação</li>
+  </ol>
+  <div class="dica">
+    <b>Por que esperar 3 segundos?</b> Porque o começo e o fim sempre têm um tremidinho. Com essa sobra, você corta fora no CapCut e o vídeo fica limpo, profissional.
+  </div>
+  <div class="perigo">
+    <b>Não toque na tela durante a gravação.</b> Cada toque aparece como um círculozinho branco no vídeo. Se encostou sem querer, faça de novo — é mais rápido que tentar consertar depois.
+  </div>
+</div>
+
+<!-- ══════════════ FASE 4 ══════════════ -->
+<div class="fase">
+  <div class="num">4</div>
+  <div>
+    <h2>Editar no CapCut</h2>
+    <div class="sub">Aqui o vídeo "cru" vira um Short de verdade</div>
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">1</span>Criar o projeto e importar</div>
+  <ol>
+    <li>Abra o <span class="app">CapCut</span> (baixe grátis na Play Store / App Store)</li>
+    <li>Toque em <b>Novo projeto</b></li>
+    <li>Toque no vídeo que você gravou (fica em <b>Vídeos</b> ou <b>Galeria</b>)</li>
+    <li>Selecione ele e toque em <b>Adicionar</b></li>
+  </ol>
+  <div class="dica">
+    <b>Não achou o vídeo?</b> No CapCut, na tela de escolher vídeo, toque em <b>Álbuns</b> e procure a pasta <b>Screen recordings</b> ou <b>Gravações de tela</b>.
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">2</span>Cortar as pontas</div>
+  <ol>
+    <li>Você vai ver uma <b>linha do tempo</b> embaixo, com o clipe</li>
+    <li>Toque no clipe → ele fica com uma <b>borda amarela/branca</b></li>
+    <li><b>Arraste a alça esquerda para a direita</b> — até onde a animação começa de verdade</li>
+    <li><b>Arraste a alça direita para a esquerda</b> — até onde a animação termina</li>
+  </ol>
+  <div class="dica">
+    <b>Onde cortar exatamente?</b> Use a régua de tempo. Você vai saber que acertou quando sumir todo o "antes" (tela parada) e todo o "depois" (tela parada de novo). O vídeo deve começar já no primeiro desenho da animação.
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">3</span>Forçar o formato vertical (9:16)</div>
+  <ol>
+    <li>Toque em <b>Proporção</b> (ícone no canto, parece um quadradinho)</li>
+    <li>Escolha <b>9:16</b></li>
+    <li>Se aparecerem <b>barras preta</b> em cima ou embaixo: toque no clipe → <b>Zoom</b> → puxe até preencher</li>
+  </ol>
+  <div class="alerta">
+    <b>Seu arquivo HTML já é 9:16.</b> Então se você gravou com o celular na vertical e a tela cheia, não deve sobrar barra nenhuma. Se sobrar, foi porque gravou deitado — nesse caso, grave de novo na vertical. Zoom resolve mas corta as bordas.
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">4</span>Velocidade (opcional, mas ajuda muito)</div>
+  <ol>
+    <li>Toque no clipe → <b>Velocidade</b></li>
+    <li>Escolha <b>1.2x</b></li>
+    <li>Assista. Deu tempo de ler os textos? Ótimo. Não deu? Volte pra <b>1.0x</b></li>
+  </ol>
+  <div class="dica">
+    <b>Regra simples:</b> se você consegue ler a legenda sem pausar, a velocidade está boa. Shorts com ritmo rápido retêm mais gente.
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">5</span>Música</div>
+  <ol>
+    <li>Toque em <b>Áudio</b> → <b>Sons</b> (biblioteca do CapCut)</li>
+    <li>Busque por: <kbd>lofi</kbd>, <kbd>cooking</kbd>, <kbd>kitchen</kbd>, <kbd>beat</kbd></li>
+    <li>Escolha uma que <b>não tenha voz cantada</b> — a voz compete com a sua legenda</li>
+    <li>Toque em <b>Usar</b> → depois arraste o volume da música pra cima</li>
+  </ol>
+  <div class="perigo">
+    <b>⚠ Cuidado com direitos autorais.</b> O CapCut tem músicas famosas (tipo TikTok) que o YouTube pode identificar e bloquear seu vídeo. Se aparecer aviso de direitos autorais, troque pela <b>biblioteca de áudio do próprio YouTube</b> — é grátis e sempre liberada. Você encontra na hora de postar, dentro do app do YouTube.
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">6</span>Texto na capa (o toque final)</div>
+  <ol>
+    <li>Toque em <b>Texto</b> → <b>Adicionar texto</b></li>
+    <li>Escreva o gancho do vídeo. Exemplos:
+      <ul style="margin-top:6px">
+        <li><b>FERMENTEI RABANETE EM 5 DIAS</b></li>
+        <li><b>3 INGREDIENTES. SÓ ISSO.</b></li>
+        <li><b>O ERRO QUE ESTRAGA TUDO</b></li>
+      </ul>
+    </li>
+    <li>Deixe o texto nos <b>primeiros 2 segundos</b> — é o que faz a pessoa parar de rolar</li>
+    <li>Para tirar depois: arraste a alça do texto até onde ele deve sumir</li>
+  </ol>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">7</span>Exportar</div>
+  <ol>
+    <li>Toque em <b>Exportar</b> (canto superior direito)</li>
+    <li>Resolução: <b>1080p</b> &nbsp;·&nbsp; FPS: <b>30</b></li>
+    <li>Toque em <b>Exportar</b> de novo</li>
+    <li>Pronto — o vídeo salva na <b>galeria</b> do celular como <kbd>.mp4</kbd></li>
+  </ol>
+  <div class="dica">
+    <b>Agora sim:</b> esse arquivo <kbd>.mp4</kbd> o YouTube aceita. É um vídeo de verdade.
+  </div>
+</div>
+
+<!-- ══════════════ FASE 5 ══════════════ -->
+<div class="fase">
+  <div class="num">5</div>
+  <div>
+    <h2>Postar</h2>
+    <div class="sub">Últimos 4 toques e está no ar</div>
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">▶</span>Publicar como Short</div>
+  <ol>
+    <li>Abra o <span class="app">YouTube</span> no celular</li>
+    <li>Toque no <b>+</b> (embaixo, no meio)</li>
+    <li>Escolha <b>Criar um Short</b></li>
+    <li>Selecione o vídeo da galeria</li>
+    <li><b>Título:</b> curto e curioso — ex: <i>"Rabanete fermentado em 5 dias 🌶️"</i></li>
+    <li><b>Visibilidade:</b> comece com <b>"Não listado"</b> se quiser revisar antes. Depois mude pra <b>Público</b></li>
+    <li>Toque em <b>Enviar</b></li>
+  </ol>
+</div>
+
+<!-- ══════════════ ERROS ══════════════ -->
+<div class="fase">
+  <div class="num">!</div>
+  <div>
+    <h2>Os 7 erros que estragam o vídeo</h2>
+    <div class="sub">Confira esta lista antes de gravar — economiza muito retrabalho</div>
+  </div>
+</div>
+
+<table>
+  <tr><th style="width:44%">❌ O erro</th><th>✅ Como evitar</th></tr>
+  <tr><td><strong>Notificação no meio do vídeo</strong></td><td>Modo Avião ligado ANTES de gravar</td></tr>
+  <tr><td><strong>Circulozinho branco de toque</strong></td><td>Não encoste na tela depois do play</td></tr>
+  <tr><td><strong>Vídeo deitado</strong></td><td>Girar na vertical e travar a rotação antes</td></tr>
+  <tr><td><strong>Barras pretas em cima/embaixo</strong></td><td>Escolher 9:16 no CapCut e usar Zoom</td></tr>
+  <tr><td><strong>Começo tremido</strong></td><td>Gravar 3s antes e 3s depois — e cortar</td></tr>
+  <tr><td><strong>Música bloqueada</strong></td><td>Usar a biblioteca de áudio do YouTube</td></tr>
+  <tr><td><strong>Tela apagou no meio</strong></td><td>Aumentar o tempo de bloqueio de tela antes</td></tr>
+</table>
+
+<!-- ══════════════ RESUMO ══════════════ -->
+<div class="resumo">
+  <h3>📌 Resumo em 8 passos</h3>
+  <ol>
+    <li>Mandar o <b>.html</b> pro celular (WhatsApp pra você mesmo)</li>
+    <li>Abrir no <b>Chrome</b> pelo app Arquivos</li>
+    <li>Girar na <b>vertical</b> + Modo Avião + brilho máximo</li>
+    <li>Apertar <b>GRAVAR</b> → esperar 3s → dar play → esperar 3s → parar</li>
+    <li>CapCut → <b>Novo projeto</b> → adicionar o vídeo</li>
+    <li><b>Cortar</b> as pontas + <b>9:16</b></li>
+    <li><b>Velocidade 1.2x</b> + música + texto de gancho</li>
+    <li><b>Exportar 1080p</b> → postar como Short</li>
+  </ol>
+</div>
+
+<footer>
+  <p>Guia feito pro seu projeto de fermentação 🥬<br>Primeira vez leva uns 30 min. Depois, uns 10 min por vídeo.</p>
+  <a class="voltar" href="javascript:history.back()">← Voltar</a>
+</footer>
+
+</main>
+
+</body>
+</html>

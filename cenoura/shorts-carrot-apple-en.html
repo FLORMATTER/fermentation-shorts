@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shorts animado — Carrot with apple (fermented)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#0f0e0c;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    min-height:100vh; overflow:hidden;
+  }
+  #stage {
+    position:relative; width:405px; height:720px;
+    background:#f4faf3; overflow:hidden; border-radius:16px;
+    box-shadow:0 24px 70px rgba(0,0,0,.7);
+  }
+  @media (max-height:790px){ #stage{ transform:scale(.86);} }
+  @media (max-height:700px){ #stage{ transform:scale(.72);} }
+
+  svg.scene {
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0; visibility:hidden; transition:opacity .18s ease;
+  }
+  svg.scene.on { opacity:1; visibility:visible; }
+
+  .bar { position:absolute; top:0; left:0; right:0; height:5px; background:rgba(0,0,0,.1); z-index:40; }
+  #progress { height:100%; width:0; background:#1d9e75; transition:width .1s linear; }
+
+  .tag {
+    position:absolute; top:26px; left:0; right:0; text-align:center;
+    font-size:11px; font-weight:800; letter-spacing:.22em;
+    text-transform:uppercase; opacity:.45; z-index:30; color:#04342c;
+  }
+  .cap {
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(15,14,12,.86); color:#fff;
+    padding:14px 22px 17px; font-size:16px; font-weight:800;
+    text-align:center; z-index:30; line-height:1.35;
+  }
+  .cap small { display:block; font-size:12px; font-weight:500; opacity:.7; margin-top:4px; }
+
+  .wm { position:absolute; top:22px; right:18px; font-size:10px; font-weight:800;
+        letter-spacing:.1em; opacity:.3; z-index:35; text-transform:uppercase; color:#04342c; }
+
+  .speed-badge {
+    position:absolute; top:52px; left:18px; z-index:36;
+    background:#d97706; color:#fff;
+    font-size:11px; font-weight:800; letter-spacing:.1em;
+    padding:5px 11px; border-radius:999px;
+    animation:pulseBadge 1.1s ease-in-out infinite;
+  }
+  @keyframes pulseBadge { 0%,100%{opacity:1} 50%{opacity:.55} }
+
+  .ui { position:absolute; bottom:86px; left:0; right:0; display:flex;
+        justify-content:center; gap:10px; z-index:40; opacity:0; transition:opacity .25s; }
+  #stage:hover .ui, #stage.touched .ui { opacity:1; }
+  .ui button { border:none; background:rgba(15,14,12,.78); color:#fff; font-size:12px;
+    font-weight:700; font-family:inherit; padding:9px 16px; border-radius:999px; cursor:pointer; }
+  .ui button:hover { background:#000; }
+
+  .cover { position:absolute; inset:0; z-index:50; background:rgba(0,0,0,.45);
+    display:flex; align-items:center; justify-content:center; }
+  .cover.hide { display:none; }
+  .cover button { width:80px; height:80px; border-radius:50%; border:none;
+    background:rgba(255,255,255,.95); color:#111; font-size:28px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding-left:5px; }
+
+  @keyframes chop2x { 0%,100%{transform:rotate(-16deg)} 50%{transform:rotate(8deg)} }
+  @keyframes pour2x { 0%{transform:translateY(-30px) scaleY(.6);opacity:0} 100%{transform:translateY(0) scaleY(1);opacity:1} }
+  @keyframes riseFast { 0%{transform:translateY(0);opacity:0} 25%{opacity:.9} 100%{transform:translateY(-110px);opacity:0} }
+  @keyframes wobble { 0%,100%{transform:rotate(-2.5deg)} 50%{transform:rotate(2.5deg)} }
+  @keyframes tick { 0%,100%{transform:rotate(-4deg)} 50%{transform:rotate(4deg)} }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div class="bar"><div id="progress"></div></div>
+  <div class="tag" id="tag">SCENE 1 / 7</div>
+  <div class="wm">@yourchannel</div>
+  <div class="speed-badge">🥕 + APPLE</div>
+
+  <svg class="scene on" id="s0" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#faeeda"/>
+    <circle cx="202" cy="300" r="142" fill="#fac775" opacity=".55"/>
+    <g transform="translate(118,296) rotate(-14)">
+      <path d="M-26,-92 L26,-92 L10,102 L-10,102 Z" fill="#f0a03c" stroke="#c2701a" stroke-width="3" stroke-linejoin="round"/>
+      <g stroke="#c2701a" stroke-width="2" opacity=".5">
+        <path d="M-22,-64 L22,-64 M-19,-34 L19,-34 M-16,-4 L16,-4 M-13,26 L13,26 M-11,56 L11,56"/>
+      </g>
+      <ellipse cx="-15" cy="-120" rx="7" ry="21" fill="#97c459" stroke="#639922" stroke-width="2.5" transform="rotate(-24 -15 -120)"/>
+      <ellipse cx="0" cy="-130" rx="7" ry="23" fill="#97c459" stroke="#639922" stroke-width="2.5"/>
+      <ellipse cx="15" cy="-120" rx="7" ry="21" fill="#97c459" stroke="#639922" stroke-width="2.5" transform="rotate(24 15 -120)"/>
+      <ellipse cx="-13" cy="-44" rx="7" ry="32" fill="#fff" opacity=".3"/>
+    </g>
+    <g transform="translate(276,344)">
+      <g style="animation:wobble 2.4s ease-in-out infinite">
+        <circle cx="0" cy="0" r="58" fill="#e24b4a" stroke="#a32d2d" stroke-width="3"/>
+        <path d="M0,-54 Q4,-72 1,-84" stroke="#7a5c3e" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <ellipse cx="22" cy="-76" rx="20" ry="10" fill="#97c459" stroke="#639922" stroke-width="2.5" transform="rotate(-20 22 -76)"/>
+        <ellipse cx="-22" cy="-15" rx="11" ry="23" fill="#fff" opacity=".3" transform="rotate(-20 -22 -15)"/>
+      </g>
+    </g>
+    <g transform="translate(330,148)">
+      <rect x="-5" y="0" width="10" height="50" rx="4" fill="#5f5e5a" style="animation:chop2x .55s ease-in-out infinite"/>
+      <path d="M-4,50 L4,50 L6,118 L-6,118Z" fill="#b4b2a9" style="animation:chop2x .55s ease-in-out infinite"/>
+    </g>
+  </svg>
+
+  <svg class="scene" id="s1" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#faeeda"/>
+    <ellipse cx="202" cy="540" rx="170" ry="38" fill="#fac775" opacity=".35"/>
+    <g transform="translate(112,300)">
+      <path d="M-24,-88 L24,-88 L9,98 L-9,98 Z" fill="#f0a03c" stroke="#c2701a" stroke-width="3" stroke-linejoin="round"/>
+      <g stroke="#c2701a" stroke-width="2" opacity=".5">
+        <path d="M-20,-62 L20,-62 M-17,-32 L17,-32 M-14,-2 L14,-2 M-12,28 L12,28 M-10,58 L10,58"/>
+      </g>
+      <ellipse cx="-14" cy="-114" rx="6.5" ry="19" fill="#97c459" stroke="#639922" stroke-width="2.5" transform="rotate(-24 -14 -114)"/>
+      <ellipse cx="0" cy="-123" rx="6.5" ry="21" fill="#97c459" stroke="#639922" stroke-width="2.5"/>
+      <ellipse cx="14" cy="-114" rx="6.5" ry="19" fill="#97c459" stroke="#639922" stroke-width="2.5" transform="rotate(24 14 -114)"/>
+      <text x="0" y="134" text-anchor="middle" font-size="16" font-weight="800" fill="#8a4b12" font-family="system-ui">thin</text>
+    </g>
+    <g transform="translate(202,300)">
+      <path d="M-12,0 L12,0" stroke="#5f5e5a" stroke-width="6" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(292,300)">
+      <rect x="-38" y="-72" width="76" height="150" rx="18" fill="#e24b4a" stroke="#a32d2d" stroke-width="3"/>
+      <rect x="-26" y="-58" width="52" height="122" rx="12" fill="#fbe9e7"/>
+      <ellipse cx="-7" cy="-20" rx="4" ry="7" fill="#7a5c3e"/>
+      <ellipse cx="8" cy="24" rx="4" ry="7" fill="#7a5c3e"/>
+      <ellipse cx="-14" cy="-40" rx="7" ry="18" fill="#fff" opacity=".35"/>
+      <text x="0" y="134" text-anchor="middle" font-size="16" font-weight="800" fill="#791f1f" font-family="system-ui">thick</text>
+    </g>
+  </svg>
+
+  <svg class="scene" id="s2" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#e6f1fb"/>
+    <g transform="translate(202,250)">
+      <path d="M-56,-70 L56,-70 L50,-46 L-50,-46Z" fill="#b5d4f4" stroke="#378add" stroke-width="3"/>
+      <rect x="-50" y="-46" width="100" height="82" rx="10" fill="#e6f1fb" stroke="#378add" stroke-width="3"/>
+      <text x="0" y="14" text-anchor="middle" font-size="26" font-weight="800" fill="#0c447c" font-family="system-ui">1 L</text>
+      <text x="0" y="66" text-anchor="middle" font-size="13" font-weight="700" fill="#185fa5" font-family="system-ui">of water</text>
+    </g>
+    <text x="318" y="258" text-anchor="middle" font-size="40" font-weight="800" fill="#378add" font-family="system-ui">+</text>
+    <g transform="translate(202,420)">
+      <path d="M-56,-44 L56,-44 L50,66 Q0,80 -50,66Z" fill="#fff" stroke="#378add" stroke-width="3.5"/>
+      <rect x="-50" y="-34" width="100" height="13" rx="4" fill="#b5d4f4"/>
+      <text x="0" y="20" text-anchor="middle" font-size="28" font-weight="800" fill="#0c447c" font-family="system-ui">20 g</text>
+      <text x="0" y="46" text-anchor="middle" font-size="14" font-weight="700" fill="#185fa5" font-family="system-ui">of salt</text>
+    </g>
+    <g style="animation:pour2x 1.1s ease-out infinite">
+      <rect x="196" y="316" width="12" height="54" rx="6" fill="#378add" opacity=".8"/>
+    </g>
+    <text x="202" y="600" text-anchor="middle" font-size="22" font-weight="800" fill="#0c447c" font-family="system-ui">2% brine</text>
+  </svg>
+
+  <svg class="scene" id="s3" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fbe9e7"/>
+    <ellipse cx="202" cy="516" rx="158" ry="34" fill="#e24b4a" opacity=".12"/>
+    <g transform="translate(108,248)">
+      <g style="animation:wobble 2.6s ease-in-out infinite">
+        <circle cx="0" cy="0" r="56" fill="#e24b4a" stroke="#a32d2d" stroke-width="3"/>
+        <path d="M0,-52 Q4,-68 1,-80" stroke="#7a5c3e" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <ellipse cx="22" cy="-72" rx="19" ry="10" fill="#97c459" stroke="#639922" stroke-width="2.5" transform="rotate(-20 22 -72)"/>
+        <ellipse cx="-21" cy="-14" rx="11" ry="22" fill="#fff" opacity=".3" transform="rotate(-20 -21 -14)"/>
+      </g>
+      <text x="0" y="98" text-anchor="middle" font-size="16" font-weight="800" fill="#791f1f" font-family="system-ui">sugar + yeast</text>
+    </g>
+    <g transform="translate(296,248)">
+      <g style="animation:tick 2.2s ease-in-out infinite">
+        <path d="M-30,-58 L30,-58 L13,58 L-13,58 Z" fill="#f0a03c" stroke="#c2701a" stroke-width="3" stroke-linejoin="round"/>
+        <g stroke="#c2701a" stroke-width="2" opacity=".5">
+          <path d="M-24,-34 L24,-34 M-20,-8 L20,-8 M-16,18 L16,18 M-14,42 L14,42"/>
+        </g>
+        <ellipse cx="-16" cy="-84" rx="6.5" ry="18" fill="#97c459" stroke="#639922" stroke-width="2.5" transform="rotate(-24 -16 -84)"/>
+        <ellipse cx="0" cy="-93" rx="6.5" ry="20" fill="#97c459" stroke="#639922" stroke-width="2.5"/>
+        <ellipse cx="16" cy="-84" rx="6.5" ry="18" fill="#97c459" stroke="#639922" stroke-width="2.5" transform="rotate(24 16 -84)"/>
+      </g>
+      <text x="0" y="98" text-anchor="middle" font-size="16" font-weight="800" fill="#27500a" font-family="system-ui">dense + slow</text>
+    </g>
+    <g transform="translate(202,448)">
+      <rect x="-150" y="-38" width="300" height="76" rx="12" fill="#fff" stroke="#e24b4a" stroke-width="3"/>
+      <text x="0" y="-4" text-anchor="middle" font-size="19" font-weight="800" fill="#791f1f" font-family="system-ui">THE APPLE MAKES IT FIZZY</text>
+      <text x="0" y="24" text-anchor="middle" font-size="14" font-weight="600" fill="#a32d2d" font-family="system-ui">sugar plus the yeast on the skin</text>
+    </g>
+  </svg>
+
+  <svg class="scene" id="s4" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#faeeda"/>
+    <g transform="translate(202,286)">
+      <path d="M-104,110 L-104,-40 Q-104,-58 -86,-58 L86,-58 Q104,-58 104,-40 L104,110 Z"
+            fill="#fffdf7" stroke="#ba7517" stroke-width="4"/>
+      <rect x="-104" y="-58" width="208" height="24" rx="6" fill="#fac775" stroke="#ba7517" stroke-width="4"/>
+      <path d="M-104,50 L-104,-14 Q-104,-30 -86,-30 L86,-30 Q104,-30 104,-14 L104,50 Z" fill="#fac775"/>
+      <g fill="#e0801f" stroke="#8a4b12" stroke-width="2">
+        <rect x="-94" y="-16" width="24" height="76" rx="11" transform="rotate(-10 -82 22)"/>
+        <rect x="-58" y="-26" width="24" height="88" rx="11" transform="rotate(7 -46 18)"/>
+        <rect x="-18" y="-14" width="24" height="80" rx="11" transform="rotate(-4 -6 26)"/>
+        <rect x="22" y="-28" width="24" height="92" rx="11" transform="rotate(9 34 18)"/>
+        <rect x="62" y="-8" width="24" height="74" rx="11" transform="rotate(-7 74 29)"/>
+      </g>
+      <g fill="#e24b4a" stroke="#a32d2d" stroke-width="2.5">
+        <rect x="-34" y="-30" width="44" height="28" rx="9" transform="rotate(-8 -12 -16)"/>
+        <rect x="26" y="-22" width="40" height="26" rx="9" transform="rotate(14 46 -9)"/>
+      </g>
+      <g style="animation:riseFast 1.2s ease-out infinite">
+        <circle cx="-62" cy="30" r="5.5" fill="#fff" opacity=".85"/>
+        <circle cx="-22" cy="42" r="4.5" fill="#fff" opacity=".85"/>
+        <circle cx="20" cy="34" r="5" fill="#fff" opacity=".85"/>
+        <circle cx="60" cy="44" r="4" fill="#fff" opacity=".85"/>
+      </g>
+      <g style="animation:riseFast 1.2s ease-out .4s infinite">
+        <circle cx="-42" cy="46" r="4.5" fill="#fff" opacity=".75"/>
+        <circle cx="2" cy="52" r="5.5" fill="#fff" opacity=".75"/>
+        <circle cx="44" cy="46" r="3.8" fill="#fff" opacity=".75"/>
+      </g>
+      <g style="animation:riseFast 1.2s ease-out .8s infinite">
+        <circle cx="-12" cy="58" r="4" fill="#fff" opacity=".6"/>
+        <circle cx="30" cy="60" r="4.6" fill="#fff" opacity=".6"/>
+      </g>
+    </g>
+    <g transform="translate(202,560)">
+      <text x="0" y="0" text-anchor="middle" font-size="16" font-weight="800" fill="#8a4b12" font-family="system-ui">the apple floats - keep it down</text>
+    </g>
+  </svg>
+
+  <svg class="scene" id="s5" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#f1efe8"/>
+    <circle cx="202" cy="300" r="132" fill="#d3d1c7" opacity=".4"/>
+    <g transform="translate(202,300)">
+      <g style="animation:tick 1.2s ease-in-out infinite">
+        <circle cx="0" cy="0" r="96" fill="#f4faf3" stroke="#5f5e5a" stroke-width="4"/>
+        <path d="M0,-96 L0,0 L62,74" stroke="#5f5e5a" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M0,0 L-54,-64" stroke="#888780" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <circle cx="0" cy="0" r="7" fill="#5f5e5a"/>
+      </g>
+    </g>
+    <g transform="translate(202,466)">
+      <rect x="-116" y="-32" width="232" height="64" rx="12" fill="#faeeda" stroke="#ba7517" stroke-width="3"/>
+      <text x="0" y="9" text-anchor="middle" font-size="22" font-weight="800" fill="#4a2606" font-family="system-ui">ONLY 4 TO 5 DAYS</text>
+    </g>
+  </svg>
+
+  <svg class="scene" id="s6" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#faeeda"/>
+    <circle cx="202" cy="278" r="130" fill="#fac775" opacity=".55"/>
+    <g transform="translate(202,278)">
+      <circle cx="0" cy="0" r="82" fill="#fdf9f2" stroke="#ba7517" stroke-width="4"/>
+      <path d="M-32,4 L-8,30 L34,-24" stroke="#8a4b12" stroke-width="11" fill="none"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g transform="translate(202,444)">
+      <text x="0" y="0" text-anchor="middle" font-size="25" font-weight="800" fill="#4a2606" font-family="system-ui">Fizzy and a little sweet</text>
+      <text x="0" y="32" text-anchor="middle" font-size="15" font-weight="600" fill="#8a4b12" font-family="system-ui">0.5% to 2% alcohol - keep it cold</text>
+    </g>
+  </svg>
+
+  <div class="cap" id="cap">Carrot with apple<small>the sweet one - and it fizzes</small></div>
+
+  <div class="ui">
+    <button onclick="prev()">◀</button>
+    <button onclick="toggle()" id="btnPlay">⏸ Pause</button>
+    <button onclick="next()">▶</button>
+  </div>
+
+  <div class="cover" id="cover"><button onclick="play()">▶</button></div>
+</div>
+
+<script>
+const scenes = [
+  { id:'s0', ms:5400, tag:'CARROT 1 / 7', cap:'Carrot with apple', sub:'the sweet one - and it fizzes', color:'#d97706' },
+  { id:'s1', ms:6200, tag:'CARROT 2 / 7', cap:'Cut the carrot thin, the apple thick', sub:'the carrot is dense, the apple is not', color:'#ba7517' },
+  { id:'s2', ms:5800, tag:'CARROT 3 / 7', cap:'2% brine', sub:'1 litre of water + 20 g of salt', color:'#378add' },
+  { id:'s3', ms:6800, tag:'CARROT 4 / 7', cap:'The apple is sugar and wild yeast', sub:'that is what makes it fizz so fast', color:'#a32d2d' },
+  { id:'s4', ms:6200, tag:'CARROT 5 / 7', cap:'Everything under the brine', sub:'apple floats - keep it down', color:'#1d9e75' },
+  { id:'s5', ms:5800, tag:'CARROT 6 / 7', cap:'Only 4 to 5 days', sub:'the apple makes it faster than carrot', color:'#5f5e5a' },
+  { id:'s6', ms:6600, tag:'CARROT 7 / 7', cap:'Fizzy and a little sweet', sub:'0.5% to 2% alcohol - keep it cold', color:'#3b6d11' }
+];
+
+const stage = document.getElementById('stage');
+const progress = document.getElementById('progress');
+const capEl = document.getElementById('cap');
+const tagEl = document.getElementById('tag');
+const btnPlay = document.getElementById('btnPlay');
+
+let i = 0, playing = false, tick0 = null, elapsed = 0;
+const RES = 50;
+
+function render() {
+  scenes.forEach((s, n) => {
+    const el = document.getElementById(s.id);
+    el.classList.remove('on');
+    if (n === i) el.classList.add('on');
+  });
+  tagEl.textContent = scenes[i].tag;
+  capEl.innerHTML = scenes[i].cap + '<small>' + scenes[i].sub + '</small>';
+  progress.style.background = scenes[i].color;
+  progress.style.width = '0%';
+}
+
+function loop() {
+  clearInterval(tick0);
+  tick0 = setInterval(() => {
+    if (!playing) return;
+    elapsed += RES;
+    const total = scenes[i].ms;
+    progress.style.width = Math.min(100, (elapsed / total) * 100) + '%';
+    if (elapsed >= total) {
+      if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+      else { stop(); progress.style.width = '100%'; }
+    }
+  }, RES);
+}
+
+function next() {
+  if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+  else { stop(); progress.style.width = '100%'; }
+}
+function prev() { if (i > 0) { i--; elapsed = 0; render(); } }
+function play() {
+  playing = true; elapsed = 0;
+  btnPlay.textContent = '⏸ Pause';
+  document.getElementById('cover').classList.add('hide');
+  stage.classList.add('touched');
+  render(); loop();
+}
+function stop() {
+  playing = false;
+  btnPlay.textContent = '▶ Watch';
+  clearInterval(tick0);
+}
+function toggle(){ playing ? stop() : play(); }
+
+stage.addEventListener('click', e => {
+  if (e.target.closest('button')) return;
+  if (playing) toggle();
+});
+
+render();
+</script>
+
+<script>
+/* ?rec = modo gravacao.
+   Sem ?rec na URL, nada muda: e o short normal.
+   Com ?rec, o quadro preenche 1080x1920 (1920x1080 no video longo),
+   a capa e os botoes somem e a animacao comeca sozinha. */
+(function () {
+  if (location.search.indexOf('rec') < 0) return;
+  var css = '#cover{display:none!important}.ui{display:none!important}'
+          + '#stage{border-radius:0!important;box-shadow:none!important}';
+  var st = document.getElementById('stage');
+  if (st) {
+    var w = st.offsetWidth, h = st.offsetHeight;
+    if (w && h) {
+      css += '#stage{transform:scale(' + ((h > w ? 1920 : 1080) / h)
+           + ')!important;transform-origin:center center!important}';
+    }
+  }
+  if (document.getElementById('frame')) {
+    css += '#frame{transform:scale(1)!important;left:0!important;top:0!important}';
+  }
+  var tag = document.createElement('style');
+  tag.textContent = css;
+  document.head.appendChild(tag);
+  if (typeof showChapters === 'function') showChapters(false);
+  setTimeout(function () { if (typeof play === 'function') play(); }, 500);
+})();
+</script>
+</body>
+</html>

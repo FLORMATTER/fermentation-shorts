@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Aula 2 — Cores e tamanhos (resumo)</title>
+<style>
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: #fdf9f3;
+    color: #2c2c2a;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 40px 28px 90px;
+    line-height: 1.7;
+  }
+  h1 { font-size: 30px; margin-bottom: 6px; }
+  h2 {
+    font-size: 21px;
+    margin: 44px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #dfeec2;
+  }
+  p { margin-bottom: 12px; }
+  pre {
+    background: #2c2c2a;
+    color: #eaf3de;
+    padding: 16px 18px;
+    border-radius: 9px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.65;
+    font-family: 'Consolas', 'Monaco', monospace;
+    margin: 12px 0 18px;
+  }
+  code {
+    background: #eef3e2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13.5px;
+    color: #3b6d11;
+  }
+  .caixa {
+    background: #faeeda;
+    border-left: 6px solid #ba7517;
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 18px 0;
+    font-size: 14.5px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  th, td { border: 1px solid #ddd6c4; padding: 9px 12px; text-align: left; }
+  th { background: #eef3e2; font-weight: 700; }
+  hr { border: none; border-top: 1px dashed #ddd6c4; margin: 42px 0; }
+
+  /* amostras de cor */
+  .swatches { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+  .sw {
+    width: 84px; height: 62px; border-radius: 9px;
+    display: flex; align-items: flex-end; justify-content: center;
+    color: #fff; font-size: 9.5px; font-weight: 800;
+    padding-bottom: 5px; letter-spacing: .02em;
+    text-shadow: 0 1px 2px rgba(0,0,0,.35);
+  }
+
+  /* amostras de tamanho de texto */
+  .t12 { font-size: 12px }
+  .t16 { font-size: 16px }
+  .t22 { font-size: 22px }
+  .t30 { font-size: 30px }
+  .t48 { font-size: 48px }
+</style>
+</head>
+<body>
+
+<h1>Aula 2 — Cores e tamanhos</h1>
+<p><em>Aula 2 de 4 — versão resumida. Só o que você precisa pra mexer nos vídeos.</em></p>
+
+<div class="caixa">
+<strong>Como usar:</strong> leia de cima para baixo, são só 5 blocos.
+Onde aparecer um quadrado colorido, é o resultado do código acima dele.
+</div>
+
+<hr>
+
+<h2>1. Onde o CSS fica</h2>
+
+<p>O CSS mora dentro de <code>&lt;style&gt;</code>, no topo do arquivo. Ele diz
+<strong>como</strong> cada coisa se parece.</p>
+
+<pre>&lt;style&gt;
+  body { background: #fdf9f3; }
+  h1   { color: #3b6d11; font-size: 30px; }
+&lt;/style&gt;</pre>
+
+<p>A regra tem sempre 3 pedaços:</p>
+
+<pre>h1   {   color: #3b6d11 ;  }
+↑        ↑     ↑      ↑
+quem    abre  o que   fecha</pre>
+
+<hr>
+
+<h2>2. Cores — os 3 jeitos</h2>
+
+<table>
+  <tr><th>Jeito</th><th>Exemplo</th><th>Quando usar</th></tr>
+  <tr><td><strong>Hexadecimal</strong></td><td><code>#3b6d11</code></td><td>É o que uso nas animações. Preciso e curto.</td></tr>
+  <tr><td><strong>Nome</strong></td><td><code>red</code>, <code>white</code></td><td>Só para testes rápidos. Tem poucas opções.</td></tr>
+  <tr><td><strong>RGB</strong></td><td><code>rgb(59,109,17)</code></td><td>Quando quer regular a transparência: <code>rgba(59,109,17,.5)</code></td></tr>
+</table>
+
+<p><strong>Como ler um hexadecimal:</strong> são 6 letras/números em 3 pares —
+vermelho, verde, azul. <code>#3b6d11</code> é <em>3b</em> de vermelho, <em>6d</em> de verde,
+<em>11</em> de azul. Verde baixinho, então a cor é verde-escuro.</p>
+
+<div class="swatches">
+  <div class="sw" style="background:#3b6d11">#3b6d11</div>
+  <div class="sw" style="background:#7d8c46">#7d8c46</div>
+  <div class="sw" style="background:#ba7517">#ba7517</div>
+  <div class="sw" style="background:#d85a30">#d85a30</div>
+  <div class="sw" style="background:#2c2c2a">#2c2c2a</div>
+</div>
+
+<p>Essas 5 são as cores que mais uso. O <code>#2c2c2a</code> é quase-preto —
+nunca use <code>#000000</code> puro, ele deixa o desenho duro.</p>
+
+<div class="caixa">
+<strong>Dica do pega-fácil:</strong> experimente qualquer cor em
+<code>coolors.co</code>. Ele mostra o código hexadecimal pronto pra copiar.
+</div>
+
+<hr>
+
+<h2>3. Onde pintar</h2>
+
+<table>
+  <tr><th>Código</th><th>O que pinta</th></tr>
+  <tr><td><code>color</code></td><td>A <strong>letra</strong> (o texto)</td></tr>
+  <tr><td><code>background</code></td><td>O <strong>fundo</strong> do quadrado</td></tr>
+  <tr><td><code>border</code></td><td>A <strong>borda</strong> em volta</td></tr>
+  <tr><td><code>fill</code></td><td>Dentro de SVG: o <strong>miolo</strong> da forma</td></tr>
+  <tr><td><code>stroke</code></td><td>Dentro de SVG: o <strong>contorno</strong> da forma</td></tr>
+</table>
+
+<pre>.caixa {
+  color: #2c2c2a;          /* texto quase-preto */
+  background: #faeeda;     /* fundo bege        */
+  border: 3px solid #ba7517; /* borda laranja   */
+}</pre>
+
+<div style="background:#faeeda; border:3px solid #ba7517; border-radius:8px; padding:16px; color:#2c2c2a; text-align:center; font-weight:700;">
+Resultado: fundo bege, borda laranja, texto quase-preto.
+</div>
+
+<div class="caixa">
+<strong>Atenção:</strong> dentro de SVG as cores usam <code>fill</code> e <code>stroke</code>,
+não <code>color</code>/<code>background</code>. Se você pintar um <code>&lt;rect&gt;</code>
+com <code>background</code>, não vai funcionar.
+</div>
+
+<hr>
+
+<h2>4. Tamanhos de texto</h2>
+
+<p>Usa <code>font-size</code>. A unidade é o <strong>px</strong> (pixel).</p>
+
+<pre>h1 { font-size: 48px; }
+p  { font-size: 16px; }</pre>
+
+<p class="t12">12px — legenda bem pequena</p>
+<p class="t16">16px — texto normal, o padrão</p>
+<p class="t22">22px — subtítulo</p>
+<p class="t30">30px — título</p>
+<p class="t48">48px — número gigante</p>
+
+<p><strong>Por que importa:</strong> no celular, o vídeo tem 405px de largura.
+Se o texto da legenda passar de 18px, ele quebra e fica feio. Minha regra:
+<strong>legenda de 16px, título de 22 a 30px, o número principal de 48px.</strong></p>
+
+<hr>
+
+<h2>5. Largura, altura e espaçamento</h2>
+
+<table>
+  <tr><th>Código</th><th>Para que serve</th></tr>
+  <tr><td><code>width: 405px</code></td><td>Largura</td></tr>
+  <tr><td><code>height: 720px</code></td><td>Altura</td></tr>
+  <tr><td><code>padding: 20px</code></td><td>Espaço <strong>por dentro</strong> (afasta o texto da borda)</td></tr>
+  <tr><td><code>margin: 20px</code></td><td>Espaço <strong>por fora</strong> (afasta dos vizinhos)</td></tr>
+  <tr><td><code>border-radius: 12px</code></td><td>Cantos arredondados</td></tr>
+  <tr><td><code>gap: 10px</code></td><td>Espaço entre itens lado a lado</td></tr>
+</table>
+
+<pre>#stage {
+  width: 405px;      /* a tela do short      */
+  height: 720px;     /* 9:16 na vertical     */
+  background: #f4efe4;
+  border-radius: 16px;
+}</pre>
+
+<div class="caixa">
+<strong>O tamanho do vídeo:</strong> <code>405 × 720</code> é a proporção 9:16
+(o formato do Shorts). Mantenha sempre essa proporção — se mudar só um dos
+números, o desenho entorta.
+</div>
+
+<hr>
+
+<h2>Resumo para consultar depois</h2>
+
+<table>
+  <tr><th>Quero...</th><th>Uso</th></tr>
+  <tr><td>Pintar a letra</td><td><code>color: #2c2c2a;</code></td></tr>
+  <tr><td>Pintar o fundo</td><td><code>background: #f4efe4;</code></td></tr>
+  <tr><td>Pintar dentro do SVG</td><td><code>fill="#3b6d11"</code> no próprio desenho</td></tr>
+  <tr><td>Contorno do SVG</td><td><code>stroke="#2c2c2a" stroke-width="2"</code></td></tr>
+  <tr><td>Aumentar a letra</td><td><code>font-size: 22px;</code></td></tr>
+  <tr><td>Arredondar o canto</td><td><code>border-radius: 12px;</code></td></tr>
+  <tr><td>Dar espaço por dentro</td><td><code>padding: 18px;</code></td></tr>
+</table>
+
+<p><strong>As 5 cores da série:</strong>
+<code>#3b6d11</code> verde ·
+<code>#7d8c46</code> oliva ·
+<code>#ba7517</code> laranja ·
+<code>#d85a30</code> terra ·
+<code>#2c2c2a</code> quase-preto.</p>
+
+<hr>
+
+<h2>Teste você mesmo</h2>
+
+<ol>
+  <li>Abra <code>repolho/shorts-repolho-maos-canva.html</code> no Bloco de Notas</li>
+  <li>Ache <code>#progress { ... background:#3b6d11; }</code></li>
+  <li>Troque para <code>background:#d85a30;</code></li>
+  <li>Salve (Ctrl + S) e aperte F5 no navegador</li>
+  <li><strong>A barra de progresso no topo mudou de verde para laranja.</strong></li>
+</ol>
+
+<p>Foi assim: você trocou uma cor. Trocar as outras é igual.</p>
+
+<hr>
+
+<p><em>Fim da Aula 2. A próxima é a Aula 3 — Animações (@keyframes).</em></p>
+
+</body>
+</html>

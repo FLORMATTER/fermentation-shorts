@@ -1,0 +1,63 @@
+name: Bug report
+description: Something in an animated short or a helper script is wrong.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please fill in the file name exactly as it
+        appears in the repository — most bugs here are per-file.
+
+  - type: input
+    id: file
+    attributes:
+      label: Affected file
+      description: The exact path, for example `beterraba/shorts-beet-carrot-en.html`
+      placeholder: folder/file.html
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of problem is it?
+      options:
+        - A scene is positioned wrongly (element in the corner / off-frame)
+        - Text is missing or invisible
+        - Text is hidden behind the caption bar
+        - Something rotates or scales around the wrong point
+        - The colour looks wrong
+        - A helper script crashes or does the wrong thing
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens
+      description: Describe what you see, and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: checks
+    attributes:
+      label: Output of the validator
+      description: |
+        Paste the result of
+        `python _validar-short.py <your file>`
+      render: text
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: done
+    attributes:
+      label: Before opening
+      options:
+        - label: I ran `python _validar-short.py <file>` on the file.
+          required: false
+        - label: I looked at the rendered scenes with `_revisar-cenas.py --final` (a grep cannot see layout).
+          required: false

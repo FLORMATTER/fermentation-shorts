@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>bench3</title>
+<style>html,body{margin:0;background:#111}pre{color:#ddd;font:12px monospace;padding:8px}</style>
+</head>
+<body>
+<pre id="out">correndo</pre>
+<script>
+/* _mp4/bench3.html — quanto custa CADA PEDACO do bake() de verdade.
+   O bench.html media uma versao simplificada (sem getAnimations, sem escrever
+   currentTime, sem trocar classe). O bake() real faz tudo isso, e o render
+   mostrou ~17,5 ms por bake. Aqui a gente separa o custo.
+
+   Uso: node _mp4/rodar.js "file:///.../_mp4/bench3.html?arq=../mosquito/shorts-mosquito-trap-en.html" 60 --file-access */
+window.__log = [];
+function L(s){ window.__log.push(s); document.getElementById('out').textContent = window.__log.join('\n'); }
+
+var ARQ = new URLSearchParams(location.search).get('arq') || '../mosquito/shorts-mosquito-trap-en.html';
+var N = 30;
+
+var f = document.createElement('iframe');
+f.style.cssText = 'width:405px;height:720px;border:0;position:absolute;left:-3000px';
+f.src = ARQ;
+document.body.appendChild(f);
+
+f.onload = function(){
+  var d = f.contentDocument, w = f.contentWindow;
+  if (!d || !w) { L('ERRO: nao consegui ler o iframe (precisa de --allow-file-access-from-files)'); window.__done='FAIL'; return; }
+  var cenas = [].slice.call(d.querySelectorAll('svg.scene'));
+  L('cenas: ' + cenas.length);
+
+  /* indice dos animados, igual ao render.js */
+  function indexar(){
+    var mapa = {};
+    d.getAnimations().forEach(function(a){
+      var alvo = a.effect && a.effect.target;
+      var sv = alvo && alvo.closest ? alvo.closest('svg.scene') : null;
+      if (!sv) return;
+      var todos = sv.querySelectorAll('*');
+      for (var k=0;k<todos.length;k++){ if (todos[k]===alvo){ (mapa[sv.id]=mapa[sv.id]||[]).push(k); break; } }
+    });
+    return mapa;
+  }
+  var animados = indexar();
+  var nAnim = 0; for (var id in animados) nAnim += animados[id].length;
+  L('elementos animados: ' + nAnim);
+
+  var live = cenas[3];
+  live.classList.add('on');
+  var todos = live.querySelectorAll('*');
+  L('nos na cena 4: ' + todos.length + ' | animados na cena 4: ' + ((animados[live.id]||[]).length));
+
+  function ms(fn, n){ var t=performance.now(); for (var i=0;i<n;i++) fn(i); return (performance.now()-t)/n; }
+
+  /* ---- A. document.getAnimations() sozinho ---- */
+  var tA = ms(function(){ d.getAnimations(); }, N);
+  L('A) document.getAnimations()            : ' + tA.toFixed(2) + ' ms');
+
+  /* ---- B. escrever currentTime nas animacoes desta cena ---- */
+  var listaAnims = d.getAnimations().filter(function(a){
+    var alvo = a.effect && a.effect.target;
+    var sv = alvo && alvo.closest ? alvo.closest('svg.scene') : null;
+    return sv && sv.id === live.id;
+  });
+  L('   animacoes nesta cena: ' + listaAnims.length);
+  var tB = ms(function(i){ listaAnims.forEach(function(a){ a.pause(); a.currentTime = (i*37)%3000; }); }, N);
+  L('B) pause()+currentTime= (so desta cena) : ' + tB.toFixed(2) + ' ms');
+
+  /* ---- C. trocar as classes das 8 cenas (o guard do render.js evita isso) ---- */
+  var tC = ms(function(){
+    for (var n=0;n<cenas.length;n++){
+      if (n===3) cenas[n].classList.add('on'); else cenas[n].classList.remove('on');
+    }
+  }, N);
+  L('C) classList nas 8 cenas (guardado)     : ' + tC.toFixed(2) + ' ms');
+
+  /* ---- D. cloneNode ---- */
+  var tD = ms(function(){ window.__cl = live.cloneNode(true); }, N);
+  L('D) cloneNode(true)                      : ' + tD.toFixed(2) + ' ms');
+
+  /* ---- E. querySelectorAll('*') nos dois ---- */
+  var tE = ms(function(){ window.__a = live.querySelectorAll('*'); window.__b = window.__cl.querySelectorAll('*'); }, N);
+  L('E) querySelectorAll("*") x2             : ' + tE.toFixed(2) + ' ms');
+
+  /* ---- F. getComputedStyle nos animados ---- */
+  var idxs = animados[live.id] || [];
+  var tF = ms(function(){
+    for (var j=0;j<idxs.length;j++){ var cs = w.getComputedStyle(window.__a[idxs[j]]); cs.transform; cs.opacity; }
+  }, N);
+  L('F) getComputedStyle x' + idxs.length + ' (animados)     : ' + tF.toFixed(2) + ' ms');
+
+  /* ---- G. setAttribute style nos animados ---- */
+  var tG = ms(function(){
+    for (var j=0;j<idxs.length;j++){
+      var st = (window.__b[idxs[j]].getAttribute('style')||'').replace(/animation[^;]*;?/g,'');
+      window.__b[idxs[j]].setAttribute('style', st);
+    }
+  }, N);
+  L('G) setAttribute style x' + idxs.length + '          : ' + tG.toFixed(2) + ' ms');
+
+  /* ---- H. serializar ---- */
+  var cl = live.cloneNode(true);
+  cl.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  cl.setAttribute('width',1080); cl.setAttribute('height',1920);
+  var str = new XMLSerializer().serializeToString(cl);
+  L('   SVG serializado: ' + str.length + ' chars');
+  var tH = ms(function(){ new XMLSerializer().serializeToString(cl); }, N);
+  L('H) XMLSerializer                        : ' + tH.toFixed(2) + ' ms');
+
+  var tI = ms(function(){ 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(str); }, N);
+  L('I) encodeURIComponent                   : ' + tI.toFixed(2) + ' ms');
+
+  /* ---- J. o bake() COMPLETO, igual ao render.js ---- */
+  var cenaLigada = 3;
+  function bake(idx, local){
+    var idd = cenas[idx].id;
+    if (cenaLigada !== idx){
+      for (var n=0;n<cenas.length;n++){ if (n===idx) cenas[n].classList.add('on'); else cenas[n].classList.remove('on'); }
+      cenaLigada = idx;
+    }
+    d.getAnimations().forEach(function(a){
+      var alvo = a.effect && a.effect.target;
+      var sv = alvo && alvo.closest ? alvo.closest('svg.scene') : null;
+      if (sv && sv.id === idd) { a.pause(); a.currentTime = local; }
+    });
+    var lv = d.getElementById(idd);
+    var cln = lv.cloneNode(true);
+    var aa = lv.querySelectorAll('*'), bb = cln.querySelectorAll('*');
+    var lst = animados[idd] || [];
+    for (var j=0;j<lst.length;j++){
+      var i = lst[j];
+      var cs = w.getComputedStyle(aa[i]);
+      var sty = (bb[i].getAttribute('style')||'').replace(/animation[^;]*;?/g,'').replace(/transform:[^;]*;?/g,'').replace(/opacity:[^;]*;?/g,'');
+      if (cs.transform && cs.transform!=='none') sty += 'transform:'+cs.transform+';';
+      if (cs.opacity!=='' && cs.opacity!=='1') sty += 'opacity:'+cs.opacity+';';
+      bb[i].setAttribute('style', sty);
+    }
+    cln.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    cln.setAttribute('width',1080); cln.setAttribute('height',1920);
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(cln));
+  }
+  var tJ = ms(function(i){ window.__u = bake(3, (i*37)%7000); }, N);
+  L('J) BAKE COMPLETO (mesmo do render)      : ' + tJ.toFixed(2) + ' ms');
+  L('--- orcamento: 30 fps = 33 ms por quadro desenhado');
+
+  /* ---- K. e se a cena NAO mudar de verdade (guard ativo)? ---- */
+  var tK = ms(function(i){ window.__u = bake(3, (i*37)%7000); }, N);
+  L('K) BAKE repetido (guard ja quente)      : ' + tK.toFixed(2) + ' ms');
+
+  /* ---- L. trocando de cena a cada chamada (guard frio) ---- */
+  var tL = ms(function(i){ window.__u = bake(i % cenas.length, (i*37)%7000); }, N);
+  L('L) BAKE trocando de cena (guard frio)   : ' + tL.toFixed(2) + ' ms');
+  L('FIM');
+  window.__done = 'OK';
+};
+</script>
+</body></html>

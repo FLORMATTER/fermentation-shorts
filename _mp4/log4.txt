@@ -1,0 +1,18 @@
+a gravar: 1 short(s)
+
+== mosquito/shorts-mosquito-trap-en.html
+  gravando   0%     gravando   2%     gravando   3%     gravando   5%     gravando   6%     gravando   7%     gravando   8%     gravando   9%     gravando  10%     gravando  11%     gravando  12%     gravando  13%     gravando  14%     gravando  15%     gravando  16%     gravando  17%     gravando  18%     gravando  19%     gravando  20%     gravando  21%     gravando  22%     gravando  23%     gravando  24%     gravando  25%     gravando  26%     gravando  27%     gravando  28%     gravando  29%     gravando  30%     gravando  31%     gravando  32%     gravando  33%     gravando  34%     gravando  35%     gravando  36%     gravando  37%     gravando  38%     gravando  39%     gravando  40%     gravando  41%     gravando  42%     gravando  43%     gravando  44%     gravando  45%     gravando  46%     gravando  47%     gravando  48%     gravando  49%     gravando  50%     gravando  51%     gravando  52%     gravando  53%     gravando  54%     gravando  55%     gravando  56%     gravando  57%     gravando  58%     gravando  59%     gravando  60%     gravando  61%     gravando  62%     gravando  63%     gravando  64%     gravando  65%     gravando  66%     gravando  67%     gravando  68%     gravando  69%     gravando  70%     gravando  71%     gravando  72%     gravando  73%     gravando  74%     gravando  76%     gravando  77%     gravando  78%     gravando  79%     gravando  80%     gravando  81%     gravando  82%     gravando  83%     gravando  84%     gravando  85%     gravando  87%     gravando  88%     gravando  89%     gravando  90%     gravando  91%     gravando  92%     gravando  94%     gravando  96%     gravando  97%     gravando  98%     gravando  99%   
+    legenda: 73px do cartao (topo y=647)
+    marca d'agua OMITIDA no mp4 (e placeholder: @yourchannel)
+    elementos animados: 64
+    codec: video/mp4;codecs=avc1.42E01E a 8 Mbps
+    overlays prontos
+    quadro 0 pronto apos 1 tentativas
+    ritmo real: 9.0 quadros/s (alvo 30)
+    PRONTO 4456966 bytes | duracao alvo 57.0s | quadros desenhados 513 | repetidos por atraso: 61
+    mp4 gravado no disco pelo proprio navegador
+  arquivo : mosquito/shorts-mosquito-trap-en.mp4  (4.3 MB)
+  duracao : alvo 57.0s | no arquivo 56.4s
+  ERRO: saiu 1.01x ACELERADO — o canvas nao desenhou no ritmo pedido. Arquivo apagado.
+
+0/1 gravado(s).

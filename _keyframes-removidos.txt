@@ -1,0 +1,262 @@
+# keyframes removidos por _limpar-keyframes.py
+# Sao codigo morto (o nome nao aparecia em nenhum outro lugar do
+# arquivo). Guardados apenas como registro, caso algum volte a ser usado.
+
+/* === alho/shorts-garlic-honey-en.html :: @keyframes crushGarlic === */
+  @keyframes crushGarlic {
+    0%,100% { transform: scale(1,1) translateY(0) }
+    45%     { transform: scale(1.12,.84) translateY(5px) }
+  }
+
+
+/* === alho/shorts-garlic-honey-en.html :: @keyframes dropIn === */
+  @keyframes dropIn {
+    0%   { transform: translate(0,0) rotate(0deg); opacity: 0 }
+    18%  { opacity: 1 }
+    100% { transform: translate(6px,150px) rotate(56deg); opacity: 0 }
+  }
+
+
+/* === beterraba/shorts-beterraba-animado-en.html :: @keyframes pulse === */
+  @keyframes pulse { 0%,100%{opacity:.9} 50%{opacity:.35} }
+
+
+/* === beterraba/shorts-beterraba-animado.html :: @keyframes pulse === */
+  @keyframes pulse { 0%,100%{opacity:.9} 50%{opacity:.35} }
+
+
+/* === beterraba/shorts-beterraba-camadas-en.html :: @keyframes growBar === */
+  @keyframes growBar {
+    0%   { transform: scaleY(.2) }
+    100% { transform: scaleY(1) }
+  }
+
+
+/* === beterraba/shorts-beterraba-camadas-en.html :: @keyframes spinSlow === */
+  @keyframes spinSlow {
+    0%   { transform: rotate(0deg) }
+    100% { transform: rotate(360deg) }
+  }
+
+
+/* === beterraba/shorts-beterraba-camadas.html :: @keyframes growBar === */
+  @keyframes growBar {
+    0%   { transform: scaleY(.2) }
+    100% { transform: scaleY(1) }
+  }
+
+
+/* === beterraba/shorts-beterraba-camadas.html :: @keyframes spinSlow === */
+  @keyframes spinSlow {
+    0%   { transform: rotate(0deg) }
+    100% { transform: rotate(360deg) }
+  }
+
+
+/* === beterraba/shorts-beterraba-couve-en.html :: @keyframes colorShift === */
+  @keyframes colorShift {
+    0%   { fill: #c4457b }
+    100% { fill: #8e1a51 }
+  }
+
+
+/* === beterraba/shorts-beterraba-couve-en.html :: @keyframes pressDown === */
+  @keyframes pressDown {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(15px) }
+  }
+
+
+/* === beterraba/shorts-beterraba-couve.html :: @keyframes colorShift === */
+  @keyframes colorShift {
+    0%   { fill: #c4457b }
+    100% { fill: #8e1a51 }
+  }
+
+
+/* === beterraba/shorts-beterraba-couve.html :: @keyframes pressDown === */
+  @keyframes pressDown {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(15px) }
+  }
+
+
+/* === beterraba/shorts-beterraba-svg-puro-en.html :: @keyframes massageL === */
+  @keyframes massageL {
+    0%,100% { transform: translate(0,0) scale(1,1) }
+    50%     { transform: translate(12px,-6px) scale(.93,1.05) }
+  }
+
+
+/* === beterraba/shorts-beterraba-svg-puro-en.html :: @keyframes massageR === */
+  @keyframes massageR {
+    0%,100% { transform: translate(0,0) scale(1,1) }
+    50%     { transform: translate(-12px,-6px) scale(.93,1.05) }
+  }
+
+
+/* === beterraba/shorts-beterraba-svg-puro-en.html :: @keyframes pressDown === */
+  @keyframes pressDown {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(15px) }
+  }
+
+
+/* === beterraba/shorts-beterraba-svg-puro.html :: @keyframes massageL === */
+  @keyframes massageL {
+    0%,100% { transform: translate(0,0) scale(1,1) }
+    50%     { transform: translate(12px,-6px) scale(.93,1.05) }
+  }
+
+
+/* === beterraba/shorts-beterraba-svg-puro.html :: @keyframes massageR === */
+  @keyframes massageR {
+    0%,100% { transform: translate(0,0) scale(1,1) }
+    50%     { transform: translate(-12px,-6px) scale(.93,1.05) }
+  }
+
+
+/* === beterraba/shorts-beterraba-svg-puro.html :: @keyframes pressDown === */
+  @keyframes pressDown {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(15px) }
+  }
+
+
+/* === cenoura/shorts-cenoura-animado-en.html :: @keyframes drop === */
+  @keyframes drop { 0%{transform:translateY(-14px);opacity:0} 100%{transform:translateY(0);opacity:1} }
+
+
+/* === cenoura/shorts-cenoura-animado-en.html :: @keyframes pulse === */
+  @keyframes pulse { 0%,100%{opacity:.9} 50%{opacity:.35} }
+
+
+/* === cenoura/shorts-cenoura-animado-en.html :: @keyframes slideIn === */
+  @keyframes slideIn { 0%{transform:translateX(-40px);opacity:0} 100%{transform:translateX(0);opacity:1} }
+
+
+/* === cenoura/shorts-cenoura-animado.html :: @keyframes drop === */
+  @keyframes drop { 0%{transform:translateY(-14px);opacity:0} 100%{transform:translateY(0);opacity:1} }
+
+
+/* === cenoura/shorts-cenoura-animado.html :: @keyframes pulse === */
+  @keyframes pulse { 0%,100%{opacity:.9} 50%{opacity:.35} }
+
+
+/* === cenoura/shorts-cenoura-animado.html :: @keyframes slideIn === */
+  @keyframes slideIn { 0%{transform:translateX(-40px);opacity:0} 100%{transform:translateX(0);opacity:1} }
+
+
+/* === couve-flor/shorts-couveflor-animado-en.html :: @keyframes breakFloret === */
+  @keyframes breakFloret {
+    0%,100% { transform: translateY(0) rotate(0deg) }
+    35%     { transform: translateY(4px) rotate(-7deg) }
+    70%     { transform: translateY(-3px) rotate(6deg) }
+  }
+
+
+/* === couve-flor/shorts-couveflor-animado-en.html :: @keyframes chopHand === */
+  @keyframes chopHand {
+    0%   { transform: translateY(-18px) rotate(-16deg) }
+    50%  { transform: translateY(8px) rotate(4deg) }
+    100% { transform: translateY(-18px) rotate(-16deg) }
+  }
+
+
+/* === couve-flor/shorts-couveflor-animado.html :: @keyframes breakFloret === */
+  @keyframes breakFloret {
+    0%,100% { transform: translateY(0) rotate(0deg) }
+    35%     { transform: translateY(4px) rotate(-7deg) }
+    70%     { transform: translateY(-3px) rotate(6deg) }
+  }
+
+
+/* === couve-flor/shorts-couveflor-animado.html :: @keyframes chopHand === */
+  @keyframes chopHand {
+    0%   { transform: translateY(-18px) rotate(-16deg) }
+    50%  { transform: translateY(8px) rotate(4deg) }
+    100% { transform: translateY(-18px) rotate(-16deg) }
+  }
+
+
+/* === pepino/shorts-pepino-speed-en.html :: @keyframes blink === */
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+
+/* === pepino/shorts-pepino-speed-en.html :: @keyframes wobble === */
+  @keyframes wobble { 0%,100%{transform:rotate(-2.5deg)} 50%{transform:rotate(2.5deg)} }
+
+
+/* === pepino/shorts-pepino-speed-en.html :: @keyframes zoomIn === */
+  @keyframes zoomIn { 0%{transform:scale(.85);opacity:0} 100%{transform:scale(1);opacity:1} }
+
+
+/* === pepino/shorts-pepino-speed.html :: @keyframes blink === */
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+
+/* === pepino/shorts-pepino-speed.html :: @keyframes wobble === */
+  @keyframes wobble { 0%,100%{transform:rotate(-2.5deg)} 50%{transform:rotate(2.5deg)} }
+
+
+/* === pepino/shorts-pepino-speed.html :: @keyframes zoomIn === */
+  @keyframes zoomIn { 0%{transform:scale(.85);opacity:0} 100%{transform:scale(1);opacity:1} }
+
+
+/* === rabanete/shorts-rabanete-animado-en.html :: @keyframes heatShimmer === */
+  @keyframes heatShimmer {
+    0%,100% { opacity: .35; transform: translateY(0) }
+    50%     { opacity: .7; transform: translateY(-5px) }
+  }
+
+
+/* === rabanete/shorts-rabanete-animado-en.html :: @keyframes pressDown === */
+  @keyframes pressDown {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(15px) }
+  }
+
+
+/* === rabanete/shorts-rabanete-animado-en.html :: @keyframes riseSlow === */
+  @keyframes riseSlow {
+    0%   { transform: translateY(0) scale(.7); opacity: 0 }
+    25%  { opacity: .75 }
+    100% { transform: translateY(-108px) scale(1.15); opacity: 0 }
+  }
+
+
+/* === rabanete/shorts-rabanete-animado.html :: @keyframes heatShimmer === */
+  @keyframes heatShimmer {
+    0%,100% { opacity: .35; transform: translateY(0) }
+    50%     { opacity: .7; transform: translateY(-5px) }
+  }
+
+
+/* === rabanete/shorts-rabanete-animado.html :: @keyframes pressDown === */
+  @keyframes pressDown {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(15px) }
+  }
+
+
+/* === rabanete/shorts-rabanete-animado.html :: @keyframes riseSlow === */
+  @keyframes riseSlow {
+    0%   { transform: translateY(0) scale(.7); opacity: 0 }
+    25%  { opacity: .75 }
+    100% { transform: translateY(-108px) scale(1.15); opacity: 0 }
+  }
+
+
+/* === video-longo/player-video-longo-7-legumes-en.html :: @keyframes spin === */
+  @keyframes spin {
+    0%   { transform: rotate(0deg) }
+    100% { transform: rotate(360deg) }
+  }
+
+
+/* === video-longo/player-video-longo-7-legumes.html :: @keyframes spin === */
+  @keyframes spin {
+    0%   { transform: rotate(0deg) }
+    100% { transform: rotate(360deg) }
+  }
+

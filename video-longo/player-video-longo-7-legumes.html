@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vídeo longo — 7 legumes fermentados (player de gravação)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html, body {
+    width:100%; height:100%; overflow:hidden;
+    background:#0d0d0c;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  }
+
+  #frame {
+    position:absolute; top:0; left:0;
+    transform-origin:top left;
+  }
+
+  /* ═══ arquibancada 1920x1080 ═══ */
+  #bg {
+    width:1920px; height:1080px; position:relative;
+    background:#101010; overflow:hidden;
+  }
+  #bgimg {
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; opacity:.34;
+  }
+  #shade {
+    position:absolute; inset:0;
+    background:linear-gradient(105deg, rgba(6,6,6,.94) 0%, rgba(6,6,6,.86) 38%, rgba(6,6,6,.42) 62%, rgba(6,6,6,.72) 100%);
+  }
+  #vign {
+    position:absolute; inset:0;
+    background:radial-gradient(ellipse at 58% 45%, rgba(0,0,0,0) 32%, rgba(0,0,0,.72) 100%);
+  }
+
+  /* ═══ painel esquerdo (capítulo + legenda) ═══ */
+  .left {
+    position:absolute; left:96px; top:0; bottom:0; width:700px;
+    display:flex; flex-direction:column; justify-content:center;
+  }
+
+  #capnum {
+    font-size:132px; font-weight:900; line-height:.86;
+    color:rgba(255,255,255,.14); letter-spacing:-6px;
+    margin-bottom:6px;
+  }
+  #cname {
+    font-size:66px; font-weight:900; color:#fff;
+    line-height:1.02; letter-spacing:-2.2px;
+  }
+  #cname small {
+    display:block; font-size:23px; font-weight:700; letter-spacing:.16em;
+    color:#9ede76; text-transform:uppercase; margin-top:16px; letter-spacing:.2em;
+  }
+  #cbar {
+    width:132px; height:7px; border-radius:4px;
+    background:#3b6d11; margin:30px 0 28px;
+  }
+  #ctext {
+    font-size:31px; font-weight:800; color:#fff; line-height:1.32;
+    letter-spacing:-.4px; max-width:640px;
+  }
+  #ctext small {
+    display:block; font-size:21px; font-weight:500;
+    color:rgba(255,255,255,.6); margin-top:14px; line-height:1.45;
+  }
+  #cfacts {
+    display:flex; gap:14px; margin-top:34px; flex-wrap:wrap;
+  }
+  #cfacts b {
+    font-size:17px; font-weight:800; color:#dff0cc;
+    background:rgba(59,109,17,.42); border:.5px solid rgba(158,222,118,.42);
+    padding:11px 20px; border-radius:999px; letter-spacing:.03em;
+  }
+
+  /* ═══ celular à direita ═══ */
+  #phone {
+    position:absolute; right:118px; top:50%;
+    transform:translateY(-50%);
+    width:436px; height:776px;
+    border-radius:44px;
+    background:#1b1b1a;
+    padding:13px;
+    box-shadow:0 40px 120px rgba(0,0,0,.85), 0 0 0 1.5px rgba(255,255,255,.1);
+  }
+  #screen {
+    position:relative; width:410px; height:750px;
+    border-radius:34px; overflow:hidden;
+    background:#f4efe4;
+  }
+
+  #phoneTag {
+    position:absolute; bottom:-46px; left:0; right:0;
+    text-align:center; font-size:15px; font-weight:800;
+    letter-spacing:.2em; color:rgba(255,255,255,.4); text-transform:uppercase;
+  }
+
+  svg.scene {
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0; visibility:hidden; transition:opacity .42s ease;
+  }
+  svg.scene.on { opacity:1; visibility:visible; }
+
+  /* barra de progresso da cena, dentro da tela */
+  .nprem { position:absolute; top:0; left:0; right:0; height:4px; background:rgba(0,0,0,.12); z-index:40; }
+  #nprog { height:100%; width:0; background:#3b6d11; transition:width .2s linear; }
+
+  .ncap {
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(15,14,12,.86); color:#fff;
+    padding:14px 22px 17px; font-size:16px; font-weight:800;
+    text-align:center; z-index:30; line-height:1.35;
+  }
+  .ncap small { display:block; font-size:12px; font-weight:500; opacity:.72; margin-top:4px; }
+
+  .nwm {
+    position:absolute; top:18px; right:16px; font-size:9px; font-weight:800;
+    letter-spacing:.1em; opacity:.35; z-index:35; text-transform:uppercase; color:#2c2c2a;
+  }
+
+  /* ═══ rodapé da arquibancada ═══ */
+  #foot {
+    position:absolute; left:96px; right:118px; bottom:44px;
+    display:flex; align-items:center; gap:22px;
+  }
+  #flabel {
+    font-size:15px; font-weight:800; letter-spacing:.2em;
+    color:rgba(255,255,255,.42); text-transform:uppercase; white-space:nowrap;
+  }
+  #fbar {
+    flex:1; height:5px; border-radius:3px;
+    background:rgba(255,255,255,.13); overflow:hidden;
+  }
+  #ffill { height:100%; width:0; background:#3b6d11; transition:width .2s linear; }
+  #ftime {
+    font-size:15px; font-weight:800; letter-spacing:.08em;
+    color:rgba(255,255,255,.42); white-space:nowrap; font-variant-numeric:tabular-nums;
+  }
+
+  /* ═══ capítulos (thumbnail 1) ═══ */
+  #chapters {
+    position:absolute; left:96px; top:0; bottom:0; width:760px;
+    display:none; flex-direction:column; justify-content:center;
+  }
+  #chapters.show { display:flex; }
+  #chapters h2 {
+    font-size:52px; font-weight:900; color:#fff;
+    letter-spacing:-1.8px; line-height:1.06; margin-bottom:8px;
+  }
+  #chapters h2 span { color:#9ede76; }
+  #chapters p {
+    font-size:19px; font-weight:600; color:rgba(255,255,255,.55);
+    letter-spacing:.1em; text-transform:uppercase; margin-bottom:34px;
+  }
+  .row {
+    display:flex; align-items:center; gap:16px;
+    padding:13px 0; border-bottom:1px solid rgba(255,255,255,.09);
+  }
+  .row i {
+    flex:0 0 34px; height:34px; border-radius:50%;
+    background:#3b6d11; color:#fff; font-style:normal;
+    font-size:16px; font-weight:900;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .row b { font-size:24px; font-weight:800; color:#fff; min-width:230px; letter-spacing:-.4px; }
+  .row u {
+    text-decoration:none; font-size:18px; font-weight:600;
+    color:rgba(255,255,255,.5);
+  }
+  .row s {
+    text-decoration:none; margin-left:auto;
+    font-size:16px; font-weight:800; color:#dff0cc;
+    background:rgba(59,109,17,.36); padding:8px 16px; border-radius:999px;
+  }
+
+  /* ═══ controles (escondidos na gravação) ═══ */
+  #ui {
+    position:fixed; bottom:14px; left:50%; transform:translateX(-50%);
+    display:flex; gap:9px; z-index:999;
+    opacity:0; transition:opacity .25s;
+  }
+  body:hover #ui { opacity:1; }
+  #ui button {
+    border:none; background:rgba(255,255,255,.16); color:#fff;
+    font-size:12.5px; font-weight:700; font-family:inherit;
+    padding:9px 16px; border-radius:999px; cursor:pointer;
+    backdrop-filter:blur(8px);
+  }
+  #ui button:hover { background:rgba(255,255,255,.3); }
+  #ui .rec { background:rgba(200,40,40,.85); }
+  #ui .rec:hover { background:#d32f2f; }
+
+  #cover {
+    position:fixed; inset:0; z-index:1000;
+    background:rgba(6,6,6,.94);
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:22px;
+  }
+  #cover.hide { display:none; }
+  #cover h1 {
+    color:#fff; font-size:30px; font-weight:900; letter-spacing:-.6px;
+    text-align:center; line-height:1.28;
+  }
+  #cover p {
+    color:rgba(255,255,255,.62); font-size:15.5px; font-weight:600;
+    text-align:center; line-height:1.75; max-width:660px;
+  }
+  #cover button {
+    margin-top:8px; width:86px; height:86px; border-radius:50%;
+    border:none; background:rgba(255,255,255,.96); color:#111;
+    font-size:30px; cursor:pointer; padding-left:6px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #cover .warn {
+    color:#ffd08a; font-size:14px; font-weight:700;
+    background:rgba(186,117,23,.18); border:.5px solid rgba(255,208,138,.4);
+    padding:12px 22px; border-radius:10px; margin-top:6px;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     KEYFRAMES — herdados dos 7 shorts de origem.
+     Como cada <svg class="scene"> é um documento SVG próprio, os
+     keyframes precisam existir UMA vez aqui no CSS da página:
+     todos os SVGs inline herdam as regras do documento hospedeiro.
+     ═══════════════════════════════════════════════════════════════ */
+  @keyframes bleed { 0%{transform:scale(.7);opacity:0} 40%{opacity:.6} 100%{transform:scale(1.5);opacity:0} }
+  @keyframes chop { 0%,100%{transform:rotate(-12deg)} 50%{transform:rotate(4deg)} }
+  @keyframes clockTick { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(24deg)} }
+  @keyframes drawLine {
+    0%   { stroke-dashoffset: 301 }
+    100% { stroke-dashoffset: 0 }
+  }
+  @keyframes drop { 0%{transform:translateY(-14px);opacity:0} 100%{transform:translateY(0);opacity:1} }
+  @keyframes floatUpDown {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(-7px) }
+  }
+  @keyframes honeyPour {
+    0%   { transform: translateY(-16px) rotate(-26deg); opacity: 0 }
+    22%  { opacity: 1 }
+    60%  { transform: translateY(6px) rotate(-6deg) }
+    100% { transform: translateY(2px) rotate(-10deg); opacity: 1 }
+  }
+  @keyframes honeyStream {
+    0%   { transform: scaleY(.2); opacity: 0 }
+    25%  { opacity: .9 }
+    100% { transform: scaleY(1); opacity: .9 }
+  }
+  @keyframes massageL {
+    0%,100% { transform: translate(0,0) scale(1,1) }
+    50%     { transform: translate(12px,-6px) scale(.93,1.05) }
+  }
+  @keyframes massageR {
+    0%,100% { transform: translate(0,0) scale(1,1) }
+    50%     { transform: translate(-12px,-6px) scale(.93,1.05) }
+  }
+  @keyframes peelStrip {
+    0%   { transform: translate(0,0) rotate(0deg) scaleY(1); opacity: 0 }
+    20%  { opacity: .95 }
+    100% { transform: translate(-34px,74px) rotate(-38deg) scaleY(1.3); opacity: 0 }
+  }
+  @keyframes peelTwist {
+    0%,100% { transform: translate(0,0) rotate(0deg) }
+    35%     { transform: translate(-4px,2px) rotate(-11deg) }
+    70%     { transform: translate(2px,-1px) rotate(9deg) }
+  }
+  @keyframes pressDown {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(15px) }
+  }
+  @keyframes pulse { 0%,100%{opacity:.9} 50%{opacity:.4} }
+  @keyframes pulseRing {
+    0%   { transform: scale(.55); opacity: .7 }
+    100% { transform: scale(1.9); opacity: 0 }
+  }
+  @keyframes rise { 0%{transform:translateY(0);opacity:0} 30%{opacity:.9} 100%{transform:translateY(-95px);opacity:0} }
+  @keyframes riseF {
+    0%   { transform: translateY(0); opacity: 0 }
+    30%  { opacity: .85 }
+    100% { transform: translateY(-88px); opacity: 0 }
+  }
+  @keyframes riseSlow {
+    0%   { transform: translateY(0) scale(.7); opacity: 0 }
+    25%  { opacity: .75 }
+    100% { transform: translateY(-108px) scale(1.15); opacity: 0 }
+  }
+  @keyframes shimmer {
+    0%,100% { opacity: .35 }
+    50%     { opacity: .75 }
+  }
+  @keyframes spin3d {
+    0%   { transform: rotateY(0deg) }
+    100% { transform: rotateY(360deg) }
+  }
+  @keyframes spinFlat {
+    0%   { transform: rotate(0deg) }
+    100% { transform: rotate(360deg) }
+  }
+  @keyframes spinRev {
+    0%   { transform: rotate(0deg) }
+    100% { transform: rotate(-360deg) }
+  }
+  @keyframes squish { 0%,100%{transform:scale(1,1)} 50%{transform:scale(1.06,.92)} }
+  @keyframes tick { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
+  @keyframes wobble { 0%,100%{transform:rotate(-2.5deg)} 50%{transform:rotate(2.5deg)} }
+</style>
+</head>
+<body>
+
+<div id="frame">
+  <div id="bg">
+    <img id="bgimg" alt="">
+    <div id="shade"></div>
+    <div id="vign"></div>
+
+    <!-- ════ painel esquerdo: capítulo atual ════ -->
+    <div class="left">
+      <div id="capnum">01</div>
+      <div id="cname">Repolho<small id="ctag">capítulo 1 de 7</small></div>
+      <div id="cbar"></div>
+      <div id="ctext">Nível: iniciante<small id="chint">O mais fácil de todos. Se você nunca fermentou nada, comece por aqui.</small></div>
+      <div id="cfacts">
+        <b id="fsal">Sal 2%</b>
+        <b id="ftempo">7 dias</b>
+        <b id="fnivel">Iniciante</b>
+      </div>
+    </div>
+
+    <!-- ════ capítulos (thumbnail 1) ════ -->
+    <div id="chapters">
+      <h2>7 legumes.<br><span>30 dias.</span></h2>
+      <p>Do mais fácil ao mais difícil</p>
+      <div id="crow"></div>
+    </div>
+
+    <!-- ════ celular à direita ════ -->
+    <div id="phone">
+      <div id="screen">
+        <div class="nprem"><div id="nprog"></div></div>
+        <div class="nwm">@seucanal</div>
+        <div id="scenes"></div>
+        <div class="ncap" id="ncap">—<small>—</small></div>
+      </div>
+      <div id="phoneTag">gravação vertical · 9:16</div>
+    </div>
+
+    <!-- ════ rodapé ════ -->
+    <div id="foot">
+      <div id="flabel">Rodando</div>
+      <div id="fbar"><div id="ffill"></div></div>
+      <div id="ftime">00:00 / 00:00</div>
+    </div>
+  </div>
+</div>
+
+<div id="ui">
+  <button onclick="prevChapter()">◀ capítulo</button>
+  <button id="btnPlay" onclick="toggle()">⏸ Pausar</button>
+  <button onclick="nextChapter()">capítulo ▶</button>
+  <button class="rec" onclick="reset()">↺ Reiniciar</button>
+</div>
+
+<div id="cover">
+  <h1>7 legumes fermentados<br>do mais fácil ao mais difícil</h1>
+  <p>
+    Aperte play e grave a tela com o OBS em <b>1920×1080</b>.<br>
+    Deixe rolar até o fim — são cerca de 6 minutos de animação.<br>
+    Depois corte no CapCut e cole os vídeos reais nos intervalos.
+  </p>
+  <div class="warn">Antes de gravar: esconda o mouse no canto e não mexa em nada.</div>
+  <button onclick="play()">▶</button>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+  <radialGradient id="bgGrad" cx="42%" cy="30%" r="78%">
+    <stop offset="0%" stop-color="#3b6d11" stop-opacity=".55"/>
+    <stop offset="60%" stop-color="#14320a" stop-opacity=".3"/>
+    <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+  </radialGradient>
+</defs>
+</svg>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   CAPÍTULOS — um por legume.
+   Cada capítulo roda as cenas do short de origem + 1 cena-cartão
+   (a tela que você cobre depois com o vídeo real do celular).
+   ═══════════════════════════════════════════════════════════════ */
+
+const CAPS = [
+  {
+    nome:'Repolho', num:'01', nivel:'Iniciante',
+    sal:'Sal 2%', tempo:'7 dias', cor:'#3b6d11',
+    hint:'O mais fácil de todos. Se você nunca fermentou nada, comece por aqui.',
+    load:renderRepolho
+  },
+  {
+    nome:'Cenoura', num:'02', nivel:'Iniciante',
+    sal:'Sal 2%', tempo:'6 dias', cor:'#ba7517',
+    hint:'Também é para iniciante, mas solta pouca água — vai precisar de salmoura.',
+    load:renderCenoura
+  },
+  {
+    nome:'Rabanete', num:'03', nivel:'Iniciante',
+    sal:'Sal 2%', tempo:'5-7 dias', cor:'#c1272d',
+    hint:'O mais rápido da lista. Cuidado com um detalhe: só 3 minutos de massagem.',
+    load:renderRabanete
+  },
+  {
+    nome:'Couve-flor', num:'04', nivel:'Intermediário',
+    sal:'Sal 2,5%', tempo:'7-10 dias', cor:'#7a8f2a',
+    hint:'Aqui o sal sobe para 2,5%, porque a couve-flor solta menos água. E quebre com a mão.',
+    load:renderCouveflor
+  },
+  {
+    nome:'Beterraba', num:'05', nivel:'Intermediário',
+    sal:'Sal 2%', tempo:'9 dias', cor:'#8e3a68',
+    hint:'A mais bonita do vídeo — e a que deixa sua mão rosa por dois dias.',
+    load:renderBeterraba
+  },
+  {
+    nome:'Beterraba + couve', num:'06', nivel:'Paciente',
+    sal:'Sal 2%', tempo:'10-14 dias', cor:'#a01e52',
+    hint:'Em camadas alternadas, nunca misturado. A couve absorve a cor da beterraba.',
+    load:null
+  },
+  {
+    nome:'Alho no mel', num:'07', nivel:'Avançado',
+    sal:'Nem um pouco', tempo:'3-4 semanas', cor:'#b8862b',
+    hint:'O clímax. Sem sal, sem vinagre, só mel cru. E o único onde uma gota de água estraga tudo.',
+    load:renderAlho
+  }
+];
+
+/* ═══ cenas de cada short — portadas na íntegra ═══ */
+function renderRepolho(){ return {
+  h:6, scenes:[
+  { id:'r0', ms:4400, cap:'Vou fermentar esse repolho', sub:'e só volto aqui no dia 7', color:'#3b6d11',
+    body:`<rect width="405" height="720" fill="#eaf3de"/><circle cx="202" cy="300" r="140" fill="#c0dd97" opacity=".55"/><g transform="translate(202,300)"><ellipse cx="0" cy="0" rx="105" ry="88" fill="#eaf3de"/><ellipse cx="0" cy="0" rx="92" ry="77" fill="#d4e8b8"/><path d="M0,-77 Q38,-38 0,0 Q-38,-38 0,-77Z" fill="#97c459" opacity=".85"/><path d="M0,0 Q38,38 0,77 Q-38,38 0,0Z" fill="#97c459" opacity=".85"/><path d="M-92,0 Q-42,-30 0,0 Q-42,30 -92,0Z" fill="#97c459" opacity=".85"/><path d="M92,0 Q42,-30 0,0 Q42,30 92,0Z" fill="#97c459" opacity=".85"/><ellipse cx="0" cy="0" rx="26" ry="22" fill="#c0dd97"/><ellipse cx="-34" cy="-30" rx="26" ry="15" fill="#fff" opacity=".4"/></g><g transform="translate(300,196)"><rect x="-5" y="0" width="10" height="52" rx="4" fill="#5f5e5a" style="animation:chop 1.1s ease-in-out infinite"/><path d="M-4,52 L4,52 L6,120 L-6,120Z" fill="#b4b2a9" style="animation:chop 1.1s ease-in-out infinite"/></g>` },
+  { id:'r1', ms:4400, cap:'Sal, repolho e paciência', sub:'não precisa de mais nada', color:'#1d9e75',
+    body:`<rect width="405" height="720" fill="#e1f5ee"/><g transform="translate(202,290)"><ellipse cx="0" cy="90" rx="150" ry="26" fill="#9fe1cb" opacity=".5"/><ellipse cx="0" cy="0" rx="112" ry="82" fill="#f4fbf8" stroke="#1d9e75" stroke-width="3"/><path d="M-92,-24 Q0,-56 92,-24" stroke="#5dcaa5" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M-96,4 Q0,-28 96,4" stroke="#5dcaa5" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M-88,32 Q0,0 88,32" stroke="#5dcaa5" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M-70,58 Q0,30 70,58" stroke="#5dcaa5" stroke-width="4" fill="none" stroke-linecap="round"/></g><g style="animation:drop 1.3s ease-out infinite"><circle cx="196" cy="120" r="4" fill="#fff"/><circle cx="214" cy="108" r="3.4" fill="#fff"/><circle cx="180" cy="106" r="3" fill="#fff"/><circle cx="228" cy="128" r="3.6" fill="#fff"/></g>` },
+  { id:'r2', ms:4600, cap:'Sal é 2% do peso', sub:'1,5 kg de repolho = 30 g de sal', color:'#ba7517',
+    body:`<rect width="405" height="720" fill="#faeeda"/><ellipse cx="202" cy="440" rx="160" ry="34" fill="#fac775" opacity=".55"/><g transform="translate(120,250)"><ellipse cx="0" cy="0" rx="78" ry="62" fill="#eaf3de"/><ellipse cx="0" cy="0" rx="66" ry="52" fill="#d4e8b8"/><path d="M0,-52 Q26,-26 0,0 Q-26,-26 0,-52Z" fill="#97c459" opacity=".8"/><path d="M-66,0 Q-30,-20 0,0 Q-30,20 -66,0Z" fill="#97c459" opacity=".8"/><text x="0" y="8" text-anchor="middle" font-size="30" font-weight="700" fill="#3b6d11" font-family="system-ui">1,5</text><text x="0" y="34" text-anchor="middle" font-size="16" font-weight="600" fill="#3b6d11" font-family="system-ui">kg</text></g><text x="222" y="262" text-anchor="middle" font-size="46" font-weight="800" fill="#ba7517" font-family="system-ui">=</text><g transform="translate(300,250)"><path d="M-52,-34 L52,-34 L44,52 Q0,66 -44,52Z" fill="#f7f5ef" stroke="#ba7517" stroke-width="3.5"/><rect x="-46" y="-24" width="92" height="14" rx="4" fill="#fac775"/><text x="0" y="22" text-anchor="middle" font-size="28" font-weight="800" fill="#854f0b" font-family="system-ui">30</text><text x="0" y="44" text-anchor="middle" font-size="15" font-weight="600" fill="#854f0b" font-family="system-ui">gramas</text></g><g style="animation:drop 1.2s ease-out infinite"><circle cx="300" cy="150" r="3.6" fill="#fff" stroke="#ef9f27" stroke-width="1.4"/><circle cx="288" cy="134" r="3" fill="#fff" stroke="#ef9f27" stroke-width="1.4"/><circle cx="312" cy="130" r="3.2" fill="#fff" stroke="#ef9f27" stroke-width="1.4"/><circle cx="322" cy="150" r="2.8" fill="#fff" stroke="#ef9f27" stroke-width="1.4"/></g>` },
+  { id:'r3', ms:5200, cap:'Massageia 10 minutos', sub:'a água sai sozinha do repolho', color:'#d85a30',
+    body:`<rect width="405" height="720" fill="#faece7"/><ellipse cx="202" cy="500" rx="175" ry="40" fill="#f0997b" opacity=".4"/><g transform="translate(202,300)"><ellipse cx="0" cy="0" rx="132" ry="100" fill="#f5c4b3"/><ellipse cx="0" cy="-6" rx="118" ry="88" fill="#faece7"/><g transform="translate(-42,-38)"><path d="M-24,0 Q0,-22 24,0 Q0,22 -24,0Z" fill="#f0997b" style="animation:squish 1.1s ease-in-out infinite"/></g><g transform="translate(42,-38)"><path d="M-24,0 Q0,-22 24,0 Q0,22 -24,0Z" fill="#f0997b" style="animation:squish 1.1s ease-in-out infinite"/></g><path d="M-40,52 Q0,78 40,52" stroke="#d85a30" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".5"/><path d="M-52,70 Q0,98 52,70" stroke="#d85a30" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".35"/><circle cx="0" cy="30" r="7" fill="#d85a30" opacity=".45" style="animation:pulse 1.2s ease-in-out infinite"/><circle cx="-26" cy="44" r="5" fill="#d85a30" opacity=".4" style="animation:pulse 1.5s ease-in-out infinite"/><circle cx="30" cy="40" r="6" fill="#d85a30" opacity=".4" style="animation:pulse 1.3s ease-in-out infinite"/></g>` },
+  { id:'r4', ms:5000, cap:'Prensa tudo pra baixo', sub:'o líquido precisa cobrir tudo', color:'#7f77dd',
+    body:`<rect width="405" height="720" fill="#eeedfe"/><ellipse cx="202" cy="530" rx="150" ry="34" fill="#cecbf6" opacity=".5"/><g transform="translate(202,300)"><path d="M-104,110 L-104,-40 Q-104,-58 -86,-58 L86,-58 Q104,-58 104,-40 L104,110 Z" fill="#f7f5ef" stroke="#7f77dd" stroke-width="4"/><rect x="-104" y="-58" width="208" height="24" rx="6" fill="#cecbf6" stroke="#7f77dd" stroke-width="4"/><path d="M-104,40 L-104,-14 Q-104,-30 -86,-30 L86,-30 Q104,-30 104,-14 L104,40 Z" fill="#c0dd97" opacity=".9"/><path d="M-92,26 Q0,-2 92,26 Q0,54 -92,26Z" fill="#97c459" opacity=".85"/><g style="animation:rise 2.1s ease-out infinite"><circle cx="-58" cy="30" r="5" fill="#fff" opacity=".8"/><circle cx="-24" cy="40" r="4" fill="#fff" opacity=".8"/><circle cx="18" cy="34" r="4.5" fill="#fff" opacity=".8"/><circle cx="54" cy="42" r="3.6" fill="#fff" opacity=".8"/></g><g style="animation:rise 2.1s ease-out .7s infinite"><circle cx="-40" cy="44" r="4" fill="#fff" opacity=".7"/><circle cx="4" cy="48" r="5" fill="#fff" opacity=".7"/><circle cx="42" cy="44" r="3.4" fill="#fff" opacity=".7"/></g></g>` },
+  { id:'r5', ms:5000, cap:'Agora é só esperar', sub:'volta no dia 7 pra ver', color:'#5f5e5a',
+    body:`<rect width="405" height="720" fill="#f1efe8"/><circle cx="202" cy="310" r="132" fill="#d3d1c7" opacity=".45"/><g transform="translate(202,310)"><g style="animation:wobble 2.4s ease-in-out infinite"><circle cx="0" cy="0" r="96" fill="#f7f5ef" stroke="#5f5e5a" stroke-width="4"/><path d="M0,-96 L0,0 L70,66" stroke="#5f5e5a" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M0,0 L-62,-58" stroke="#888780" stroke-width="4.5" stroke-linecap="round" fill="none"/><circle cx="0" cy="0" r="7" fill="#5f5e5a"/></g><text x="0" y="140" text-anchor="middle" font-size="17" font-weight="700" fill="#444441" font-family="system-ui">7 dias</text></g><g transform="translate(202,132)"><circle cx="0" cy="0" r="26" fill="#eaf3de" stroke="#639922" stroke-width="3"/><path d="M0,-13 L0,13 M-13,0 L13,0" stroke="#3b6d11" stroke-width="4" stroke-linecap="round" style="animation:pulse 1.6s ease-in-out infinite"/></g>` }
+]};}
+
+function renderCenoura(){ return {
+  h:7, scenes:[
+  { id:'c0', ms:4400, cap:'Vou fermentar cenoura', sub:'e volto aqui em 5 dias', color:'#ba7517',
+    body:`<rect width="405" height="720" fill="#faeeda"/><circle cx="202" cy="300" r="140" fill="#fac775" opacity=".5"/><g transform="translate(202,300)"><path d="M-30,-96 L30,-96 L18,88 Q0,104 -18,88Z" fill="#ef9f27"/><path d="M-30,-96 L30,-96 L24,-40 L-24,-40Z" fill="#ba7517"/><path d="M-14,-96 L-22,-120 L-6,-108Z" fill="#639922"/><path d="M14,-96 L22,-120 L6,-108Z" fill="#97c459"/><path d="M0,-96 L2,-126 L10,-106Z" fill="#639922"/><path d="M-26,-6 Q0,10 26,-6" stroke="#ba7517" stroke-width="2.5" fill="none" opacity=".6"/><path d="M-24,34 Q0,50 24,34" stroke="#ba7517" stroke-width="2.5" fill="none" opacity=".45"/><ellipse cx="-10" cy="-56" rx="7" ry="26" fill="#fff" opacity=".3"/></g><g transform="translate(300,192)"><rect x="-5" y="0" width="10" height="50" rx="4" fill="#5f5e5a" style="animation:chop 1.1s ease-in-out infinite"/><path d="M-4,50 L4,50 L6,118 L-6,118Z" fill="#b4b2a9" style="animation:chop 1.1s ease-in-out infinite"/></g>` },
+  { id:'c1', ms:4400, cap:'Primeiro: descascar e cortar', sub:'em palitos, do mesmo tamanho', color:'#d85a30',
+    body:`<rect width="405" height="720" fill="#faece7"/><ellipse cx="202" cy="520" rx="170" ry="40" fill="#f0997b" opacity=".3"/><g transform="translate(140,290)"><ellipse cx="0" cy="0" rx="52" ry="44" fill="#f5c4b3"/><ellipse cx="0" cy="-4" rx="42" ry="35" fill="#faece7"/><path d="M-30,-72 L30,-72 L22,-56 L-22,-56Z" fill="#97c459"/><g style="animation:chop 1.4s ease-in-out infinite"><rect x="-22" y="-30" width="44" height="7" rx="3" fill="#ef9f27"/></g><path d="M-34,20 Q0,38 34,20" stroke="#d85a30" stroke-width="2.5" fill="none" opacity=".45" stroke-linecap="round"/></g><g transform="translate(292,290)"><rect x="-17" y="-96" width="34" height="182" rx="12" fill="#f5c4b3"/><ellipse cx="0" cy="-88" rx="15" ry="8" fill="#faece7"/><path d="M-17,-34 L17,-34 M-17,-6 L17,-6 M-17,22 L17,22 M-17,50 L17,50" stroke="#faece7" stroke-width="3" opacity=".8"/><path d="M-9,-96 L-9,86" stroke="#fff" stroke-width="5" opacity=".28" stroke-linecap="round"/></g>` },
+  { id:'c2', ms:4600, cap:'Sal é 2% do peso', sub:'200 g de cenoura = 4 g de sal', color:'#3b6d11',
+    body:`<rect width="405" height="720" fill="#eaf3de"/><ellipse cx="202" cy="530" rx="150" ry="34" fill="#c0dd97" opacity=".5"/><g transform="translate(120,300)"><rect x="-30" y="-100" width="60" height="196" rx="18" fill="#ef9f27"/><path d="M-30,-46 L30,-46 M-30,10 L30,10 M-30,66 L30,66" stroke="#ba7517" stroke-width="3" opacity=".55"/><text x="0" y="128" text-anchor="middle" font-size="24" font-weight="800" fill="#854f0b" font-family="system-ui">200 g</text></g><g transform="translate(288,300)"><path d="M-46,-38 L46,-38 L40,84 Q0,98 -40,84Z" fill="#f7f5ef" stroke="#ba7517" stroke-width="3.5"/><rect x="-40" y="-28" width="80" height="13" rx="4" fill="#fac775"/><text x="0" y="24" text-anchor="middle" font-size="30" font-weight="800" fill="#854f0b" font-family="system-ui">4 g</text><text x="0" y="50" text-anchor="middle" font-size="14" font-weight="600" fill="#854f0b" font-family="system-ui">de sal</text></g>` },
+  { id:'c3', ms:4600, cap:'Cenoura fermenta rápido', sub:'de 5 a 7 dias já tá pronta', color:'#ba7517',
+    body:`<rect width="405" height="720" fill="#faeeda"/><g transform="translate(202,270)"><ellipse cx="0" cy="86" rx="150" ry="30" fill="#fac775" opacity=".5"/><ellipse cx="0" cy="0" rx="118" ry="84" fill="#f7f5ef" stroke="#ba7517" stroke-width="3"/><g style="animation:rise 1.8s ease-out infinite"><circle cx="-70" cy="24" r="5" fill="#ef9f27" opacity=".8"/><circle cx="-34" cy="34" r="4.5" fill="#ef9f27" opacity=".8"/></g><g style="animation:rise 1.8s ease-out .5s infinite"><circle cx="6" cy="30" r="5" fill="#ef9f27" opacity=".8"/><circle cx="42" cy="38" r="4" fill="#ef9f27" opacity=".8"/></g><g style="animation:rise 1.8s ease-out 1s infinite"><circle cx="76" cy="26" r="4.5" fill="#ef9f27" opacity=".8"/></g></g><g transform="translate(202,510)"><rect x="-92" y="-30" width="184" height="60" rx="10" fill="#f7f5ef" stroke="#639922" stroke-width="3"/><text x="0" y="8" text-anchor="middle" font-size="21" font-weight="800" fill="#3b6d11" font-family="system-ui">5 A 7 DIAS</text></g>` },
+  { id:'c4', ms:5000, cap:'Prensa tudo no pote', sub:'o líquido precisa cobrir tudo', color:'#ba7517',
+    body:`<rect width="405" height="720" fill="#faece7"/><g transform="translate(202,300)"><path d="M-104,110 L-104,-40 Q-104,-58 -86,-58 L86,-58 Q104,-58 104,-40 L104,110 Z" fill="#f7f5ef" stroke="#ba7517" stroke-width="4"/><rect x="-104" y="-58" width="208" height="24" rx="6" fill="#fac775" stroke="#ba7517" stroke-width="4"/><path d="M-104,40 L-104,-14 Q-104,-30 -86,-30 L86,-30 Q104,-30 104,-14 L104,40 Z" fill="#ef9f27" opacity=".85"/><g fill="#ef9f27"><rect x="-88" y="4" width="22" height="60" rx="8" transform="rotate(-9 -77 34)"/><rect x="-52" y="-6" width="22" height="70" rx="8" transform="rotate(6 -41 29)"/><rect x="-14" y="2" width="22" height="62" rx="8" transform="rotate(-4 -3 33)"/><rect x="24" y="-8" width="22" height="72" rx="8" transform="rotate(8 35 28)"/><rect x="60" y="6" width="22" height="58" rx="8" transform="rotate(-7 71 35)"/></g><g style="animation:rise 2.1s ease-out infinite"><circle cx="-58" cy="26" r="5" fill="#fff" opacity=".75"/><circle cx="-20" cy="36" r="4" fill="#fff" opacity=".75"/><circle cx="22" cy="30" r="4.5" fill="#fff" opacity=".75"/><circle cx="58" cy="38" r="3.6" fill="#fff" opacity=".75"/></g><g style="animation:rise 2.1s ease-out .7s infinite"><circle cx="-38" cy="40" r="4" fill="#fff" opacity=".65"/><circle cx="4" cy="44" r="5" fill="#fff" opacity=".65"/><circle cx="44" cy="40" r="3.4" fill="#fff" opacity=".65"/></g></g>` },
+  { id:'c5', ms:4600, cap:'Agora é só esperar', sub:'5 dias, mexendo todo dia', color:'#5f5e5a',
+    body:`<rect width="405" height="720" fill="#f1efe8"/><circle cx="202" cy="300" r="132" fill="#d3d1c7" opacity=".4"/><g transform="translate(202,300)"><g style="animation:tick 2.4s ease-in-out infinite"><circle cx="0" cy="0" r="96" fill="#f7f5ef" stroke="#5f5e5a" stroke-width="4"/><path d="M0,-96 L0,0 L66,70" stroke="#5f5e5a" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M0,0 L-58,-60" stroke="#888780" stroke-width="4.5" stroke-linecap="round" fill="none"/><circle cx="0" cy="0" r="7" fill="#5f5e5a"/></g></g><g transform="translate(202,466)"><rect x="-104" y="-32" width="208" height="64" rx="12" fill="#eaf3de" stroke="#639922" stroke-width="3"/><text x="0" y="9" text-anchor="middle" font-size="22" font-weight="800" fill="#3b6d11" font-family="system-ui">5 DIAS DEPOIS</text></g>` },
+  { id:'c6', ms:5000, cap:'Ficou pronta', sub:'crocante, azedinha e conservada', color:'#3b6d11',
+    body:`<rect width="405" height="720" fill="#eaf3de"/><circle cx="202" cy="290" r="130" fill="#c0dd97" opacity=".55"/><g transform="translate(202,290)"><circle cx="0" cy="0" r="82" fill="#f7f5ef" stroke="#639922" stroke-width="4"/><path d="M-32,4 L-8,30 L34,-24" stroke="#3b6d11" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(202,452)"><text x="0" y="0" text-anchor="middle" font-size="25" font-weight="800" fill="#27500a" font-family="system-ui">Pronta pra comer</text><text x="0" y="32" text-anchor="middle" font-size="15" font-weight="600" fill="#3b6d11" font-family="system-ui">crocante e azedinha</text></g>` }
+]};}
+
+function renderRabanete(){ return {
+  h:7, scenes:[
+  { id:'b0', ms:4400, cap:'Rabanete: o mais rápido', sub:'5 dias e já está pronto', color:'#c1272d',
+    body:`<rect width="405" height="720" fill="#fef8f8"/><ellipse cx="202" cy="510" rx="176" ry="56" fill="#e2a8ae" opacity=".5"/><g transform="translate(202,392)"><g style="animation:floatUpDown 3.2s ease-in-out infinite"><path d="M-6,-62 Q-54,-108 -50,-172" stroke="#68a02f" stroke-width="15" fill="none" stroke-linecap="round"/><path d="M0,-64 Q14,-124 4,-190" stroke="#68a02f" stroke-width="16" fill="none" stroke-linecap="round"/><path d="M6,-62 Q56,-106 58,-166" stroke="#68a02f" stroke-width="15" fill="none" stroke-linecap="round"/><path d="M-11,-52 L-8,-20 L-2,-20 L-4,-52Z" fill="#e05a72"/><path d="M3,-54 L2,-20 L9,-20 L9,-54Z" fill="#c1272d"/><ellipse cx="0" cy="34" rx="66" ry="72" fill="#c1272d"/><path d="M0,102 Q2,140 0,164" stroke="#a81626" stroke-width="8" fill="none" stroke-linecap="round"/><ellipse cx="-24" cy="0" rx="22" ry="18" fill="#fff" opacity=".22" transform="rotate(-26 -24 0)"/><ellipse cx="-17" cy="-12" rx="10" ry="7" fill="#fff" opacity=".28" transform="rotate(-26 -17 -12)"/></g></g>` },
+  { id:'b1', ms:4400, cap:'Rodelas finas de 3 mm', sub:'a espessura muda tudo', color:'#c1272d',
+    body:`<rect width="405" height="720" fill="#fdf4f4"/><ellipse cx="202" cy="520" rx="168" ry="46" fill="#e2a8ae" opacity=".35"/><ellipse cx="202" cy="470" rx="150" ry="34" fill="#f7d8dc"/><g><ellipse cx="140" cy="452" rx="46" ry="20" fill="#f0455f"/><ellipse cx="140" cy="448" rx="36" ry="14" fill="#ffd4da"/><ellipse cx="212" cy="462" rx="46" ry="20" fill="#e03a52"/><ellipse cx="212" cy="458" rx="36" ry="14" fill="#ffe2e6"/><ellipse cx="284" cy="450" rx="46" ry="20" fill="#f0455f"/><ellipse cx="284" cy="446" rx="36" ry="14" fill="#ffd4da"/></g><g transform="translate(300,260)"><rect x="-5" y="0" width="10" height="50" rx="4" fill="#5f5e5a" style="animation:chop 1.1s ease-in-out infinite"/><path d="M-4,50 L4,50 L6,118 L-6,118Z" fill="#b4b2a9" style="animation:chop 1.1s ease-in-out infinite"/></g>` },
+  { id:'b2', ms:4600, cap:'Aqui o sal também é 2%', sub:'300 g de rabanete = 6 g de sal', color:'#ba7517',
+    body:`<rect width="405" height="720" fill="#faeeda"/><g transform="translate(126,320)"><ellipse cx="0" cy="0" rx="56" ry="56" fill="#c1272d"/><ellipse cx="0" cy="0" rx="44" ry="44" fill="#f7d8dc"/><text x="0" y="82" text-anchor="middle" font-size="22" font-weight="800" fill="#8a0f1e" font-family="system-ui">300 g</text></g><g transform="translate(240,300)"><path d="M-48,-38 L48,-38 L42,84 Q0,98 -42,84Z" fill="#f7f5ef" stroke="#ba7517" stroke-width="3.5"/><rect x="-42" y="-28" width="84" height="13" rx="4" fill="#fac775"/><text x="0" y="24" text-anchor="middle" font-size="30" font-weight="800" fill="#854f0b" font-family="system-ui">6 g</text><text x="0" y="50" text-anchor="middle" font-size="14" font-weight="600" fill="#854f0b" font-family="system-ui">de sal</text></g>` },
+  { id:'b3', ms:5200, cap:'SÓ 3 MINUTOS de massagem', sub:'mais que isso vira papa', color:'#d85a30',
+    body:`<rect width="405" height="720" fill="#faece7"/><ellipse cx="202" cy="500" rx="175" ry="40" fill="#f0997b" opacity=".4"/><g transform="translate(202,306)"><ellipse cx="0" cy="0" rx="132" ry="96" fill="#f5c4b3"/><ellipse cx="0" cy="-6" rx="118" ry="84" fill="#faece7"/><g transform="translate(-40,-32)"><g style="animation:massageL 1.05s ease-in-out infinite"><ellipse cx="-22" cy="-20" rx="10" ry="17" fill="#6b4636" transform="rotate(-28 -22 -20)"/><ellipse cx="-21" cy="-27" rx="5" ry="5.4" fill="#e8c9b8" opacity=".9"/><ellipse cx="-28" cy="0" rx="9" ry="16" fill="#6b4636" transform="rotate(-16 -28 0)"/><ellipse cx="-27" cy="-7" rx="4.6" ry="5" fill="#e8c9b8" opacity=".9"/><ellipse cx="0" cy="0" rx="34" ry="29" fill="#6b4636"/><ellipse cx="12" cy="-26" rx="11" ry="9" fill="#6b4636" transform="rotate(20 12 -26)"/><ellipse cx="15" cy="-32" rx="5.4" ry="4.6" fill="#e8c9b8" opacity=".9"/></g></g><g transform="translate(40,-32)"><g style="animation:massageR 1.05s ease-in-out .5s infinite"><ellipse cx="22" cy="-20" rx="10" ry="17" fill="#6b4636" transform="rotate(28 22 -20)"/><ellipse cx="21" cy="-27" rx="5" ry="5.4" fill="#e8c9b8" opacity=".9"/><ellipse cx="28" cy="0" rx="9" ry="16" fill="#6b4636" transform="rotate(16 28 0)"/><ellipse cx="27" cy="-7" rx="4.6" ry="5" fill="#e8c9b8" opacity=".9"/><ellipse cx="0" cy="0" rx="34" ry="29" fill="#6b4636"/><ellipse cx="-12" cy="-26" rx="11" ry="9" fill="#6b4636" transform="rotate(-20 -12 -26)"/><ellipse cx="-15" cy="-32" rx="5.4" ry="4.6" fill="#e8c9b8" opacity=".9"/></g></g><g style="animation:riseF 1.6s ease-out infinite"><circle cx="-50" cy="60" r="5.5" fill="#f0997b" opacity=".8"/><circle cx="-8" cy="72" r="4.6" fill="#f0997b" opacity=".8"/><circle cx="34" cy="64" r="5" fill="#f0997b" opacity=".8"/></g></g><g transform="translate(202,510)"><rect x="-96" y="-28" width="192" height="56" rx="10" fill="#c1272d"/><text x="0" y="6" text-anchor="middle" font-size="22" font-weight="900" fill="#fff" font-family="system-ui">3 MIN · NEM UM MINUTO A MAIS</text></g>` },
+  { id:'b4', ms:5000, cap:'Prensa no pote pequeno', sub:'rabanete solta pouca água', color:'#8e3a68',
+    body:`<rect width="405" height="720" fill="#fdf4f4"/><g transform="translate(202,300)"><path d="M-96,116 L-96,-38 Q-96,-56 -78,-56 L78,-56 Q96,-56 96,-38 L96,116 Z" fill="#f7f5ef" stroke="#c1272d" stroke-width="4"/><rect x="-96" y="-56" width="192" height="24" rx="6" fill="#f7c1c1" stroke="#c1272d" stroke-width="4"/><path d="M-96,44 L-96,-12 Q-96,-28 -78,-28 L78,-28 Q96,-28 96,-12 L96,44 Z" fill="#f0455f" opacity=".85"/><g fill="#e03a52"><rect x="-80" y="8" width="22" height="58" rx="8" transform="rotate(-9 -69 37)"/><rect x="-44" y="-2" width="22" height="68" rx="8" transform="rotate(6 -33 32)"/><rect x="-8" y="6" width="22" height="60" rx="8" transform="rotate(-4 3 36)"/><rect x="28" y="-4" width="22" height="70" rx="8" transform="rotate(8 39 31)"/><rect x="62" y="10" width="20" height="54" rx="8" transform="rotate(-7 72 37)"/></g><g style="animation:rise 2.1s ease-out infinite"><circle cx="-50" cy="30" r="4.6" fill="#fff" opacity=".75"/><circle cx="-12" cy="40" r="4" fill="#fff" opacity=".75"/><circle cx="30" cy="34" r="4.4" fill="#fff" opacity=".75"/></g></g>` },
+  { id:'b5', ms:4600, cap:'5 dias na bancada', sub:'prova no dia 5, não antes', color:'#5f5e5a',
+    body:`<rect width="405" height="720" fill="#f1efe8"/><circle cx="202" cy="300" r="132" fill="#d3d1c7" opacity=".4"/><g transform="translate(202,300)"><g style="animation:clockTick 2.4s ease-in-out infinite"><circle cx="0" cy="0" r="96" fill="#f7f5ef" stroke="#5f5e5a" stroke-width="4"/><path d="M0,-96 L0,0 L64,72" stroke="#5f5e5a" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M0,0 L-60,-56" stroke="#888780" stroke-width="4.5" stroke-linecap="round" fill="none"/><circle cx="0" cy="0" r="7" fill="#5f5e5a"/></g></g><g transform="translate(202,470)"><rect x="-100" y="-30" width="200" height="60" rx="11" fill="#fcebeb" stroke="#c1272d" stroke-width="3"/><text x="0" y="8" text-anchor="middle" font-size="21" font-weight="800" fill="#a32d2d" font-family="system-ui">5 DIAS</text></g>` },
+  { id:'b6', ms:5000, cap:'Crocante e cor de rosa vivo', sub:'o mais bonito da lista', color:'#c1272d',
+    body:`<rect width="405" height="720" fill="#fcebeb"/><circle cx="202" cy="290" r="132" fill="#f7c1c1" opacity=".55"/><g transform="translate(202,290)"><circle cx="0" cy="0" r="82" fill="#f7f5ef" stroke="#c1272d" stroke-width="4"/><path d="M-32,4 L-8,30 L34,-24" stroke="#c1272d" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(202,452)"><text x="0" y="0" text-anchor="middle" font-size="25" font-weight="800" fill="#501313" font-family="system-ui">Pronto em 5 dias</text><text x="0" y="32" text-anchor="middle" font-size="15" font-weight="600" fill="#a32d2d" font-family="system-ui">crocante, rosa vivo e azedinho</text></g>` }
+]};}
+
+function renderCouveflor(){ return {
+  h:7, scenes:[
+  { id:'f0', ms:4400, cap:'Couve-flor fermentada', sub:'quebrada com a mão, não com faca', color:'#7a8f2a',
+    body:`<rect width="405" height="720" fill="#f4f6e8"/><circle cx="202" cy="290" r="140" fill="#d8e0a8" opacity=".55"/><g transform="translate(202,300)"><circle cx="0" cy="0" r="62" fill="#f7f9ee"/><circle cx="-54" cy="10" r="42" fill="#eef3d8"/><circle cx="54" cy="10" r="42" fill="#eef3d8"/><circle cx="-30" cy="52" r="42" fill="#e9f0cc"/><circle cx="30" cy="52" r="42" fill="#e9f0cc"/><path d="M-96,36 Q-72,20 -44,40" stroke="#a7c95a" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M0,80 Q0,110 2,132" stroke="#a7c95a" stroke-width="12" fill="none" stroke-linecap="round"/><path d="M-30,-44 Q-52,-72 -78,-86" stroke="#a7c95a" stroke-width="11" fill="none" stroke-linecap="round"/></g>` },
+  { id:'f1', ms:4400, cap:'QUebre com a mão', sub:'a faca machuca e amarga', color:'#7a8f2a',
+    body:`<rect width="405" height="720" fill="#f7f2e8"/><ellipse cx="202" cy="512" rx="172" ry="44" fill="#d8c77a" opacity=".38"/><g transform="translate(202,368)"><circle cx="0" cy="0" r="58" fill="#f7f9ee"/><circle cx="-50" cy="8" r="38" fill="#eef3d8"/><circle cx="50" cy="8" r="38" fill="#eef3d8"/><circle cx="-26" cy="46" r="38" fill="#e9f0cc"/><circle cx="26" cy="46" r="38" fill="#e9f0cc"/><path d="M0,66 Q0,92 2,112" stroke="#a7c95a" stroke-width="11" fill="none" stroke-linecap="round"/></g><g transform="translate(128,300)"><g style="animation:massageL 1.05s ease-in-out infinite"><ellipse cx="-22" cy="-20" rx="10" ry="17" fill="#6b4636" transform="rotate(-28 -22 -20)"/><ellipse cx="-21" cy="-27" rx="5" ry="5.4" fill="#e8c9b8" opacity=".9"/><ellipse cx="-28" cy="0" rx="9" ry="16" fill="#6b4636" transform="rotate(-16 -28 0)"/><ellipse cx="-27" cy="-7" rx="4.6" ry="5" fill="#e8c9b8" opacity=".9"/><ellipse cx="0" cy="0" rx="34" ry="29" fill="#6b4636"/><ellipse cx="12" cy="-26" rx="11" ry="9" fill="#6b4636" transform="rotate(20 12 -26)"/><ellipse cx="15" cy="-32" rx="5.4" ry="4.6" fill="#e8c9b8" opacity=".9"/></g></g><g transform="translate(276,300)"><g style="animation:massageR 1.05s ease-in-out .5s infinite"><ellipse cx="22" cy="-20" rx="10" ry="17" fill="#6b4636" transform="rotate(28 22 -20)"/><ellipse cx="21" cy="-27" rx="5" ry="5.4" fill="#e8c9b8" opacity=".9"/><ellipse cx="28" cy="0" rx="9" ry="16" fill="#6b4636" transform="rotate(16 28 0)"/><ellipse cx="27" cy="-7" rx="4.6" ry="5" fill="#e8c9b8" opacity=".9"/><ellipse cx="0" cy="0" rx="34" ry="29" fill="#6b4636"/><ellipse cx="-12" cy="-26" rx="11" ry="9" fill="#6b4636" transform="rotate(-20 -12 -26)"/><ellipse cx="-15" cy="-32" rx="5.4" ry="4.6" fill="#e8c9b8" opacity=".9"/></g></g>` },
+  { id:'f2', ms:5200, cap:'O sal aqui é 2,5%', sub:'mais que os outros, e tem motivo', color:'#ba7517',
+    body:`<rect width="405" height="720" fill="#faeeda"/><ellipse cx="202" cy="540" rx="152" ry="32" fill="#fac775" opacity=".5"/><g transform="translate(120,300)"><circle cx="0" cy="0" r="48" fill="#f7f9ee"/><circle cx="-36" cy="6" r="28" fill="#eef3d8"/><circle cx="36" cy="6" r="28" fill="#eef3d8"/><circle cx="0" cy="36" r="28" fill="#e9f0cc"/><text x="0" y="112" text-anchor="middle" font-size="22" font-weight="800" fill="#6b7a20" font-family="system-ui">500 g</text></g><g transform="translate(288,300)"><path d="M-48,-38 L48,-38 L42,84 Q0,98 -42,84Z" fill="#f7f5ef" stroke="#ba7517" stroke-width="3.5"/><rect x="-42" y="-28" width="84" height="13" rx="4" fill="#fac775"/><text x="0" y="24" text-anchor="middle" font-size="28" font-weight="800" fill="#854f0b" font-family="system-ui">12,5 g</text><text x="0" y="50" text-anchor="middle" font-size="14" font-weight="600" fill="#854f0b" font-family="system-ui">de sal</text></g><g transform="translate(202,168)"><rect x="-104" y="-30" width="208" height="60" rx="11" fill="#fff" stroke="#ba7517" stroke-width="3"/><text x="0" y="0" text-anchor="middle" font-size="20" font-weight="900" fill="#854f0b" font-family="system-ui">2,5% E NÃO 2%</text><text x="0" y="22" text-anchor="middle" font-size="12" font-weight="600" fill="#a86a10" font-family="system-ui">ela solta muito pouca água</text></g>` },
+  { id:'f3', ms:4600, cap:'7 a 10 dias', sub:'é a mais lenta das hortaliças', color:'#7a8f2a',
+    body:`<rect width="405" height="720" fill="#f1efe8"/><circle cx="202" cy="290" r="130" fill="#d3d1c7" opacity=".4"/><g transform="translate(202,290)"><g style="animation:clockTick 2.6s ease-in-out infinite"><circle cx="0" cy="0" r="94" fill="#f7f5ef" stroke="#5f5e5a" stroke-width="4"/><path d="M0,-94 L0,0 L68,66" stroke="#5f5e5a" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M0,0 L-60,-58" stroke="#888780" stroke-width="4.5" stroke-linecap="round" fill="none"/><circle cx="0" cy="0" r="7" fill="#5f5e5a"/></g></g><g transform="translate(202,460)"><rect x="-104" y="-30" width="208" height="60" rx="11" fill="#f4f6e8" stroke="#7a8f2a" stroke-width="3"/><text x="0" y="8" text-anchor="middle" font-size="21" font-weight="800" fill="#4a5a12" font-family="system-ui">7 A 10 DIAS</text></g>` },
+  { id:'f4', ms:5000, cap:'Prensa com peso em cima', sub:'a couve-flor flutua muito', color:'#0f6e56',
+    body:`<rect width="405" height="720" fill="#eef3e6"/><g transform="translate(202,320)"><path d="M-92,116 L-92,-40 Q-92,-58 -74,-58 L74,-58 Q92,-58 92,-40 L92,116 Z" fill="#f7f9ee" stroke="#7a8f2a" stroke-width="4"/><rect x="-92" y="-58" width="184" height="24" rx="6" fill="#d8e0a8" stroke="#7a8f2a" stroke-width="4"/><path d="M-92,48 L-92,-8 Q-92,-24 -74,-24 L74,-24 Q92,-24 92,-8 L92,48 Z" fill="#dbe8ae" opacity=".9"/><g fill="#eef3d8"><circle cx="-52" cy="16" r="26"/><circle cx="-6" cy="6" r="28"/><circle cx="44" cy="18" r="26"/><circle cx="-30" cy="46" r="24"/><circle cx="24" cy="48" r="24"/></g><rect x="-84" y="-38" width="168" height="13" rx="5" fill="#a7c95a" opacity=".85"/><g style="animation:rise 2.1s ease-out infinite"><circle cx="-46" cy="30" r="5" fill="#fff" opacity=".75"/><circle cx="-4" cy="40" r="4.2" fill="#fff" opacity=".75"/><circle cx="42" cy="34" r="4.6" fill="#fff" opacity=".75"/></g><g style="animation:rise 2.1s ease-out .7s infinite"><circle cx="-26" cy="44" r="4" fill="#fff" opacity=".65"/><circle cx="20" cy="48" r="4.6" fill="#fff" opacity=".65"/></g></g>` },
+  { id:'f5', ms:4600, cap:'Agora é só esperar', sub:'10 dias é o ponto ideal', color:'#5f5e5a',
+    body:`<rect width="405" height="720" fill="#f1efe8"/><circle cx="202" cy="300" r="132" fill="#d3d1c7" opacity=".4"/><g transform="translate(202,300)"><g style="animation:wobble 2.8s ease-in-out infinite"><circle cx="0" cy="0" r="96" fill="#f7f5ef" stroke="#5f5e5a" stroke-width="4"/><path d="M0,-96 L0,0 L70,66" stroke="#5f5e5a" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M0,0 L-62,-58" stroke="#888780" stroke-width="4.5" stroke-linecap="round" fill="none"/><circle cx="0" cy="0" r="7" fill="#5f5e5a"/></g><text x="0" y="140" text-anchor="middle" font-size="17" font-weight="700" fill="#444441" font-family="system-ui">7 a 10 dias</text></g>` },
+  { id:'f6', ms:5000, cap:'Textura surpreendente', sub:'fica firme, quase crocante', color:'#7a8f2a',
+    body:`<rect width="405" height="720" fill="#f4f6e8"/><circle cx="202" cy="290" r="132" fill="#d8e0a8" opacity=".55"/><g transform="translate(202,290)"><circle cx="0" cy="0" r="82" fill="#f7f9ee" stroke="#7a8f2a" stroke-width="4"/><path d="M-32,4 L-8,30 L34,-24" stroke="#7a8f2a" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(202,452)"><text x="0" y="0" text-anchor="middle" font-size="25" font-weight="800" fill="#2c3a0a" font-family="system-ui">Firme e saborosa</text><text x="0" y="32" text-anchor="middle" font-size="15" font-weight="600" fill="#7a8f2a" font-family="system-ui">não fica mole como você imagina</text></g>` }
+]};}
+
+function renderBeterraba(){ return {
+  h:7, scenes:[
+  { id:'t0', ms:4400, cap:'Beterraba fermentada', sub:'a mais bonita da lista', color:'#8e3a68',
+    body:`<rect width="405" height="720" fill="#fdf6fa"/><circle cx="202" cy="300" r="140" fill="#e6bcd1" opacity=".5"/><g transform="translate(202,304)"><path d="M0,-104 Q62,-46 62,24 Q62,92 0,110 Q-62,92 -62,24 Q-62,-46 0,-104Z" fill="#8e3a68"/><path d="M0,-104 Q40,-46 40,24 Q40,84 0,102 Q-30,84 -30,28 Q-30,-40 0,-104Z" fill="#a83c78" opacity=".7"/><ellipse cx="-18" cy="-14" rx="14" ry="30" fill="#fff" opacity=".22" transform="rotate(-16 -18 -14)"/><path d="M0,-104 Q-4,-136 2,-158" stroke="#7d2f58" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M0,-104 Q-24,-130 -38,-146" stroke="#9b6b2f" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M0,-104 Q22,-132 34,-150" stroke="#9b6b2f" stroke-width="8" fill="none" stroke-linecap="round"/></g>` },
+  { id:'t1', ms:4400, cap:'Descasca e corta em cubos', sub:'cubo de 2 cm, não fatia', color:'#d85a30',
+    body:`<rect width="405" height="720" fill="#f7efe8"/><ellipse cx="202" cy="516" rx="172" ry="44" fill="#d8b98a" opacity=".4"/><g transform="translate(202,372)"><rect x="-56" y="-32" width="112" height="64" rx="6" fill="#8e3a68"/><path d="M-56,-32 L-56,-32 L56,-32 L72,-14 L-40,-14Z" fill="#a83c78"/><path d="M56,-32 L72,-14 L72,50 L56,32Z" fill="#6b2a4c"/><path d="M-56,32 L-40,14 L72,14 L72,50 L-56,50Z" fill="#7d2f58" opacity=".9"/><ellipse cx="-20" cy="-6" rx="12" ry="7" fill="#fff" opacity=".18"/></g><g transform="translate(300,268)"><rect x="-5" y="0" width="10" height="48" rx="4" fill="#5f5e5a" style="animation:chop 1.1s ease-in-out infinite"/><path d="M-4,48 L4,48 L6,114 L-6,114Z" fill="#b4b2a9" style="animation:chop 1.1s ease-in-out infinite"/></g>` },
+  { id:'t2', ms:4600, cap:'Sal 2% também', sub:'400 g de beterraba = 8 g de sal', color:'#ba7517',
+    body:`<rect width="405" height="720" fill="#faeeda"/><g transform="translate(126,306)"><path d="M0,-72 Q42,-32 42,18 Q42,66 0,78 Q-42,66 -42,18 Q-42,-32 0,-72Z" fill="#8e3a68"/><text x="0" y="112" text-anchor="middle" font-size="22" font-weight="800" fill="#6b2a4c" font-family="system-ui">400 g</text></g><g transform="translate(288,300)"><path d="M-48,-38 L48,-38 L42,84 Q0,98 -42,84Z" fill="#f7f5ef" stroke="#ba7517" stroke-width="3.5"/><rect x="-42" y="-28" width="84" height="13" rx="4" fill="#fac775"/><text x="0" y="24" text-anchor="middle" font-size="30" font-weight="800" fill="#854f0b" font-family="system-ui">8 g</text><text x="0" y="50" text-anchor="middle" font-size="14" font-weight="600" fill="#854f0b" font-family="system-ui">de sal</text></g>` },
+  { id:'t3', ms:5200, cap:'Ela solta muito líquido', sub:'a cor sangra e colore a salmoura', color:'#8e3a68',
+    body:`<rect width="405" height="720" fill="#fdf0f6"/><g transform="translate(202,300)"><path d="M-100,116 L-100,-42 Q-100,-60 -82,-60 L82,-60 Q100,-60 100,-42 L100,116 Z" fill="#faf1f5" stroke="#8e3a68" stroke-width="4"/><rect x="-100" y="-60" width="200" height="24" rx="6" fill="#e6bcd1" stroke="#8e3a68" stroke-width="4"/><path d="M-100,30 L-100,-16 Q-100,-32 -82,-32 L82,-32 Q100,-32 100,-16 L100,30 Z" fill="#b4477e" opacity=".85"/><path d="M-100,52 L-100,10 L100,10 L100,52 Z" fill="#8e3a68" opacity=".7" style="animation:bleed 3.2s ease-in-out infinite"/><g fill="#a83c78"><rect x="-84" y="-8" width="24" height="60" rx="6" transform="rotate(-9 -72 22)"/><rect x="-46" y="-18" width="24" height="70" rx="6" transform="rotate(6 -34 17)"/><rect x="-8" y="-10" width="24" height="62" rx="6" transform="rotate(-4 4 21)"/><rect x="30" y="-20" width="24" height="72" rx="6" transform="rotate(8 42 16)"/><rect x="66" y="-6" width="22" height="58" rx="6" transform="rotate(-7 77 23)"/></g></g>` },
+  { id:'t4', ms:5000, cap:'Prensa pra baixo', sub:'o líquido cobrir tudo é essencial', color:'#5f5e5a',
+    body:`<rect width="405" height="720" fill="#f2efe8"/><g transform="translate(202,300)"><path d="M-96,116 L-96,-38 Q-96,-56 -78,-56 L78,-56 Q96,-56 96,-38 L96,116 Z" fill="#faf8f4" stroke="#6b2a4c" stroke-width="4"/><rect x="-96" y="-56" width="192" height="24" rx="6" fill="#e6bcd1" stroke="#6b2a4c" stroke-width="4"/><path d="M-96,44 L-96,-12 Q-96,-28 -78,-28 L78,-28 Q96,-28 96,-12 L96,44 Z" fill="#a83c78" opacity=".88"/><g fill="#8e3a68"><rect x="-80" y="8" width="22" height="58" rx="6" transform="rotate(-9 -69 37)"/><rect x="-44" y="-2" width="22" height="68" rx="6" transform="rotate(6 -33 32)"/><rect x="-8" y="6" width="22" height="60" rx="6" transform="rotate(-4 3 36)"/><rect x="28" y="-4" width="22" height="70" rx="6" transform="rotate(8 39 31)"/><rect x="62" y="10" width="20" height="54" rx="6" transform="rotate(-7 72 37)"/></g><g style="animation:rise 2.1s ease-out infinite"><circle cx="-50" cy="30" r="4.6" fill="#fff" opacity=".75"/><circle cx="-12" cy="40" r="4" fill="#fff" opacity=".75"/><circle cx="30" cy="34" r="4.4" fill="#fff" opacity=".75"/></g></g>` },
+  { id:'t5', ms:4600, cap:'9 dias de espera', sub:'beterraba é mais lenta', color:'#5f5e5a',
+    body:`<rect width="405" height="720" fill="#f1efe8"/><circle cx="202" cy="300" r="132" fill="#d3d1c7" opacity=".4"/><g transform="translate(202,300)"><g style="animation:clockTick 2.6s ease-in-out infinite"><circle cx="0" cy="0" r="96" fill="#f7f5ef" stroke="#5f5e5a" stroke-width="4"/><path d="M0,-96 L0,0 L64,74" stroke="#5f5e5a" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M0,0 L-62,-56" stroke="#888780" stroke-width="4.5" stroke-linecap="round" fill="none"/><circle cx="0" cy="0" r="7" fill="#5f5e5a"/></g></g><g transform="translate(202,472)"><rect x="-100" y="-30" width="200" height="60" rx="11" fill="#fdf0f6" stroke="#8e3a68" stroke-width="3"/><text x="0" y="8" text-anchor="middle" font-size="21" font-weight="800" fill="#6b2a4c" font-family="system-ui">9 DIAS</text></g>` },
+  { id:'t6', ms:5000, cap:'CUIDADO: sua mão fica rosa', sub:'e leva uns 2 dias pra sair', color:'#8e3a68',
+    body:`<rect width="405" height="720" fill="#fdf0f6"/><g transform="translate(202,300)"><ellipse cx="0" cy="0" rx="58" ry="52" fill="#c94d78"/><ellipse cx="-38" cy="-30" rx="11" ry="17" fill="#c94d78" transform="rotate(-30 -38 -30)"/><ellipse cx="0" cy="-42" rx="11" ry="18" fill="#c94d78"/><ellipse cx="38" cy="-30" rx="11" ry="17" fill="#c94d78" transform="rotate(30 38 -30)"/><ellipse cx="-52" cy="6" rx="9" ry="14" fill="#b4477e" transform="rotate(-16 -52 6)"/><ellipse cx="52" cy="6" rx="9" ry="14" fill="#b4477e" transform="rotate(16 52 6)"/></g><g transform="translate(202,470)"><text x="0" y="0" text-anchor="middle" font-size="24" font-weight="900" fill="#a01e52" font-family="system-ui">SIM, SUA MÃO FICA ROSA</text><text x="0" y="30" text-anchor="middle" font-size="15" font-weight="600" fill="#8e3a68" font-family="system-ui">de 1 a 2 dias. não tem jeito.</text></g>` }
+]};}
+
+function renderAlho(){ return {
+  h:8, scenes:[
+  { id:'a0', ms:5500, cap:'Alho fermentado no mel', sub:'sem sal. sem vinagre. só duas coisas.', color:'#b8862b',
+    body:`<rect width="405" height="720" fill="#fdf8ee"/><ellipse cx="202" cy="516" rx="168" ry="44" fill="#e2d5b8" opacity=".45"/><g transform="translate(202,372)"><g style="animation:floatUpDown 3.4s ease-in-out infinite"><circle cx="-52" cy="56" r="30" fill="#e8dcc2"/><circle cx="52" cy="56" r="30" fill="#e8dcc2"/><circle cx="-66" cy="14" r="28" fill="#eadfc7"/><circle cx="66" cy="14" r="28" fill="#eadfc7"/><circle cx="-30" cy="74" r="30" fill="#e4d7bb"/><circle cx="30" cy="74" r="30" fill="#e4d7bb"/><circle cx="0" cy="-30" r="34" fill="#f3ead6"/><circle cx="-46" cy="4" r="34" fill="#f3ead6"/><circle cx="46" cy="4" r="34" fill="#f3ead6"/><circle cx="-24" cy="40" r="34" fill="#f3ead6"/><circle cx="24" cy="40" r="34" fill="#f3ead6"/><circle cx="0" cy="58" r="32" fill="#f6efdd"/><g fill="none" stroke="#c9b593" stroke-width="1.5" opacity=".75"><path d="M-24,-24 Q-16,20 -20,52"/><path d="M24,-24 Q16,20 20,52"/><path d="M0,-40 L0,64"/></g><path d="M0,-64 Q-2,-88 0,-100" stroke="#b9a179" stroke-width="6" fill="none" stroke-linecap="round"/></g></g><text x="202" y="596" text-anchor="middle" font-size="27" font-weight="900" fill="#3d3222" font-family="system-ui">SEM SAL NENHUM</text><text x="202" y="630" text-anchor="middle" font-size="14" font-weight="700" fill="#b8862b" font-family="system-ui" letter-spacing="2">SÓ ALHO E MEL CRU</text>` },
+  { id:'a1', ms:6000, cap:'Descasca todos os dentes', sub:'amassa com o lado da faca primeiro', color:'#b8862b',
+    body:`<rect width="405" height="720" fill="#fdf8ee"/><ellipse cx="202" cy="486" rx="172" ry="48" fill="#ece0c8" opacity=".55"/><g transform="translate(202,352)"><g style="animation:floatUpDown 3s ease-in-out infinite"><ellipse cx="-96" cy="46" rx="17" ry="30" fill="#f4ebd8"/><ellipse cx="-96" cy="18" rx="13" ry="20" fill="#fbf6e8"/><ellipse cx="86" cy="58" rx="16" ry="28" fill="#f4ebd8"/><ellipse cx="86" cy="32" rx="12" ry="19" fill="#fbf6e8"/><ellipse cx="-58" cy="76" rx="15" ry="26" fill="#eee2c8"/><ellipse cx="-58" cy="52" rx="11" ry="17" fill="#f9f4e6"/></g><g style="animation:peelTwist 2.1s ease-in-out infinite"><ellipse cx="0" cy="18" rx="26" ry="44" fill="#f4ebd8"/><ellipse cx="0" cy="-18" rx="19" ry="28" fill="#fcf8ec"/><path d="M-16,-30 Q-30,-14 -24,26 Q-14,18 -18,-14Z" fill="#e6d7b6" style="animation:peelStrip 2.1s ease-in infinite"/></g><g><ellipse cx="-46" cy="6" rx="15" ry="10" fill="#f0b58e" transform="rotate(-24 -46 6)"/><ellipse cx="-40" cy="30" rx="14" ry="9.5" fill="#eaaa80" transform="rotate(-14 -40 30)"/><ellipse cx="46" cy="6" rx="15" ry="10" fill="#f0b58e" transform="rotate(24 46 6)"/><ellipse cx="40" cy="30" rx="14" ry="9.5" fill="#eaaa80" transform="rotate(14 40 30)"/></g></g>` },
+  { id:'a2', ms:7000, cap:'O passo que quase todo mundo erra', sub:'água é o inimigo número 1', color:'#c2551f',
+    body:`<rect width="405" height="720" fill="#fdf8ee"/><path d="M46,300 Q202,268 358,300 Q372,420 358,470 Q202,498 46,470 Q32,420 46,300Z" fill="#ffffff"/><path d="M46,300 Q202,268 358,300 Q372,420 358,470 Q202,498 46,470 Q32,420 46,300Z" fill="none" stroke="#e5ddcc" stroke-width="1.6"/><g stroke="#eee6d6" stroke-width="1.4" opacity=".9"><path d="M80,318 Q86,400 80,462"/><path d="M160,302 Q166,400 160,478"/><path d="M284,308 Q278,400 284,472"/></g><g><ellipse cx="120" cy="392" rx="16" ry="28" fill="#f4ebd8"/><ellipse cx="120" cy="372" rx="12" ry="18" fill="#fdfaf1"/><ellipse cx="216" cy="392" rx="16" ry="28" fill="#f4ebd8"/><ellipse cx="216" cy="372" rx="12" ry="18" fill="#fdfaf1"/><ellipse cx="168" cy="440" rx="15" ry="26" fill="#f0e6d0"/><ellipse cx="264" cy="440" rx="15" ry="26" fill="#f0e6d0"/></g><g style="animation:pressDown 1.9s ease-in-out infinite"><ellipse cx="196" cy="344" rx="62" ry="38" fill="#f2b992"/><ellipse cx="154" cy="316" rx="15" ry="11" fill="#f0b58e" transform="rotate(-30 154 316)"/><ellipse cx="196" cy="308" rx="15" ry="11" fill="#f0b58e"/><ellipse cx="238" cy="316" rx="15" ry="11" fill="#f0b58e" transform="rotate(30 238 316)"/></g><g fill="#9dc6dd" opacity=".85"><circle cx="150" cy="292" r="4" style="animation:riseF 1.4s ease-out infinite"/><circle cx="200" cy="286" r="3.4" style="animation:riseF 1.4s ease-out .35s infinite"/><circle cx="248" cy="294" r="4.2" style="animation:riseF 1.4s ease-out .7s infinite"/></g><rect x="40" y="524" width="325" height="120" rx="14" fill="#fdf0e2" stroke="#f0c9a0" stroke-width="2"/><text x="202" y="560" text-anchor="middle" font-size="14" font-weight="900" fill="#c2551f" font-family="system-ui" letter-spacing="1.2">ÁGUA = MOFO</text><text x="202" y="590" text-anchor="middle" font-size="12" font-weight="600" fill="#7a4a26" font-family="system-ui">Seque cada dente com um pano limpo.</text><text x="202" y="612" text-anchor="middle" font-size="12" font-weight="600" fill="#7a4a26" font-family="system-ui">Uma gota só pode estragar o pote todo.</text>` },
+  { id:'a3', ms:7000, cap:'Cobre com mel cru', sub:'pelo menos 2 cm acima dos dentes', color:'#c08a2e',
+    body:`<rect width="405" height="720" fill="#fdf8ee"/><path d="M128,300 Q128,286 142,286 L262,286 Q276,286 276,300 L276,556 Q276,580 252,580 L152,580 Q128,580 128,556Z" fill="#f5f0e4" opacity=".7"/><g><rect x="128" y="330" width="148" height="252" fill="#eeb545"/><path d="M128,332 Q202,322 276,332 L276,342 L128,342Z" fill="#fbe7ab"/><g><ellipse cx="164" cy="392" rx="14" ry="25" fill="#f8f1de"/><ellipse cx="164" cy="375" rx="10" ry="15" fill="#fffdf6"/><ellipse cx="240" cy="404" rx="14" ry="25" fill="#f4ecd6"/><ellipse cx="240" cy="387" rx="10" ry="15" fill="#fffdf6"/><ellipse cx="176" cy="462" rx="14" ry="25" fill="#f6efdb"/><ellipse cx="176" cy="445" rx="10" ry="15" fill="#fffdf6"/><ellipse cx="238" cy="470" rx="14" ry="25" fill="#f2e9d1"/><ellipse cx="238" cy="453" rx="10" ry="15" fill="#fffdf6"/><ellipse cx="202" cy="522" rx="14" ry="25" fill="#f7f0dd"/><ellipse cx="202" cy="505" rx="10" ry="15" fill="#fffdf6"/></g><g fill="#fdf0c4" opacity=".85"><circle cx="150" cy="420" r="4"/><circle cx="258" cy="450" r="3.4"/><circle cx="196" cy="500" r="4.6"/></g></g><path d="M128,300 Q128,286 142,286 L262,286 Q276,286 276,300 L276,556 Q276,580 252,580 L152,580 Q128,580 128,556Z" fill="none" stroke="#cbbfa6" stroke-width="2.4"/><rect x="136" y="262" width="132" height="26" rx="7" fill="#efe7d6" stroke="#cbbfa6" stroke-width="2.2"/><g style="animation:honeyPour 3.4s ease-out infinite"><path d="M238,150 L286,120 L300,146 L252,176Z" fill="#e0a93c"/><path d="M238,150 L286,120 L292,132 L244,162Z" fill="#f2cb70"/></g><rect x="252" y="176" width="13" height="120" rx="6.5" fill="#e8b64b" style="animation:honeyStream 1.6s ease-out infinite"/><rect x="254.5" y="176" width="4" height="120" rx="2" fill="#f7dc95" opacity=".8" style="animation:shimmer 1.1s ease-in-out infinite"/><text x="202" y="604" text-anchor="middle" font-size="21" font-weight="900" fill="#3d3222" font-family="system-ui">MEL ATÉ O TOPO</text><text x="202" y="632" text-anchor="middle" font-size="12" font-weight="600" fill="#b8862b" font-family="system-ui">Cubra cada dente com 2 cm de mel</text>` },
+  { id:'a4', ms:6500, cap:'Vira o pote todo dia', sub:'duas vezes por dia na primeira semana', color:'#9a6a12',
+    body:`<rect width="405" height="720" fill="#fdf8ee"/><g transform="translate(202,436)"><g style="animation:spinFlat 7s ease-in-out infinite"><g transform="translate(-202,-436)"><path d="M142,326 Q142,312 156,312 L248,312 Q262,312 262,326 L262,540 Q262,562 240,562 L170,562 Q142,562 142,540Z" fill="#f5f0e4" opacity=".7"/><g><rect x="142" y="350" width="120" height="212" fill="#eeb545"/><path d="M142,352 Q202,344 262,352 L262,360 L142,360Z" fill="#fbe7ab"/><ellipse cx="176" cy="420" rx="13" ry="23" fill="#f8f1de"/><ellipse cx="176" cy="405" rx="9" ry="14" fill="#fffdf6"/><ellipse cx="230" cy="432" rx="13" ry="23" fill="#f4ecd6"/><ellipse cx="230" cy="417" rx="9" ry="14" fill="#fffdf6"/><ellipse cx="186" cy="494" rx="13" ry="23" fill="#f6efdb"/><ellipse cx="186" cy="479" rx="9" ry="14" fill="#fffdf6"/></g><path d="M142,326 Q142,312 156,312 L248,312 Q262,312 262,326 L262,540 Q262,562 240,562 L170,562 Q142,562 142,540Z" fill="none" stroke="#cbbfa6" stroke-width="2.4"/><rect x="150" y="290" width="104" height="24" rx="7" fill="#efe7d6" stroke="#cbbfa6" stroke-width="2.2"/></g></g></g><g transform="translate(202,436)" opacity=".5"><path d="M-112,-56 A126,126 0 1,1 -110,60" fill="none" stroke="#c08a2e" stroke-width="3" stroke-linecap="round" stroke-dasharray="9 11"/><polygon points="-110,60 -122,44 -98,46" fill="#c08a2e"/></g><rect x="40" y="568" width="325" height="64" rx="14" fill="#fdf6e4" stroke="#e8d29a" stroke-width="2"/><text x="202" y="590" text-anchor="middle" font-size="13" font-weight="900" fill="#9a6a12" font-family="system-ui" letter-spacing="1.2">POR QUE VIRAR?</text><text x="202" y="608" text-anchor="middle" font-size="11.5" font-weight="600" fill="#6d5416" font-family="system-ui">O mel é pesado e desce. Virando,</text><text x="202" y="624" text-anchor="middle" font-size="11.5" font-weight="600" fill="#6d5416" font-family="system-ui">todo dente fica coberto.</text>` },
+  { id:'a5', ms:7500, cap:'O alho vira âmbar', sub:'bolhas = está funcionando', color:'#0f6e56',
+    body:`<rect width="405" height="720" fill="#fbf3e2"/><g transform="translate(202,268)"><g style="animation:spin3d 5.5s linear infinite"><ellipse rx="40" ry="68" fill="#f5ecd9"/><ellipse cy="-48" rx="28" ry="40" fill="#fdfaf1"/><path d="M0,-116 Q0,-136 2,-146" stroke="#cbb896" stroke-width="5" fill="none" stroke-linecap="round"/></g></g><g transform="translate(202,268)"><g style="animation:spinFlat 8s linear infinite"><circle cx="0" cy="0" r="98" fill="none" stroke="#d9c89a" stroke-width="1.4" stroke-dasharray="4 8"/><circle cx="0" cy="-98" r="7" fill="#b8862b"/><circle cx="85" cy="50" r="5.4" fill="#c99a3c"/></g><g style="animation:spinRev 5.4s linear infinite"><circle cx="0" cy="0" r="72" fill="none" stroke="#e2d3a8" stroke-width="1.2" stroke-dasharray="3 7"/><circle cx="0" cy="72" r="6" fill="#0f6e56"/></g><g style="animation:spinFlat 3.6s linear infinite"><circle cx="0" cy="0" r="48" fill="none" stroke="#eadfc0" stroke-width="1" stroke-dasharray="3 6"/><circle cx="48" cy="0" r="5.6" fill="#c2551f"/></g><circle r="118" fill="none" stroke="#b8862b" stroke-width="1.6" opacity=".5" style="animation:pulseRing 2.8s ease-out infinite"/></g><g transform="translate(0,436)"><rect x="42" y="0" width="150" height="90" rx="12" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/><text x="117" y="26" text-anchor="middle" font-size="10" font-weight="900" fill="#a08a62" font-family="system-ui" letter-spacing="1.4">DIA 1</text><g transform="translate(117,54)"><ellipse cx="-18" ry="20" rx="11" fill="#f6efdd"/><ellipse cx="-18" cy="-13" rx="8" ry="11" fill="#fffdf6"/><ellipse cx="18" ry="20" rx="11" fill="#f4ebd8"/><ellipse cx="18" cy="-13" rx="8" ry="11" fill="#fffdf6"/></g><text x="117" y="82" text-anchor="middle" font-size="10" font-weight="700" fill="#8a7a5e" font-family="system-ui">Claro · cru</text><rect x="213" y="0" width="150" height="90" rx="12" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/><text x="288" y="26" text-anchor="middle" font-size="10" font-weight="900" fill="#a08a62" font-family="system-ui" letter-spacing="1.4">DIA 21</text><g transform="translate(288,54)"><ellipse cx="-18" ry="20" rx="11" fill="#c98722"/><ellipse cx="-18" cy="-13" rx="8" ry="11" fill="#eeb545"/><ellipse cx="18" ry="20" rx="11" fill="#b87a1e"/><ellipse cx="18" cy="-13" rx="8" ry="11" fill="#e4a93c"/></g><text x="288" y="82" text-anchor="middle" font-size="10" font-weight="700" fill="#8a7a5e" font-family="system-ui">Âmbar · doce</text><path d="M196,45 L208,45" stroke="#c9b593" stroke-width="2.4" stroke-linecap="round"/><polygon points="208,45 200,40 200,50" fill="#c9b593"/></g><text x="202" y="548" text-anchor="middle" font-size="17" font-weight="900" fill="#3d3222" font-family="system-ui">O ALHO FICA ÂMBAR E MACIO</text><rect x="40" y="560" width="325" height="66" rx="12" fill="#fdf0e2" stroke="#f0c9a0" stroke-width="2"/><text x="202" y="588" text-anchor="middle" font-size="12" font-weight="900" fill="#c2551f" font-family="system-ui">Se ficar AZUL ou VERDE: ainda é seguro.</text><text x="202" y="608" text-anchor="middle" font-size="11" font-weight="600" fill="#7a4a26" font-family="system-ui">É reação natural, não é mofo.</text>` },
+  { id:'a6', ms:6500, cap:'De 3 a 4 semanas', sub:'o fermento mais lento de todos', color:'#3d3222',
+    body:`<rect width="405" height="720" fill="#fbf3e2"/><g transform="translate(202,208)"><circle r="108" fill="#ffffff" stroke="#e6dcc6" stroke-width="3"/><g stroke="#c9b593" stroke-width="2.4" stroke-linecap="round"><path d="M0,-88 L0,-78"/><path d="M0,88 L0,78"/><path d="M-88,0 L-78,0"/><path d="M88,0 L78,0"/></g><g stroke="#b8862b" stroke-width="6" stroke-linecap="round" style="animation:clockTick 2.4s ease-in-out infinite"><path d="M0,0 L0,-56"/></g><g stroke="#3d3222" stroke-width="5" stroke-linecap="round" style="animation:clockTick 6s ease-in-out infinite"><path d="M0,0 L44,22"/></g><circle r="7" fill="#3d3222"/><text y="52" text-anchor="middle" font-size="15" font-weight="900" fill="#b8862b" font-family="system-ui">DIAS</text></g><g transform="translate(0,378)"><line x1="52" y1="40" x2="353" y2="40" stroke="#e0d4b8" stroke-width="4" stroke-linecap="round"/><line x1="52" y1="40" x2="353" y2="40" stroke="#b8862b" stroke-width="4" stroke-linecap="round" stroke-dasharray="301" stroke-dashoffset="301" style="animation:drawLine 2.6s ease-out .4s forwards"/><g><circle cx="52" cy="40" r="11" fill="#ffffff" stroke="#b8862b" stroke-width="3.4"/><text x="52" y="76" text-anchor="middle" font-size="11" font-weight="900" fill="#3d3222" font-family="system-ui">DIA 1</text><text x="52" y="94" text-anchor="middle" font-size="9.5" font-weight="600" fill="#8a7a5e" font-family="system-ui">pote fecha</text></g><g><circle cx="202" cy="40" r="11" fill="#ffffff" stroke="#b8862b" stroke-width="3.4"/><text x="202" y="76" text-anchor="middle" font-size="11" font-weight="900" fill="#3d3222" font-family="system-ui">DIA 21</text><text x="202" y="94" text-anchor="middle" font-size="9.5" font-weight="600" fill="#8a7a5e" font-family="system-ui">prova</text></g><g><circle cx="353" cy="40" r="11" fill="#b8862b" stroke="#b8862b" stroke-width="3.4"/><text x="353" y="76" text-anchor="middle" font-size="11" font-weight="900" fill="#3d3222" font-family="system-ui">DIA 30+</text><text x="353" y="94" text-anchor="middle" font-size="9.5" font-weight="600" fill="#8a7a5e" font-family="system-ui">geladeira</text></g></g><text x="202" y="524" text-anchor="middle" font-size="15" font-weight="900" fill="#3d3222" font-family="system-ui">3 A 4 SEMANAS NO MÍNIMO</text><text x="202" y="552" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a7a5e" font-family="system-ui">Este é o mais lento da série — não tenha pressa</text><text x="202" y="628" text-anchor="middle" font-size="12.5" font-weight="800" fill="#b8862b" font-family="system-ui">Abra o pote todo dia pra soltar o gás</text>` },
+  { id:'a7', ms:6500, cap:'Pronto pra comer', sub:'e ainda rende um mel de alho', color:'#3d3222',
+    body:`<rect width="405" height="720" fill="#fdf8ee"/><g transform="translate(202,246)"><g style="animation:floatUpDown 3.6s ease-in-out infinite"><g transform="translate(-202,-246)"><path d="M132,116 Q132,102 146,102 L258,102 Q272,102 272,116 L272,336 Q272,358 250,358 L154,358 Q132,358 132,336Z" fill="#f5f0e4" opacity=".7"/><g><rect x="132" y="140" width="140" height="218" fill="#eeb545"/><path d="M132,142 Q202,132 272,142 L272,152 L132,152Z" fill="#fbe7ab"/><g><ellipse cx="166" cy="200" rx="15" ry="26" fill="#c98722"/><ellipse cx="166" cy="182" rx="11" ry="16" fill="#e8b64b"/><ellipse cx="240" cy="212" rx="15" ry="26" fill="#bd7d1c"/><ellipse cx="240" cy="194" rx="11" ry="16" fill="#e2a938"/><ellipse cx="180" cy="272" rx="15" ry="26" fill="#c98722"/><ellipse cx="180" cy="254" rx="11" ry="16" fill="#e8b64b"/><ellipse cx="238" cy="290" rx="15" ry="26" fill="#bd7d1c"/><ellipse cx="238" cy="272" rx="11" ry="16" fill="#e2a938"/></g><g fill="#fdeec0" opacity=".9"><circle cx="156" cy="180" r="4.2" style="animation:riseSlow 3.2s ease-out infinite"/><circle cx="252" cy="240" r="3.6" style="animation:riseSlow 3.2s ease-out .8s infinite"/><circle cx="196" cy="300" r="4" style="animation:riseSlow 3.2s ease-out 1.6s infinite"/></g></g><path d="M132,116 Q132,102 146,102 L258,102 Q272,102 272,116 L272,336 Q272,358 250,358 L154,358 Q132,358 132,336Z" fill="none" stroke="#cbbfa6" stroke-width="2.4"/><rect x="140" y="80" width="124" height="24" rx="7" fill="#efe7d6" stroke="#cbbfa6" stroke-width="2.2"/><rect x="184" y="62" width="36" height="20" rx="6" fill="#e6dbc4" stroke="#cbbfa6" stroke-width="2"/></g></g></g><g transform="translate(0,392)"><text x="202" y="0" text-anchor="middle" font-size="12" font-weight="800" fill="#3d3222" font-family="system-ui">USE EM</text><rect x="30" y="16" width="106" height="52" rx="11" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/><text x="83" y="48" text-anchor="middle" font-size="12" font-weight="800" fill="#3d3222" font-family="system-ui">Pão</text><rect x="150" y="16" width="106" height="52" rx="11" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/><text x="203" y="48" text-anchor="middle" font-size="12" font-weight="800" fill="#3d3222" font-family="system-ui">Pizza</text><rect x="270" y="16" width="106" height="52" rx="11" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/><text x="323" y="48" text-anchor="middle" font-size="12" font-weight="800" fill="#3d3222" font-family="system-ui">Salada</text><rect x="30" y="78" width="106" height="52" rx="11" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/><text x="83" y="110" text-anchor="middle" font-size="12" font-weight="800" fill="#3d3222" font-family="system-ui">Arroz</text><rect x="150" y="78" width="106" height="52" rx="11" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/><text x="203" y="110" text-anchor="middle" font-size="12" font-weight="800" fill="#3d3222" font-family="system-ui">Carne</text><rect x="270" y="78" width="106" height="52" rx="11" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/><text x="323" y="110" text-anchor="middle" font-size="12" font-weight="800" fill="#3d3222" font-family="system-ui">Molhos</text></g><text x="202" y="540" text-anchor="middle" font-size="16" font-weight="900" fill="#3d3222" font-family="system-ui">E VOCÊ AINDA GANHA MEL DE ALHO</text><rect x="40" y="556" width="325" height="56" rx="13" fill="#f3ece0" stroke="#ddd0b8" stroke-width="2"/><text x="202" y="578" text-anchor="middle" font-size="12.5" font-weight="900" fill="#3d3222" font-family="system-ui">Qual eu fermento depois desse?</text><text x="202" y="598" text-anchor="middle" font-size="11" font-weight="600" fill="#8a7a5e" font-family="system-ui">Escreve nos comentários</text>` }
+]};}
+
+/* ═══ cena-cartão de cada capítulo (onde entra o vídeo real) ═══ */
+function cardScene(cap, i){
+  const filmTimes = [
+    'repolho fatiado sendo massageado com sal',
+    'cenoura em palitos entrando no pote',
+    'rabanete fatiado em rodelas de 3 mm',
+    'couve-flor sendo quebrada com a MÃO',
+    'beterraba cortada + a mão ficando rosa',
+    'camadas de beterraba e couve no pote',
+    'alho secando na toalha antes do mel'
+  ];
+  return {
+    id:'card'+i, ms:9000, card:true,
+    cap:'▶ AGORA ENTRA O VÍDEO REAL',
+    sub:'grave: ' + filmTimes[i],
+    color: cap.cor,
+    body:`<rect width="405" height="720" fill="#101010"/>
+      <rect x="0" y="0" width="405" height="720" fill="none"/>
+      <g opacity=".1" stroke="#fff" stroke-width="1">
+        <path d="M0,180 L405,180 M0,360 L405,360 M0,540 L405,540"/>
+        <path d="M135,0 L135,720 M270,0 L270,720"/>
+      </g>
+      <circle cx="202" cy="300" r="86" fill="none" stroke="#ffffff" stroke-width="3" opacity=".55"/>
+      <circle cx="202" cy="300" r="72" fill="#ffffff" opacity=".1"/>
+      <path d="M186,272 L228,300 L186,328 Z" fill="#ffffff"/>
+      <text x="202" y="446" text-anchor="middle" font-size="17" font-weight="900" fill="#ffffff" font-family="system-ui">VÍDEO REAL</text>
+      <text x="202" y="476" text-anchor="middle" font-size="13" font-weight="600" fill="#9ede76" font-family="system-ui">${cap.nome}</text>
+      <text x="202" y="520" text-anchor="middle" font-size="11" font-weight="600" fill="rgba(255,255,255,.55)" font-family="system-ui">corte aqui e cole o vídeo do celular</text>
+      <rect x="52" y="556" width="300" height="1" fill="rgba(255,255,255,.2)"/>
+      <text x="202" y="596" text-anchor="middle" font-size="11" font-weight="800" fill="#ffd08a" font-family="system-ui" letter-spacing="1.5">15 SEGUNDOS</text>`
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ENGINE
+   ═══════════════════════════════════════════════════════════════ */
+
+const scenesEl = document.getElementById('scenes');
+const nprog    = document.getElementById('nprog');
+const ncapEl   = document.getElementById('ncap');
+const ffill    = document.getElementById('ffill');
+const ftime    = document.getElementById('ftime');
+const capnum   = document.getElementById('capnum');
+const cnameEl  = document.getElementById('cname');
+const ctagEl   = document.getElementById('ctag');
+const ctextEl  = document.getElementById('ctext');
+const chintEl  = document.getElementById('chint');
+const cbarEl   = document.getElementById('cbar');
+const fsal     = document.getElementById('fsal');
+const ftempo   = document.getElementById('ftempo');
+const fnivel   = document.getElementById('fnivel');
+const phone    = document.getElementById('phone');
+const foot     = document.getElementById('foot');
+const leftPane = document.querySelector('.left');
+const chapters = document.getElementById('chapters');
+const bgimg    = document.getElementById('bgimg');
+
+const RES = 70;
+let ci = 0;            // capítulo atual
+let si = 0;            // cena atual
+let elapsed = 0;
+let playing = false;
+let tick = null;
+let totalMs = 0;       // duração total de tudo
+
+/* duração total = soma de todos os capítulos (cenas + cartão) */
+let DUR = [];
+let CHAPTER_START = [];
+(function calc(){
+  let acc = 0;
+  CAPS.forEach((c, k) => {
+    const d = c.load ? c.load() : null;
+    const inner = d ? d.scenes.reduce((a, s) => a + s.ms, 0) : 5 * 4400;
+    DUR.push(inner + 9000);
+    CHAPTER_START.push(acc);
+    acc += inner + 9000;
+  });
+  totalMs = acc;
+})();
+
+function fmt(ms){
+  const t = Math.max(0, Math.round(ms / 1000));
+  const m = String(Math.floor(t / 60)).padStart(2, '0');
+  const s = String(t % 60).padStart(2, '0');
+  return m + ':' + s;
+}
+
+/* constrói o DOM das cenas (uma vez) */
+function buildAll(){
+  let html = '';
+  CAPS.forEach((cap, k) => {
+    const d = cap.load ? cap.load() : null;
+    const cenas = d ? d.scenes : [
+      { id:'x'+k, ms:4400, cap:cap.nome, sub:cap.hint.slice(0, 46), color:cap.cor,
+        body:`<rect width="405" height="720" fill="#f4efe4"/><text x="202" y="330" text-anchor="middle" font-size="30" font-weight="900" fill="#2c2c2a" font-family="system-ui">${cap.nome}</text><text x="202" y="372" text-anchor="middle" font-size="15" font-weight="600" fill="#8a7a5e" font-family="system-ui">${cap.hint.slice(0,44)}</text>` }
+    ];
+    cenas.forEach((s, j) => {
+      html += `<svg class="scene" id="${s.id}" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">${s.body}</svg>`;
+    });
+    const cd = cardScene(cap, k);
+    html += `<svg class="scene" id="${cd.id}" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">${cd.body}</svg>`;
+  });
+  scenesEl.innerHTML = html;
+}
+
+/* fila de cenas do capítulo k */
+function queueOf(k){
+  const c = CAPS[k];
+  const d = c.load ? c.load() : null;
+  const cenas = d ? d.scenes : [
+    { id:'x'+k, ms:4400, cap:c.nome, sub:c.hint.slice(0, 46), color:c.cor }
+  ];
+  const q = cenas.map(s => ({ ...s }));
+  q.push(cardScene(c, k));
+  return q;
+}
+
+let queue = [];
+
+function kickoff(){
+  buildAll();
+  ci = 0; si = 0; elapsed = 0;
+  showChapters(true);
+  paintLeft();
+  ftime.textContent = '00:00 / ' + fmt(totalMs);
+  ffill.style.width = '0%';
+}
+
+function showChapters(on){
+  chapters.classList.toggle('show', on);
+  leftPane.style.opacity = on ? '0' : '1';
+  phone.style.opacity = on ? '0' : '1';
+  foot.style.opacity = on ? '0' : '1';
+  phone.style.transition = 'opacity .4s';
+  foot.style.transition = 'opacity .4s';
+  leftPane.style.transition = 'opacity .4s';
+}
+
+/* monta a lista de capítulos na tela de abertura */
+(function buildChapterList(){
+  const row = document.getElementById('crow');
+  row.innerHTML = CAPS.map((c, k) => `
+    <div class="row">
+      <i>${k + 1}</i>
+      <b>${c.nome}</b>
+      <u>${c.sal}</u>
+      <s>${c.tempo}</s>
+    </div>`).join('');
+})();
+
+function paintLeft(){
+  const c = CAPS[ci];
+  capnum.textContent = c.num;
+  cnameEl.innerHTML = c.nome + '<small id="ctag">capítulo ' + (ci + 1) + ' de 7</small>';
+  ctextEl.innerHTML = 'Nível: ' + c.nivel.toLowerCase() + '<small id="chint">' + c.hint + '</small>';
+  cbarEl.style.background = c.cor;
+  fsal.textContent = c.sal;
+  ftempo.textContent = c.tempo;
+  fnivel.textContent = c.nivel;
+}
+
+function render(){
+  const on = queue[si].id;
+  document.querySelectorAll('#scenes svg.scene').forEach(el => {
+    el.classList.remove('on');
+    if (el.id === on) el.classList.add('on');
+  });
+  ncapEl.innerHTML = queue[si].cap + '<small>' + queue[si].sub + '</small>';
+  nprog.style.background = queue[si].color || CAPS[ci].cor;
+  nprog.style.width = '0%';
+}
+
+function goChapter(k){
+  if (k < 0 || k >= CAPS.length) return;
+  ci = k; si = 0; elapsed = 0;
+  queue = queueOf(ci);
+  if (playing) showChapters(false);
+  paintLeft(); render();
+  ffill.style.width = ((CHAPTER_START[ci]) / totalMs * 100) + '%';
+}
+
+function loop(){
+  clearInterval(tick);
+  tick = setInterval(() => {
+    if (!playing) return;
+    elapsed += RES;
+
+    const s = queue[si];
+    const total = s.ms;
+    nprog.style.width = Math.min(100, (elapsed / total) * 100) + '%';
+
+    const done = CHAPTER_START[ci] + queue.slice(0, si).reduce((a, x) => a + x.ms, 0);
+    ffill.style.width = Math.min(100, ((done + elapsed) / totalMs) * 100) + '%';
+    ftime.textContent = fmt(done + elapsed) + ' / ' + fmt(totalMs);
+
+    if (elapsed >= total) {
+      if (si < queue.length - 1) { si++; elapsed = 0; render(); }
+      else if (ci < CAPS.length - 1) { goChapter(ci + 1); }
+      else { finish(); }
+    }
+  }, RES);
+}
+
+function finish(){
+  playing = false;
+  clearInterval(tick);
+  document.getElementById('btnPlay').textContent = '▶ Assistir';
+  ffill.style.width = '100%';
+  ftime.textContent = fmt(totalMs) + ' / ' + fmt(totalMs);
+}
+
+function nextChapter(){ goChapter(Math.min(ci + 1, CAPS.length - 1)); }
+function prevChapter(){ goChapter(Math.max(ci - 1, 0)); }
+
+function play(){
+  playing = true; elapsed = 0;
+  if (si === 0 && ci === 0) { queue = queueOf(0); }
+  document.getElementById('btnPlay').textContent = '⏸ Pausar';
+  document.getElementById('cover').classList.add('hide');
+  showChapters(false);
+  paintLeft(); render(); loop();
+}
+
+function stop(){
+  playing = false;
+  document.getElementById('btnPlay').textContent = '▶ Continuar';
+  clearInterval(tick);
+}
+function toggle(){ playing ? stop() : play(); }
+
+function reset(){
+  clearInterval(tick);
+  playing = false;
+  document.getElementById('btnPlay').textContent = '⏸ Pausar';
+  ci = 0; si = 0; elapsed = 0;
+  queue = queueOf(0);
+  showChapters(true); paintLeft(); render();
+  ffill.style.width = '0%';
+  ftime.textContent = '00:00 / ' + fmt(totalMs);
+  document.getElementById('cover').classList.remove('hide');
+}
+
+/* o quadro 1920x1080 é reescalado para caber na janela */
+function fit(){
+  const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  const f = document.getElementById('frame');
+  f.style.transform = 'scale(' + s + ')';
+  f.style.left = ((window.innerWidth - 1920 * s) / 2) + 'px';
+  f.style.top  = ((window.innerHeight - 1080 * s) / 2) + 'px';
+}
+window.addEventListener('resize', fit);
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ') { e.preventDefault(); toggle(); }
+  if (e.key === 'ArrowRight') nextChapter();
+  if (e.key === 'ArrowLeft') prevChapter();
+});
+
+kickoff();
+fit();
+</script>
+
+</body>
+</html>

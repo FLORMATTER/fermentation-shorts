@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>proto</title>
+<style>html,body{margin:0;background:#111}canvas{display:block}</style></head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script>
+var W = 1080, H = 1920, FPS = 30, DUR = 3000;
+var cv = document.getElementById('c');
+var cx = cv.getContext('2d');
+window.__log = [];
+function log(s){ window.__log.push(s); }
+
+var stream = cv.captureStream(FPS);
+log('captureStream ok, tracks=' + stream.getVideoTracks().length);
+
+var mime = 'video/mp4;codecs=avc1.42E01E';
+var rec = null;
+try {
+  rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 12000000 });
+} catch (e) {
+  log('ERRO ao criar MediaRecorder: ' + e.message);
+}
+if (!rec) { window.__done = 'FAIL'; }
+else {
+  var chunks = [];
+  rec.ondataavailable = function(e){ if (e.data && e.data.size) chunks.push(e.data); };
+  rec.onerror = function(e){ log('erro rec: ' + (e.error && e.error.name)); };
+  rec.onstop = function(){
+    var blob = new Blob(chunks, { type: 'video/mp4' });
+    log('blob: ' + blob.size + ' bytes / ' + blob.type);
+    window.__blob = blob;
+    window.__size = blob.size;
+    window.__done = 'OK';
+  };
+  rec.start();
+  var t0 = performance.now();
+  function tick(){
+    var t = performance.now() - t0;
+    cx.fillStyle = '#0d3b34'; cx.fillRect(0,0,W,H);
+    var p = Math.min(1, t / DUR);
+    cx.fillStyle = '#7fd6c2';
+    cx.beginPath(); cx.arc(200 + p*680, 960, 120, 0, Math.PI*2); cx.fill();
+    cx.fillStyle = '#fff'; cx.font = '900 90px sans-serif'; cx.textAlign='center';
+    cx.fillText('t=' + Math.round(t) + 'ms', 540, 1750);
+    if (t < DUR) requestAnimationFrame(tick);
+    else { rec.stop(); log('frames desenhados ate ' + Math.round(t) + 'ms'); }
+  }
+  tick();
+}
+</script>
+</body></html>

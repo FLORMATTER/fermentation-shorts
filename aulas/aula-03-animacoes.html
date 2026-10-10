@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Aula 3 — Como fazer uma animação</title>
+<style>
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: #fdf9f3;
+    color: #2c2c2a;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 28px 90px;
+    line-height: 1.7;
+  }
+  h1 { font-size: 30px; margin-bottom: 6px; }
+  h2 {
+    font-size: 21px;
+    margin: 46px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #dfeec2;
+  }
+  h3 { font-size: 16px; margin: 26px 0 10px; color: #4d4632; }
+  p { margin-bottom: 12px; }
+  pre {
+    background: #2c2c2a;
+    color: #eaf3de;
+    padding: 16px 18px;
+    border-radius: 9px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.65;
+    font-family: 'Consolas', 'Monaco', monospace;
+    margin: 12px 0 18px;
+  }
+  code {
+    background: #eef3e2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13.5px;
+    color: #3b6d11;
+  }
+  .caixa {
+    background: #faeeda;
+    border-left: 6px solid #ba7517;
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 18px 0;
+    font-size: 14.5px;
+  }
+  .caixa.verde {
+    background: #eaf3de;
+    border-left-color: #7d8c46;
+  }
+  .demo {
+    background: #ffffff;
+    border: 2px solid #e2d5bb;
+    border-radius: 12px;
+    padding: 30px 20px;
+    margin: 18px 0;
+    text-align: center;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  th, td {
+    border: 1px solid #ddd6c4;
+    padding: 9px 12px;
+    text-align: left;
+  }
+  th { background: #eef3e2; font-weight: 700; }
+  hr { border: none; border-top: 1px dashed #ddd6c4; margin: 44px 0; }
+
+  /* ══════════════════════════════════════
+     A PARTIR DAQUI COMEÇAM AS ANIMAÇÕES
+     ══════════════════════════════════════ */
+
+  @keyframes girar {
+    0%   { transform: rotate(0deg) }
+    100% { transform: rotate(360deg) }
+  }
+  @keyframes pular {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(-30px) }
+  }
+  @keyframes respirar {
+    0%,100% { transform: scale(1) }
+    50%     { transform: scale(1.5) }
+  }
+  @keyframes mudarCor {
+    0%   { fill: #7d8c46 }
+    50%  { fill: #d85a30 }
+    100% { fill: #7d8c46 }
+  }
+  @keyframes subir {
+    0%   { transform: translateY(0); opacity: 0 }
+    30%  { opacity: .9 }
+    100% { transform: translateY(-90px); opacity: 0 }
+  }
+  @keyframes massagear {
+    0%,100% { transform: translate(0,0) scale(1,1) }
+    50%     { transform: translate(14px,-7px) scale(.93,1.05) }
+  }
+
+  /* ══ FIM DAS ANIMAÇÕES ══ */
+</style>
+</head>
+<body>
+
+<h1>Aula 3 — Como fazer uma animação</h1>
+<p><em>Aula 3 de 4. Aqui você aprende o @keyframes, que é o motor de toda animação.</em></p>
+
+<div class="caixa">
+<strong>Como usar esta aula:</strong> leia de cima para baixo. Cada exemplo tem
+o código e logo abaixo o desenho funcionando. Vá comparando os dois.
+</div>
+
+<hr>
+
+<h2>1. A ideia por trás de tudo</h2>
+
+<p>Uma animação no navegador é a mesma coisa que um <strong>flipbook</strong> (aquele livrinho
+que você folheia rápido e o desenho parece se mexer).</p>
+
+<p>O navegador faz isso <strong>60 vezes por segundo</strong>:</p>
+
+<ol>
+  <li>Apaga o desenho</li>
+  <li>Desenha de novo, um pouquinho diferente</li>
+  <li>Repete</li>
+</ol>
+
+<p>É a <strong>diferença entre os desenhos</strong> que cria o movimento. Você não precisa
+desenhar tudo — só precisa dizer <em>onde começa</em> e <em>onde termina</em>.</p>
+
+<hr>
+
+<h2>2. O @keyframes — a peça principal</h2>
+
+<p>O <code>@keyframes</code> é onde você descreve o movimento. Ele tem sempre esta cara:</p>
+
+<pre>@keyframes girar {
+  0%   { transform: rotate(0deg) }
+  100% { transform: rotate(360deg) }
+}</pre>
+
+<p>Lendo em voz alta:</p>
+
+<ul>
+  <li><code>@keyframes girar</code> — estou criando uma animação com o nome <strong>girar</strong></li>
+  <li><code>0%</code> — como está no <strong>começo</strong></li>
+  <li><code>100%</code> — como está no <strong>fim</strong></li>
+  <li><code>rotate(0deg)</code> → <code>rotate(360deg)</code> — de 0 graus até 360 graus (uma volta completa)</li>
+</ul>
+
+<div class="caixa verde">
+<strong>Regra:</strong> o nome que você inventa em <code>@keyframes</code> é o mesmo
+nome que você vai usar depois. É como dar nome a um filho.
+</div>
+
+<hr>
+
+<h2>3. Primeiro exemplo — girar</h2>
+
+<p>Aqui está o código completo:</p>
+
+<pre>@keyframes girar {
+  0%   { transform: rotate(0deg) }
+  100% { transform: rotate(360deg) }
+}
+
+.bolinha {
+  animation: girar 2s linear infinite;
+}</pre>
+
+<p>Agora veja funcionando:</p>
+
+<div class="demo">
+  <svg width="180" height="130" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(90,65)">
+      <g style="animation: girar 2s linear infinite;">
+        <circle cx="0" cy="-34" r="15" fill="#7d8c46"/>
+        <circle cx="34" cy="0" r="15" fill="#d85a30"/>
+        <circle cx="0" cy="34" r="15" fill="#ba7517"/>
+        <circle cx="-34" cy="0" r="15" fill="#639922"/>
+      </g>
+      <circle cx="0" cy="0" r="7" fill="#2c2c2a"/>
+    </g>
+  </svg>
+</div>
+
+<p>Repare: eu <strong>não</strong> mexi em cada bolinha. Só girei o grupo inteiro.
+Uma animação, quatro bolinhas girando.</p>
+
+<hr>
+
+<h2>4. Lendo a linha mágica</h2>
+
+<p>A linha mais importante é esta:</p>
+
+<pre>animation: girar 2s linear infinite;</pre>
+
+<p>Ela tem <strong>4 pedaços</strong>. Nesta ordem:</p>
+
+<table>
+  <tr>
+    <th>Pedido</th>
+    <th>O que significa</th>
+  </tr>
+  <tr>
+    <td><code>girar</code></td>
+    <td>Qual animação usar (o nome do <code>@keyframes</code>)</td>
+  </tr>
+  <tr>
+    <td><code>2s</code></td>
+    <td>Quanto tempo dura <strong>uma volta</strong> (2 segundos)</td>
+  </tr>
+  <tr>
+    <td><code>linear</code></td>
+    <td>Velocidade sempre igual (não acelera nem freia)</td>
+  </tr>
+  <tr>
+    <td><code>infinite</code></td>
+    <td>Nunca para. Repete pra sempre</td>
+  </tr>
+</table>
+
+<p><strong>Decore esta linha.</strong> 90% das animações usam ela com pequenas trocas.</p>
+
+<hr>
+
+<h2>5. Segundo exemplo — pular</h2>
+
+<p>Aqui uso <code>0%, 100%</code> juntos no mesmo bloco:</p>
+
+<pre>@keyframes pular {
+  0%,100% { transform: translateY(0) }
+  50%     { transform: translateY(-30px) }
+}</pre>
+
+<p>Por que? Porque <strong>o começo e o fim são iguais</strong> (embaixo), e o meio é
+diferente (em cima). Assim o pulo vai e volta sozinho, sem "pulo" na emenda.</p>
+
+<div class="demo">
+  <svg width="180" height="140" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="90" cy="122" rx="52" ry="8" fill="#c9b48c" opacity=".35"/>
+    <g transform="translate(90,102)" style="animation: pular 1s ease-in-out infinite;">
+      <ellipse cx="0" cy="0" rx="36" ry="34" fill="#dfeec2"/>
+      <ellipse cx="0" cy="0" rx="27" ry="25" fill="#eaf3de"/>
+      <path d="M0,-24 Q13,-7 0,3 Q-13,-7 0,-24Z" fill="#b2ce7c"/>
+      <path d="M-27,0 Q-13,-9 0,0 Q-13,9 -27,0Z" fill="#b2ce7c"/>
+      <path d="M27,0 Q13,-9 0,0 Q13,9 27,0Z" fill="#b2ce7c"/>
+    </g>
+  </svg>
+</div>
+
+<div class="caixa">
+<strong>Detalhe importante:</strong> aqui troquei <code>linear</code> por
+<code>ease-in-out</code>. Isso faz o movimento <strong>acelerar e freiar</strong> —
+muito mais natural que velocidade constante.
+</div>
+
+<hr>
+
+<h2>6. Terceiro exemplo — respirar (escala)</h2>
+
+<p>Em vez de mover, a gente <strong>aumenta e diminui</strong>:</p>
+
+<pre>@keyframes respirar {
+  0%,100% { transform: scale(1) }
+  50%     { transform: scale(1.5) }
+}</pre>
+
+<p><code>scale(1)</code> é o tamanho normal. <code>scale(1.5)</code> é uma vez e meia maior.</p>
+
+<div class="demo">
+  <svg width="180" height="140" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(90,70)">
+      <circle cx="0" cy="0" r="26" fill="#ba7517" style="animation: respirar 1.8s ease-in-out infinite;"/>
+      <circle cx="0" cy="0" r="26" fill="none" stroke="#854f0b" stroke-width="2"/>
+    </g>
+  </svg>
+</div>
+
+<div class="caixa">
+<strong>⚠ Atenção:</strong> sem <code>transform-origin: center</code>, o círculo
+cresce "puxando" para o canto. Isso acontece porque o SVG cresce a partir do
+ponto (0,0), não do meio. <strong>Sempre coloque essa linha quando usar escala.</strong>
+</div>
+
+<hr>
+
+<h2>7. Quarto exemplo — mudar de cor</h2>
+
+<p>Até agora mexi na posição. Também dá pra mexer na <strong>cor</strong>:</p>
+
+<pre>@keyframes mudarCor {
+  0%   { fill: #7d8c46 }
+  50%  { fill: #d85a30 }
+  100% { fill: #7d8c46 }
+}</pre>
+
+<p>No SVG, a cor de preenchimento se chama <code>fill</code> (não é <code>color</code>!).</p>
+
+<div class="demo">
+  <svg width="180" height="140" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="90" cy="70" r="44" fill="#7d8c46" style="animation: mudarCor 2.5s ease-in-out infinite;"/>
+  </svg>
+</div>
+
+<hr>
+
+<h2>8. Quinto exemplo — subir e desaparecer</h2>
+
+<p>Este é o efeito das <strong>bolhas</strong> que aparecem em vários dos seus arquivos:</p>
+
+<pre>@keyframes subir {
+  0%   { transform: translateY(0); opacity: 0 }
+  30%  { opacity: .9 }
+  100% { transform: translateY(-90px); opacity: 0 }
+}</pre>
+
+<p>Lendo em voz alta:</p>
+
+<ol>
+  <li>Começa no lugar, <strong>invisível</strong> (<code>opacity: 0</code>)</li>
+  <li>Chegando em 30%, fica <strong>bem visível</strong> (<code>opacity: .9</code>)</li>
+  <li>No fim, subiu 90 pixels e <strong>sumiu de novo</strong></li>
+</ol>
+
+<p>O resultado é a bolha <strong>aparecendo, subindo e desaparecendo</strong> — em loop.</p>
+
+<div class="demo">
+  <svg width="180" height="160" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="90" cy="130" r="9" fill="#8ec9e8" style="animation: subir 1.6s ease-out infinite;"/>
+    <circle cx="66" cy="130" r="7" fill="#8ec9e8" style="animation: subir 1.6s ease-out .5s infinite;"/>
+    <circle cx="114" cy="130" r="8" fill="#8ec9e8" style="animation: subir 1.6s ease-out 1s infinite;"/>
+  </svg>
+</div>
+
+<p>Repare nos <code>.5s</code> e <code>1s</code> no final. Isso é o <strong>atraso</strong>
+(<em>delay</em>) — serve pra elas não subirem todas juntas. Fica muito mais natural.</p>
+
+<hr>
+
+<h2>9. Sexto exemplo — as duas mãos massageando</h2>
+
+<p>Este é de verdade, tirado dos seus arquivos. Duas mãos, mesma animação
+mas <strong>espelhada</strong>:</p>
+
+<pre>@keyframes massagearE {
+  0%,100% { transform: translate(0,0) scale(1,1) }
+  50%     { transform: translate(14px,-7px) scale(.93,1.05) }
+}
+
+@keyframes massagearD {
+  0%,100% { transform: translate(0,0) scale(1,1) }
+  50%     { transform: translate(-14px,-7px) scale(.93,1.05) }
+}</pre>
+
+<p>Olhe a diferença: a primeira move <strong>+14px</strong> (direita),
+a segunda <strong>-14px</strong> (esquerda). E a escala <code>.93,1.05</code> faz a mão
+ficar um pouco mais baixa e mais larga — como se estivesse apertando de verdade.</p>
+
+<div class="demo">
+  <svg width="220" height="180" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="110" cy="132" rx="76" ry="34" fill="#f2e9dc" stroke="#d8cbb0" stroke-width="2"/>
+    <ellipse cx="110" cy="132" rx="62" ry="26" fill="#dfeec2"/>
+
+    <g transform="translate(64,86)">
+      <g style="animation: massagearE 1s ease-in-out infinite;">
+        <ellipse cx="-19" cy="-18" rx="10" ry="16" fill="#6b4636" transform="rotate(-28 -19 -18)"/>
+        <ellipse cx="-18.5" cy="-24" rx="4.6" ry="5.2" fill="#e8c9b8"/>
+        <ellipse cx="-25" cy="-1" rx="9" ry="15" fill="#6b4636" transform="rotate(-16 -25 -1)"/>
+        <ellipse cx="-24.5" cy="-7" rx="4.4" ry="4.8" fill="#e8c9b8"/>
+        <ellipse cx="-22" cy="15" rx="8" ry="13" fill="#6b4636" transform="rotate(-6 -22 15)"/>
+        <ellipse cx="-21.5" cy="9" rx="4" ry="4.4" fill="#e8c9b8"/>
+        <ellipse cx="0" cy="0" rx="33" ry="28" fill="#6b4636"/>
+        <ellipse cx="0" cy="0" rx="33" ry="28" fill="none" stroke="#4e3125" stroke-width="1.4"/>
+        <ellipse cx="13" cy="-26" rx="11" ry="9" fill="#6b4636" transform="rotate(20 13 -26)"/>
+        <ellipse cx="15" cy="-31" rx="5.4" ry="4.6" fill="#e8c9b8"/>
+      </g>
+    </g>
+
+    <g transform="translate(156,86)">
+      <g style="animation: massagearD 1s ease-in-out .45s infinite;">
+        <ellipse cx="19" cy="-18" rx="10" ry="16" fill="#6b4636" transform="rotate(28 19 -18)"/>
+        <ellipse cx="18.5" cy="-24" rx="4.6" ry="5.2" fill="#e8c9b8"/>
+        <ellipse cx="25" cy="-1" rx="9" ry="15" fill="#6b4636" transform="rotate(16 25 -1)"/>
+        <ellipse cx="24.5" cy="-7" rx="4.4" ry="4.8" fill="#e8c9b8"/>
+        <ellipse cx="22" cy="15" rx="8" ry="13" fill="#6b4636" transform="rotate(6 22 15)"/>
+        <ellipse cx="21.5" cy="9" rx="4" ry="4.4" fill="#e8c9b8"/>
+        <ellipse cx="0" cy="0" rx="33" ry="28" fill="#6b4636"/>
+        <ellipse cx="0" cy="0" rx="33" ry="28" fill="none" stroke="#4e3125" stroke-width="1.4"/>
+        <ellipse cx="-13" cy="-26" rx="11" ry="9" fill="#6b4636" transform="rotate(-20 -13 -26)"/>
+        <ellipse cx="-15" cy="-31" rx="5.4" ry="4.6" fill="#e8c9b8"/>
+      </g>
+    </g>
+  </svg>
+</div>
+
+<p>O <code>.45s</code> na mão direita faz ela ficar <strong>fora do compasso</strong> —
+uma aperta enquanto a outra solta. É isso que dá a sensação de massagem real.</p>
+
+<hr>
+
+<h2>10. Como colocar no seu HTML</h2>
+
+<p>São <strong>2 passos</strong>, sempre:</p>
+
+<h3>Passo 1 — Escreva o @keyframes dentro do &lt;style&gt;</h3>
+
+<pre>&lt;style&gt;
+  @keyframes girar {
+    0%   { transform: rotate(0deg) }
+    100% { transform: rotate(360deg) }
+  }
+&lt;/style&gt;</pre>
+
+<h3>Passo 2 — Chame a animação no elemento</h3>
+
+<pre>&lt;circle cx="50" cy="50" r="20" fill="#7d8c46"
+        style="animation: girar 2s linear infinite;" /&gt;</pre>
+
+<p>Pronto. É só isso.</p>
+
+<hr>
+
+<h2>11. Resumo dos movimentos</h2>
+
+<table>
+  <tr>
+    <th>Quero que...</th>
+    <th>Use</th>
+    <th>Exemplo</th>
+  </tr>
+  <tr>
+    <td>gire</td>
+    <td><code>rotate()</code></td>
+    <td><code>rotate(360deg)</code></td>
+  </tr>
+  <tr>
+    <td>ande para o lado</td>
+    <td><code>translate()</code></td>
+    <td><code>translate(20px, 0)</code></td>
+  </tr>
+  <tr>
+    <td>suba ou desça</td>
+    <td><code>translateY()</code></td>
+    <td><code>translateY(-30px)</code></td>
+  </tr>
+  <tr>
+    <td>cresça ou encolha</td>
+    <td><code>scale()</code></td>
+    <td><code>scale(1.5)</code></td>
+  </tr>
+  <tr>
+    <td>fique transparente</td>
+    <td><code>opacity</code></td>
+    <td><code>opacity: 0</code></td>
+  </tr>
+  <tr>
+    <td>mude de cor (SVG)</td>
+    <td><code>fill</code></td>
+    <td><code>fill: #d85a30</code></td>
+  </tr>
+</table>
+
+<div class="caixa">
+<strong>Dica:</strong> você pode juntar vários no mesmo bloco, separados por espaço:
+<br><br>
+<code>transform: translate(14px,-7px) scale(.93,1.05)</code>
+<br><br>
+Isso move <strong>e</strong> muda o tamanho ao mesmo tempo.
+</div>
+
+<hr>
+
+<h2>12. As 4 velocidades</h2>
+
+<table>
+  <tr>
+    <th>Palavra</th>
+    <th>Como se move</th>
+  </tr>
+  <tr>
+    <td><code>linear</code></td>
+    <td>Velocidade igual do começo ao fim</td>
+  </tr>
+  <tr>
+    <td><code>ease-in-out</code></td>
+    <td>Acelera no meio, freia nas pontas (mais natural)</td>
+  </tr>
+  <tr>
+    <td><code>ease-out</code></td>
+    <td>Começa rápido, vai freando</td>
+  </tr>
+  <tr>
+    <td><code>ease-in</code></td>
+    <td>Começa devagar, vai acelerando</td>
+  </tr>
+</table>
+
+<hr>
+
+<h2>13. 🎯 Teste você mesmo</h2>
+
+<p>Esta é a parte que faz você aprender de verdade. Faça agora:</p>
+
+<ol>
+  <li>Abra este arquivo no <strong>Bloco de Notas</strong></li>
+  <li>Ache esta linha (perto do começo do <code>&lt;style&gt;</code>):
+    <pre>@keyframes girar {
+  0%   { transform: rotate(0deg) }
+  100% { transform: rotate(360deg) }
+}</pre>
+  </li>
+  <li>Troque os segundos da chamada. Ache:
+    <pre>animation: girar 2s linear infinite;</pre>
+    e mude para:
+    <pre>animation: girar 0.4s linear infinite;</pre>
+  </li>
+  <li>Salve (<strong>Ctrl + S</strong>) e aperte <strong>F5</strong> no navegador</li>
+</ol>
+
+<p><strong>Agora o círculo gira 5 vezes mais rápido.</strong> Você acabou de
+controlar uma animação.</p>
+
+<div class="caixa verde">
+<strong>Experimentos para tentar:</strong>
+<ul style="margin:8px 0 0 0;">
+  <li>Troque <code>rotate(360deg)</code> por <code>rotate(90deg)</code> — vira um balanço</li>
+  <li>Troque <code>girar</code> por <code>respirar</code> no nome</li>
+  <li>Troque <code>infinite</code> por <code>3</code> — para depois de 3 voltas</li>
+  <li>Troque <code>linear</code> por <code>ease-in-out</code> — fica mais suave</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>14. Fim da Aula 3</h2>
+
+<p>Você aprendeu:</p>
+
+<ul>
+  <li>O que é <code>@keyframes</code> e como escrever</li>
+  <li>A linha <code>animation:</code> e seus 4 pedaços</li>
+  <li>6 tipos de movimento: girar, pular, respirar, mudar cor, subir, massagear</li>
+  <li>Como juntar movimentos e usar atraso</li>
+</ul>
+
+<div class="caixa">
+<strong>Próxima — Aula 4:</strong> como fazer as <strong>cenas trocarem</strong>
+(é assim que as animações viram "vídeo"). É a última aula e a mais importante.
+Abra <code>aula-04-javascript-cenas.html</code>.
+</div>
+
+</body>
+</html>

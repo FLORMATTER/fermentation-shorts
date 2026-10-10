@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animation — 3 ferments that change color (garlic, onion, beetroot)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#0f0e0c;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    min-height:100vh; overflow:hidden;
+  }
+  #stage {
+    position:relative; width:405px; height:720px;
+    background:#fdfaf5; overflow:hidden; border-radius:16px;
+    box-shadow:0 24px 70px rgba(0,0,0,.7);
+  }
+  @media (max-height:790px){ #stage{ transform:scale(.86);} }
+  @media (max-height:700px){ #stage{ transform:scale(.72);} }
+
+  svg.scene {
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0; visibility:hidden; transition:opacity .42s ease;
+  }
+  svg.scene.on { opacity:1; visibility:visible; }
+
+  .bar { position:absolute; top:0; left:0; right:0; height:4px; background:rgba(0,0,0,.12); z-index:40; }
+  #progress { height:100%; width:0; background:#8e1a51; transition:width .2s linear; }
+
+  .tag {
+    position:absolute; top:22px; left:0; right:0; text-align:center;
+    font-size:10px; font-weight:800; letter-spacing:.2em;
+    text-transform:uppercase; opacity:.5; z-index:30; color:#2c2c2a;
+  }
+  .wm { position:absolute; top:18px; right:16px; font-size:9px; font-weight:800;
+        letter-spacing:.1em; opacity:.35; z-index:35; text-transform:uppercase; color:#2c2c2a; }
+
+  .ui { position:absolute; bottom:82px; left:0; right:0; display:flex;
+        justify-content:center; gap:9px; z-index:40; opacity:0; transition:opacity .25s; }
+  #stage:hover .ui, #stage.touched .ui { opacity:1; }
+  .ui button { border:none; background:rgba(15,14,12,.8); color:#fff; font-size:11.5px;
+    font-weight:700; font-family:inherit; padding:8px 15px; border-radius:999px; cursor:pointer; }
+  .ui button:hover { background:#000; }
+
+  .cover { position:absolute; inset:0; z-index:50; background:rgba(0,0,0,.5);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
+  .cover.hide { display:none; }
+  .cover button { width:78px; height:78px; border-radius:50%; border:none;
+    background:rgba(255,255,255,.95); color:#111; font-size:27px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding-left:5px; }
+  .cover p { color:#fff; font-size:12px; font-weight:700; letter-spacing:.08em; opacity:.85; text-transform:uppercase; text-align:center; line-height:1.6; }
+
+  .cap {
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(15,14,12,.86); color:#fff;
+    padding:14px 22px 17px; font-size:16px; font-weight:800;
+    text-align:center; z-index:30; line-height:1.35;
+  }
+  .cap small { display:block; font-size:12px; font-weight:500; opacity:.72; margin-top:4px; letter-spacing:.01em; }
+
+  @keyframes floatUpDown {
+    0%,100% { transform: translateY(0) rotate(0deg) }
+    50%     { transform: translateY(-7px) rotate(1.4deg) }
+  }
+  @keyframes floatSoft {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(-6px) }
+  }
+  @keyframes popInSeq {
+    0%   { transform: scale(.4); opacity: 0 }
+    60%  { transform: scale(1.08); opacity: 1 }
+    100% { transform: scale(1); opacity: 1 }
+  }
+  @keyframes fadeSlide {
+    0%   { opacity: 0; transform: translateY(8px) }
+    100% { opacity: 1; transform: translateY(0) }
+  }
+  @keyframes slideUp {
+    0%   { transform: translateY(24px); opacity: 0 }
+    100% { transform: translateY(0); opacity: 1 }
+  }
+  @keyframes pulseRing {
+    0%   { transform: scale(.55); opacity: .7 }
+    100% { transform: scale(1.85); opacity: 0 }
+  }
+  @keyframes bleedSpread {
+    0%   { transform: scale(.15); opacity: .9 }
+    100% { transform: scale(1.7); opacity: 0 }
+  }
+  @keyframes riseSlow {
+    0%   { transform: translateY(0) scale(.6); opacity: 0 }
+    30%  { opacity: .8 }
+    100% { transform: translateY(-110px) scale(1.3); opacity: 0 }
+  }
+  @keyframes turnBlue {
+    0%, 25% { fill: #f4ebd8 }
+    100%    { fill: #7ea9c6 }
+  }
+  @keyframes turnGreen {
+    0%, 25% { fill: #f4ebd8 }
+    100%    { fill: #8fbf9a }
+  }
+  @keyframes swayLeaf {
+    0%,100% { transform: rotate(-5deg) }
+    50%     { transform: rotate(5deg) }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div class="bar"><div id="progress"></div></div>
+  <div class="tag" id="tag">3 COLORS 1 / 8</div>
+  <div class="wm">@yourchannel</div>
+
+  <!-- ══════════ CENA 1 — OS TRÊS JUNTOS ══════════ -->
+  <svg class="scene on" id="s0" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="s0Honey" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#e8b558"/><stop offset="100%" stop-color="#c08a2e"/>
+      </linearGradient>
+      <linearGradient id="s0Pink" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#e07cb4"/><stop offset="100%" stop-color="#b23a7e"/>
+      </linearGradient>
+      <linearGradient id="s0Mag" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#c62a68"/><stop offset="100%" stop-color="#7d1245"/>
+      </linearGradient>
+      <linearGradient id="s0Glass" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity=".75"/>
+        <stop offset="45%" stop-color="#ffffff" stop-opacity=".2"/>
+        <stop offset="100%" stop-color="#ffffff" stop-opacity=".55"/>
+      </linearGradient>
+    </defs>
+    <rect width="405" height="720" fill="#fdfaf5"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">GARLIC · ONION · BEETROOT</text>
+    <ellipse cx="202" cy="500" rx="176" ry="42" fill="#e9e2d4" opacity=".5"/>
+
+    <!-- jar 1 · garlic in honey -->
+    <g transform="translate(76,372)"><g style="animation:floatSoft 3.4s ease-in-out infinite">
+      <rect x="-34" y="-72" width="68" height="144" rx="15" fill="url(#s0Glass)" stroke="#ded6c6" stroke-width="2"/>
+      <rect x="-31" y="-34" width="62" height="103" rx="12" fill="url(#s0Honey)" opacity=".92"/>
+      <g fill="#f6ecd6">
+        <ellipse cx="-9" cy="6" rx="10" ry="15"/><ellipse cx="9" cy="14" rx="9" ry="14"/>
+        <ellipse cx="-4" cy="34" rx="9" ry="13"/><ellipse cx="11" cy="46" rx="8" ry="12"/>
+      </g>
+      <rect x="-36" y="-80" width="72" height="12" rx="6" fill="#c8bda6"/>
+      <rect x="-26" y="-64" width="7" height="112" rx="4" fill="#ffffff" opacity=".38"/>
+    </g></g>
+    <text x="76" y="474" text-anchor="middle" font-size="10.5" font-weight="900" fill="#8a6a1e" font-family="system-ui" letter-spacing="1.2">GARLIC</text>
+
+    <!-- jar 2 · red onion -->
+    <g transform="translate(202,372)"><g style="animation:floatSoft 3.4s ease-in-out infinite; animation-delay:.35s">
+      <rect x="-34" y="-72" width="68" height="144" rx="15" fill="url(#s0Glass)" stroke="#ded6c6" stroke-width="2"/>
+      <rect x="-31" y="-40" width="62" height="109" rx="12" fill="url(#s0Pink)" opacity=".9"/>
+      <g fill="none" stroke="#fbd0e6" stroke-width="2" opacity=".8">
+        <ellipse cx="0" cy="18" rx="22" ry="14"/><ellipse cx="0" cy="18" rx="12" ry="7"/>
+      </g>
+      <g fill="none" stroke="#f7bcd8" stroke-width="1.8" opacity=".7">
+        <ellipse cx="-8" cy="-8" rx="16" ry="10"/><ellipse cx="10" cy="42" rx="14" ry="9"/>
+      </g>
+      <rect x="-36" y="-80" width="72" height="12" rx="6" fill="#c8bda6"/>
+      <rect x="-26" y="-64" width="7" height="112" rx="4" fill="#ffffff" opacity=".38"/>
+    </g></g>
+    <text x="202" y="474" text-anchor="middle" font-size="10.5" font-weight="900" fill="#a01e52" font-family="system-ui" letter-spacing="1.2">ONION</text>
+
+    <!-- jar 3 · beetroot -->
+    <g transform="translate(328,372)"><g style="animation:floatSoft 3.4s ease-in-out infinite; animation-delay:.7s">
+      <rect x="-34" y="-72" width="68" height="144" rx="15" fill="url(#s0Glass)" stroke="#ded6c6" stroke-width="2"/>
+      <rect x="-31" y="-38" width="62" height="107" rx="12" fill="url(#s0Mag)" opacity=".93"/>
+      <g fill="#e4557f" opacity=".85">
+        <path d="M-16,0 L0,-14 L16,0 L0,14Z"/><path d="M-12,36 L2,24 L14,38 L0,48Z"/>
+      </g>
+      <g fill="none" stroke="#7aa844" stroke-width="3" stroke-linecap="round">
+        <path d="M0,-58 Q-14,-74 -8,-86"/><path d="M4,-58 Q16,-74 12,-86"/>
+      </g>
+      <rect x="-36" y="-80" width="72" height="12" rx="6" fill="#c8bda6"/>
+      <rect x="-26" y="-64" width="7" height="112" rx="4" fill="#ffffff" opacity=".38"/>
+    </g></g>
+    <text x="328" y="474" text-anchor="middle" font-size="10.5" font-weight="900" fill="#8e1a51" font-family="system-ui" letter-spacing="1.2">BEETROOT</text>
+
+    <text x="202" y="546" text-anchor="middle" font-size="26" font-weight="900" fill="#2f2a22" font-family="system-ui" letter-spacing="-.6" style="animation:popInSeq .7s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.3s">THESE 3 TURN COLOR</text>
+    <text x="202" y="576" text-anchor="middle" font-size="12" font-weight="800" fill="#8e1a51" font-family="system-ui" letter-spacing="2.2" style="animation:popInSeq .7s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.55s">AND NONE OF THEM IS SPOILED</text>
+    <text x="202" y="606" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a8272" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.8s">Three ferments. Three colors. Three reasons.</text>
+  </svg>
+
+  <!-- ══════════ CENA 2 — BETERRABA ══════════ -->
+  <svg class="scene" id="s1" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="s1Beet" cx="36%" cy="26%" r="78%">
+        <stop offset="0%" stop-color="#e0709e"/>
+        <stop offset="50%" stop-color="#a52a5a"/>
+        <stop offset="100%" stop-color="#6d1436"/>
+      </radialGradient>
+    </defs>
+    <rect width="405" height="720" fill="#fdf2f7"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#b08a9c" font-family="system-ui" letter-spacing="2">1 OF 3 · BEETROOT</text>
+    <ellipse cx="202" cy="486" rx="164" ry="42" fill="#f0d4e2" opacity=".6"/>
+
+    <!-- color spreading out of the beet -->
+    <g fill="#c62a68" opacity=".5">
+      <circle cx="202" cy="352" r="76" style="animation:bleedSpread 3.4s ease-out infinite"/>
+      <circle cx="202" cy="352" r="76" style="animation:bleedSpread 3.4s ease-out infinite; animation-delay:1.15s"/>
+      <circle cx="202" cy="352" r="76" style="animation:bleedSpread 3.4s ease-out infinite; animation-delay:2.3s"/>
+    </g>
+
+    <g transform="translate(202,342)">
+      <g style="animation:floatUpDown 3.6s ease-in-out infinite">
+        <!-- leaves -->
+        <g style="animation:swayLeaf 4.2s ease-in-out infinite">
+          <path d="M-8,-74 Q-34,-108 -18,-134" stroke="#5f8a34" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+          <path d="M8,-74 Q34,-108 22,-136" stroke="#6f9a3e" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+          <path d="M0,-76 Q2,-112 0,-140" stroke="#7aa844" stroke-width="5" fill="none" stroke-linecap="round"/>
+        </g>
+        <ellipse rx="80" ry="84" fill="url(#s1Beet)"/>
+        <g fill="none" stroke="#4a0e26" stroke-width="1.4" opacity=".4">
+          <ellipse rx="66" ry="70"/><ellipse rx="50" ry="54"/>
+        </g>
+        <g fill="none" stroke="#f0a8c8" stroke-width="3" opacity=".5" stroke-linecap="round">
+          <path d="M-46,-62 Q-54,0 -42,60"/>
+          <path d="M-18,-78 Q-23,0 -16,74"/>
+          <path d="M20,-78 Q25,0 18,72"/>
+        </g>
+        <ellipse cx="-30" cy="-32" rx="22" ry="15" fill="#fbc4dc" opacity=".35" transform="rotate(-28 -30 -32)"/>
+      </g>
+    </g>
+
+    <g style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.45s">
+      <rect x="128" y="470" width="148" height="32" rx="16" fill="#8e1a51"/>
+      <text x="202" y="491" text-anchor="middle" font-size="12.5" font-weight="900" fill="#fff" font-family="system-ui" letter-spacing="2">BETALAIN</text>
+    </g>
+
+    <text x="202" y="546" text-anchor="middle" font-size="22" font-weight="900" fill="#3d1f33" font-family="system-ui" letter-spacing="-.4" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.2s">BEETROOT TURNS MAGENTA</text>
+    <text x="202" y="576" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a7284" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.65s">A pigment that dissolves. It dyes the brine</text>
+    <text x="202" y="596" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a7284" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.75s">and your hands. Nothing you can do about it.</text>
+    <text x="202" y="626" text-anchor="middle" font-size="12" font-weight="800" fill="#8e1a51" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.9s">That is the pigment leaving the beet.</text>
+  </svg>
+
+  <!-- ══════════ CENA 3 — CEBOLA ROXA ══════════ -->
+  <svg class="scene" id="s2" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="s2Onion" cx="36%" cy="28%" r="76%">
+        <stop offset="0%" stop-color="#e0a8c8"/>
+        <stop offset="42%" stop-color="#a8478a"/>
+        <stop offset="78%" stop-color="#7c2f63"/>
+        <stop offset="100%" stop-color="#5c2049"/>
+      </radialGradient>
+    </defs>
+    <rect width="405" height="720" fill="#fbf2f6"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#b08a9c" font-family="system-ui" letter-spacing="2">2 OF 3 · RED ONION</text>
+    <ellipse cx="202" cy="486" rx="164" ry="42" fill="#eedae6" opacity=".6"/>
+
+    <g transform="translate(202,344)">
+      <g style="animation:floatUpDown 3.4s ease-in-out infinite">
+        <g stroke="#c9a86e" stroke-width="1.6" stroke-linecap="round" opacity=".8">
+          <path d="M-10,80 Q-13,94 -15,104"/><path d="M0,84 Q0,98 1,108"/><path d="M10,80 Q13,94 15,104"/>
+        </g>
+        <ellipse rx="78" ry="76" fill="url(#s2Onion)"/>
+        <g fill="none" stroke="#4a1a3b" stroke-width="1.4" opacity=".5">
+          <ellipse rx="64" ry="64"/><ellipse rx="50" ry="51"/><ellipse rx="36" ry="37"/>
+        </g>
+        <g fill="none" stroke="#dc9ec2" stroke-width="2.8" opacity=".45" stroke-linecap="round">
+          <path d="M-46,-56 Q-54,0 -44,54"/>
+          <path d="M-19,-70 Q-25,0 -18,66"/>
+          <path d="M21,-70 Q26,0 19,64"/>
+        </g>
+        <path d="M-74,10 Q-84,-34 -50,-64 Q-60,-18 -57,32Z" fill="#dcae72" opacity=".9"/>
+        <ellipse cy="-78" rx="13" ry="9" fill="#c9a86e"/>
+        <path d="M0,-84 Q-2,-102 -1,-112" stroke="#c9a86e" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <ellipse cx="-30" cy="-30" rx="22" ry="15" fill="#f0bcd8" opacity=".32" transform="rotate(-28 -30 -30)"/>
+      </g>
+    </g>
+
+    <!-- acid turning it brighter -->
+    <g>
+      <circle cx="300" cy="250" r="17" fill="#e0a8c8" opacity=".55" style="animation:bleedSpread 3s ease-out infinite"/>
+      <circle cx="300" cy="250" r="17" fill="#e0a8c8" opacity=".55" style="animation:bleedSpread 3s ease-out infinite; animation-delay:1s"/>
+      <circle cx="300" cy="250" r="17" fill="#e0a8c8" opacity=".55" style="animation:bleedSpread 3s ease-out infinite; animation-delay:2s"/>
+    </g>
+
+    <g style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.45s">
+      <rect x="122" y="470" width="160" height="32" rx="16" fill="#a01e52"/>
+      <text x="202" y="491" text-anchor="middle" font-size="12.5" font-weight="900" fill="#fff" font-family="system-ui" letter-spacing="2">ANTHOCYANIN</text>
+    </g>
+
+    <text x="202" y="546" text-anchor="middle" font-size="20" font-weight="900" fill="#3d1f33" font-family="system-ui" letter-spacing="-.4" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.2s">ONION TURNS SHOCKING PINK</text>
+    <text x="202" y="576" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a7284" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.65s">A pigment that reacts to acid. The more acid,</text>
+    <text x="202" y="596" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a7284" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.75s">the brighter it gets. Soft pink, or magenta.</text>
+    <text x="202" y="626" text-anchor="middle" font-size="12" font-weight="800" fill="#a01e52" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.9s">One slice of beet decides which.</text>
+  </svg>
+
+  <!-- ══════════ CENA 4 — ALHO ══════════ -->
+  <svg class="scene" id="s3" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="s3Honey" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#e8b558"/><stop offset="100%" stop-color="#b8811f"/>
+      </linearGradient>
+      <linearGradient id="s3Glass" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity=".75"/>
+        <stop offset="45%" stop-color="#ffffff" stop-opacity=".2"/>
+        <stop offset="100%" stop-color="#ffffff" stop-opacity=".55"/>
+      </linearGradient>
+    </defs>
+    <rect width="405" height="720" fill="#fdf8ee"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">3 OF 3 · GARLIC IN HONEY</text>
+    <ellipse cx="202" cy="486" rx="164" ry="42" fill="#ece0c8" opacity=".55"/>
+
+    <!-- the jar, garlic turning blue -->
+    <g transform="translate(202,336)">
+      <rect x="-70" y="-124" width="140" height="248" rx="24" fill="url(#s3Glass)" stroke="#ded6c6" stroke-width="2.2"/>
+      <rect x="-64" y="-42" width="128" height="160" rx="20" fill="url(#s3Honey)" opacity=".9"/>
+      <rect x="-76" y="-136" width="152" height="16" rx="8" fill="#c8bda6"/>
+      <rect x="-52" y="-104" width="12" height="196" rx="6" fill="#ffffff" opacity=".32"/>
+
+      <!-- cloves: one still cream, one ALREADY blue, one ALREADY green.
+           A cor tem que aparecer no quadro parado — se as quatro comecarem
+           creme, quem so olhar a capa nao ve o que o texto promete. -->
+      <g>
+        <ellipse cx="-34" cy="-8" rx="15" ry="23" fill="#f4ebd8"/>
+        <ellipse cx="-34" cy="-26" rx="11" ry="15" fill="#fbf6e8"/>
+        <ellipse cx="30" cy="0" rx="14" ry="22" fill="#7ea9c6"/>
+        <ellipse cx="30" cy="-17" rx="10" ry="14" fill="#a8c8dc"/>
+        <ellipse cx="-30" cy="52" rx="14" ry="21" fill="#8fbf9a"/>
+        <ellipse cx="-30" cy="36" rx="10" ry="14" fill="#b6d6bd"/>
+        <ellipse cx="30" cy="62" rx="13" ry="20" fill="#f4ebd8" style="animation:turnBlue 4.6s ease-in-out infinite alternate"/>
+        <ellipse cx="30" cy="47" rx="9" ry="13" fill="#fbf6e8"/>
+        <ellipse cx="0" cy="94" rx="12" ry="19" fill="#f4ebd8" style="animation:turnGreen 4.6s ease-in-out infinite alternate; animation-delay:.8s"/>
+        <ellipse cx="0" cy="80" rx="9" ry="13" fill="#fbf6e8"/>
+      </g>
+
+      <!-- bubbles -->
+      <g fill="#fff8e2" opacity=".8">
+        <circle cx="-8" cy="86" r="4" style="animation:riseSlow 2.6s ease-out infinite"/>
+        <circle cx="12" cy="92" r="3.4" style="animation:riseSlow 2.6s ease-out infinite; animation-delay:.9s"/>
+        <circle cx="0" cy="90" r="3" style="animation:riseSlow 2.6s ease-out infinite; animation-delay:1.7s"/>
+      </g>
+    </g>
+
+    <g style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.45s">
+      <rect x="128" y="470" width="148" height="32" rx="16" fill="#3f6f92"/>
+      <text x="202" y="491" text-anchor="middle" font-size="12.5" font-weight="900" fill="#fff" font-family="system-ui" letter-spacing="2">NOT A PIGMENT</text>
+    </g>
+
+    <text x="202" y="546" text-anchor="middle" font-size="19" font-weight="900" fill="#3d3222" font-family="system-ui" letter-spacing="-.4" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.2s">GARLIC TURNS BLUE OR GREEN</text>
+    <text x="202" y="576" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a7a5e" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.65s">This one is not a pigment. It is a reaction —</text>
+    <text x="202" y="596" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a7a5e" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.75s">sulfur meeting amino acids in the honey.</text>
+    <text x="202" y="626" text-anchor="middle" font-size="12" font-weight="800" fill="#c2551f" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.9s">⚠ Blue is normal. Do not throw it out.</text>
+  </svg>
+
+  <!-- ══════════ CENA 5 — OS TRÊS LADO A LADO ══════════ -->
+  <svg class="scene" id="s4" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fdfaf5"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">THE THREE SIDE BY SIDE</text>
+
+    <!-- coluna 1 · beterraba -->
+    <g style="animation:slideUp .6s ease both; animation-delay:.1s">
+      <circle cx="76" cy="220" r="44" fill="#8e1a51"/>
+      <circle cx="76" cy="220" r="44" fill="none" stroke="#5f0d36" stroke-width="2" opacity=".5"/>
+      <circle cx="62" cy="206" r="12" fill="#fff" opacity=".22"/>
+      <text x="76" y="300" text-anchor="middle" font-size="12.5" font-weight="900" fill="#3d1f33" font-family="system-ui">BEETROOT</text>
+      <text x="76" y="330" text-anchor="middle" font-size="11" font-weight="800" fill="#8e1a51" font-family="system-ui">BETALAIN</text>
+      <text x="76" y="356" text-anchor="middle" font-size="10.5" font-weight="600" fill="#8a7284" font-family="system-ui">a pigment</text>
+      <text x="76" y="374" text-anchor="middle" font-size="10.5" font-weight="600" fill="#8a7284" font-family="system-ui">that dissolves</text>
+    </g>
+
+    <!-- coluna 2 · cebola -->
+    <g style="animation:slideUp .6s ease both; animation-delay:.28s">
+      <circle cx="202" cy="220" r="44" fill="#c04a8e"/>
+      <circle cx="202" cy="220" r="44" fill="none" stroke="#8c2f63" stroke-width="2" opacity=".5"/>
+      <circle cx="188" cy="206" r="12" fill="#fff" opacity=".22"/>
+      <text x="202" y="300" text-anchor="middle" font-size="12.5" font-weight="900" fill="#3d1f33" font-family="system-ui">RED ONION</text>
+      <text x="202" y="330" text-anchor="middle" font-size="11" font-weight="800" fill="#a01e52" font-family="system-ui">ANTHOCYANIN</text>
+      <text x="202" y="356" text-anchor="middle" font-size="10.5" font-weight="600" fill="#8a7284" font-family="system-ui">a pigment that</text>
+      <text x="202" y="374" text-anchor="middle" font-size="10.5" font-weight="600" fill="#8a7284" font-family="system-ui">reacts to acid</text>
+    </g>
+
+    <!-- coluna 3 · alho -->
+    <g style="animation:slideUp .6s ease both; animation-delay:.46s">
+      <circle cx="328" cy="220" r="44" fill="#7ea9c6"/>
+      <circle cx="328" cy="220" r="44" fill="none" stroke="#4d7b9c" stroke-width="2" opacity=".5"/>
+      <circle cx="314" cy="206" r="12" fill="#fff" opacity=".22"/>
+      <text x="328" y="300" text-anchor="middle" font-size="12.5" font-weight="900" fill="#3d1f33" font-family="system-ui">GARLIC</text>
+      <text x="328" y="330" text-anchor="middle" font-size="11" font-weight="800" fill="#3f6f92" font-family="system-ui">NO PIGMENT</text>
+      <text x="328" y="356" text-anchor="middle" font-size="10.5" font-weight="600" fill="#8a7284" font-family="system-ui">a chemical</text>
+      <text x="328" y="374" text-anchor="middle" font-size="10.5" font-weight="600" fill="#8a7284" font-family="system-ui">reaction</text>
+    </g>
+
+    <g style="animation:fadeSlide .6s ease both; animation-delay:.7s">
+      <line x1="34" y1="412" x2="371" y2="412" stroke="#e6ddcc" stroke-width="2"/>
+      <text x="202" y="452" text-anchor="middle" font-size="22" font-weight="900" fill="#2f2a22" font-family="system-ui" letter-spacing="-.4">3 COLORS · 3 REASONS</text>
+      <text x="202" y="484" text-anchor="middle" font-size="12" font-weight="600" fill="#8a8272" font-family="system-ui">Two of them are pigments. One is not.</text>
+    </g>
+
+    <g style="animation:slideUp .6s ease both; animation-delay:.9s">
+      <rect x="46" y="520" width="313" height="86" rx="15" fill="#fff" stroke="#e6ddcc" stroke-width="2"/>
+      <text x="202" y="550" text-anchor="middle" font-size="12.5" font-weight="900" fill="#2f2a22" font-family="system-ui">Only ONE of these three is a pigment</text>
+      <text x="202" y="572" text-anchor="middle" font-size="12.5" font-weight="900" fill="#2f2a22" font-family="system-ui">you could predict. The garlic one is not.</text>
+      <text x="202" y="594" text-anchor="middle" font-size="11" font-weight="600" fill="#8a8272" font-family="system-ui">That is why the blue scares people.</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 6 — COR É BOA NOTÍCIA ══════════ -->
+  <svg class="scene" id="s5" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#f3f8f4"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#7d9a86" font-family="system-ui" letter-spacing="2">THE PART THAT MATTERS</text>
+    <ellipse cx="202" cy="440" rx="164" ry="46" fill="#dcebe0" opacity=".7"/>
+
+    <g transform="translate(202,300)">
+      <g style="animation:floatSoft 3.2s ease-in-out infinite">
+        <circle r="86" fill="none" stroke="#2f7d55" stroke-width="3" opacity=".35" style="animation:pulseRing 3s ease-out infinite"/>
+        <circle r="86" fill="none" stroke="#2f7d55" stroke-width="3" opacity=".35" style="animation:pulseRing 3s ease-out infinite; animation-delay:1.5s"/>
+        <circle r="62" fill="#ffffff" stroke="#2f7d55" stroke-width="3.4"/>
+        <path d="M-28,2 L-9,22 L30,-24" fill="none" stroke="#2f7d55" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" style="animation:popInSeq .7s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.35s"/>
+      </g>
+    </g>
+
+    <text x="202" y="452" text-anchor="middle" font-size="26" font-weight="900" fill="#1f4a34" font-family="system-ui" letter-spacing="-.6" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.2s">COLOR IS GOOD NEWS</text>
+    <text x="202" y="486" text-anchor="middle" font-size="11.5" font-weight="600" fill="#5f7a6a" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.6s">In all three, the color means the ferment is</text>
+    <text x="202" y="506" text-anchor="middle" font-size="11.5" font-weight="600" fill="#5f7a6a" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.7s">working. It is not a sign that it went bad.</text>
+
+    <g style="animation:slideUp .6s ease both; animation-delay:.9s">
+      <rect x="40" y="536" width="325" height="76" rx="14" fill="#ffffff" stroke="#cfe3d6" stroke-width="2"/>
+      <text x="202" y="566" text-anchor="middle" font-size="12.5" font-weight="900" fill="#1f4a34" font-family="system-ui">Pink brine · blue clove · magenta jar</text>
+      <text x="202" y="590" text-anchor="middle" font-size="11" font-weight="600" fill="#5f7a6a" font-family="system-ui">All three of them are saying the same thing.</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 7 — O ÚNICO CASO RUIM ══════════ -->
+  <svg class="scene" id="s6" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fdf6f2"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#b39a8a" font-family="system-ui" letter-spacing="2">THE ONE THAT IS BAD</text>
+
+    <!-- painel esquerdo · cor por dentro -->
+    <g style="animation:slideUp .6s ease both; animation-delay:.1s">
+      <rect x="26" y="140" width="168" height="252" rx="18" fill="#ffffff" stroke="#cfe3d6" stroke-width="2.4"/>
+      <rect x="66" y="176" width="88" height="150" rx="14" fill="#c04a8e" opacity=".85"/>
+      <rect x="66" y="176" width="88" height="150" rx="14" fill="none" stroke="#8c2f63" stroke-width="2"/>
+      <text x="110" y="322" text-anchor="middle" font-size="34" font-weight="900" fill="#2f7d55" font-family="system-ui">✓</text>
+      <text x="110" y="358" text-anchor="middle" font-size="12.5" font-weight="900" fill="#1f4a34" font-family="system-ui">COLOR INSIDE</text>
+      <text x="110" y="378" text-anchor="middle" font-size="10.5" font-weight="600" fill="#5f7a6a" font-family="system-ui">that is working</text>
+    </g>
+
+    <!-- painel direito · mofo por cima -->
+    <g style="animation:slideUp .6s ease both; animation-delay:.3s">
+      <rect x="211" y="140" width="168" height="252" rx="18" fill="#ffffff" stroke="#f0c9a0" stroke-width="2.4"/>
+      <rect x="251" y="176" width="88" height="150" rx="14" fill="#c04a8e" opacity=".55"/>
+      <g fill="#5f7a4a">
+        <circle cx="272" cy="188" r="11"/><circle cx="292" cy="182" r="9"/>
+        <circle cx="312" cy="190" r="12"/><circle cx="326" cy="200" r="7"/>
+      </g>
+      <g fill="#3f5a30" opacity=".8">
+        <circle cx="280" cy="180" r="5"/><circle cx="304" cy="184" r="4"/>
+      </g>
+      <text x="295" y="322" text-anchor="middle" font-size="34" font-weight="900" fill="#c2551f" font-family="system-ui">✕</text>
+      <text x="295" y="358" text-anchor="middle" font-size="12.5" font-weight="900" fill="#7a3a12" font-family="system-ui">FUZZ ON TOP</text>
+      <text x="295" y="378" text-anchor="middle" font-size="10.5" font-weight="600" fill="#9a6a4a" font-family="system-ui">throw it out</text>
+    </g>
+
+    <text x="202" y="446" text-anchor="middle" font-size="24" font-weight="900" fill="#2f2a22" font-family="system-ui" letter-spacing="-.5" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.5s">INSIDE vs ON TOP</text>
+    <text x="202" y="480" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a8272" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.75s">Color in the liquid is the ferment talking.</text>
+    <text x="202" y="500" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a8272" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.85s">Fuzz sitting on the surface is a different thing.</text>
+
+    <g style="animation:slideUp .6s ease both; animation-delay:1s">
+      <rect x="40" y="530" width="325" height="82" rx="14" fill="#fdf0e2" stroke="#f0c9a0" stroke-width="2"/>
+      <text x="202" y="560" text-anchor="middle" font-size="12.5" font-weight="900" fill="#c2551f" font-family="system-ui" letter-spacing="1.2">GREEN, BLACK OR ORANGE FUZZ = OUT</text>
+      <text x="202" y="584" text-anchor="middle" font-size="11" font-weight="600" fill="#7a4a26" font-family="system-ui">Colored liquid is fine. Colored fluff is not.</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 8 — PERGUNTA ══════════ -->
+  <svg class="scene" id="s7" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fdfaf5"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">WHICH ONE WILL YOU TRY?</text>
+
+    <g transform="translate(0,300)">
+      <g style="animation:floatSoft 3s ease-in-out infinite">
+        <circle cx="76" cy="0" r="40" fill="#c8912e"/><circle cx="62" cy="-14" r="11" fill="#fff" opacity=".22"/>
+      </g>
+      <g style="animation:floatSoft 3s ease-in-out infinite; animation-delay:.4s">
+        <circle cx="202" cy="0" r="40" fill="#c04a8e"/><circle cx="188" cy="-14" r="11" fill="#fff" opacity=".22"/>
+      </g>
+      <g style="animation:floatSoft 3s ease-in-out infinite; animation-delay:.8s">
+        <circle cx="328" cy="0" r="40" fill="#8e1a51"/><circle cx="314" cy="-14" r="11" fill="#fff" opacity=".22"/>
+      </g>
+    </g>
+
+    <text x="76" y="378" text-anchor="middle" font-size="11" font-weight="900" fill="#8a6a1e" font-family="system-ui" letter-spacing="1.4">GARLIC</text>
+    <text x="202" y="378" text-anchor="middle" font-size="11" font-weight="900" fill="#a01e52" font-family="system-ui" letter-spacing="1.4">ONION</text>
+    <text x="328" y="378" text-anchor="middle" font-size="11" font-weight="900" fill="#8e1a51" font-family="system-ui" letter-spacing="1.4">BEETROOT</text>
+
+    <text x="202" y="452" text-anchor="middle" font-size="25" font-weight="900" fill="#2f2a22" font-family="system-ui" letter-spacing="-.6" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.2s">WHICH ONE FIRST?</text>
+    <text x="202" y="486" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a8272" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.55s">All three are on the channel, step by step.</text>
+
+    <g style="animation:slideUp .6s ease both; animation-delay:.75s">
+      <rect x="40" y="520" width="325" height="94" rx="14" fill="#fff" stroke="#e6ddcc" stroke-width="2"/>
+      <text x="202" y="550" text-anchor="middle" font-size="12.5" font-weight="900" fill="#2f2a22" font-family="system-ui">Garlic · onion · beetroot — which one</text>
+      <text x="202" y="570" text-anchor="middle" font-size="12.5" font-weight="900" fill="#2f2a22" font-family="system-ui">are you fermenting first?</text>
+      <text x="202" y="596" text-anchor="middle" font-size="11" font-weight="600" fill="#8a8272" font-family="system-ui">Tell me in the comments 👇</text>
+    </g>
+  </svg>
+
+  <div class="cap" id="cap">3 ferments that change color<small>garlic, onion and beetroot</small></div>
+
+  <div class="ui">
+    <button onclick="prev()">◀</button>
+    <button onclick="toggle()" id="btnPlay">⏸ Pause</button>
+    <button onclick="next()">▶</button>
+  </div>
+
+  <div class="cover" id="cover">
+    <button onclick="play()">▶</button>
+    <p>3 ferments that change color · 8 scenes · 54s</p>
+  </div>
+</div>
+
+<script>
+const scenes = [
+  { id:'s0', ms:5500, tag:'3 COLORS 1 / 8', cap:'3 ferments that change color', sub:'garlic, onion and beetroot', color:'#8e1a51' },
+  { id:'s1', ms:7000, tag:'3 COLORS 2 / 8', cap:'Beetroot: the pigment bleeds', sub:'betalain · it dyes everything it touches', color:'#c62a68' },
+  { id:'s2', ms:7000, tag:'3 COLORS 3 / 8', cap:'Red onion: acid turns it pink', sub:'anthocyanin · one beet slice = magenta', color:'#c04a8e' },
+  { id:'s3', ms:7000, tag:'3 COLORS 4 / 8', cap:'Garlic: blue is normal', sub:'a reaction, not mold', color:'#3f6f92' },
+  { id:'s4', ms:7000, tag:'3 COLORS 5 / 8', cap:'Three colors, three reasons', sub:'a pigment, a pigment, and a reaction', color:'#7d1245' },
+  { id:'s5', ms:6500, tag:'3 COLORS 6 / 8', cap:'The color means it is working', sub:'not a sign that it went bad', color:'#2f7d55' },
+  { id:'s6', ms:7000, tag:'3 COLORS 7 / 8', cap:'The one color that IS bad', sub:'fuzz on the surface, not color inside', color:'#c2551f' },
+  { id:'s7', ms:6500, tag:'3 COLORS 8 / 8', cap:'Which one are you trying first?', sub:'beetroot · onion · garlic', color:'#3d1f33' }
+];
+
+const stage = document.getElementById('stage');
+const progress = document.getElementById('progress');
+const capEl = document.getElementById('cap');
+const tagEl = document.getElementById('tag');
+const btnPlay = document.getElementById('btnPlay');
+
+let i = 0, playing = false, tick0 = null, elapsed = 0;
+const RES = 70;
+
+function render() {
+  scenes.forEach((s, n) => {
+    const el = document.getElementById(s.id);
+    el.classList.remove('on');
+    if (n === i) el.classList.add('on');
+  });
+  tagEl.textContent = scenes[i].tag;
+  capEl.innerHTML = scenes[i].cap + '<small>' + scenes[i].sub + '</small>';
+  progress.style.background = scenes[i].color;
+  progress.style.width = '0%';
+}
+
+function loop() {
+  clearInterval(tick0);
+  tick0 = setInterval(() => {
+    if (!playing) return;
+    elapsed += RES;
+    const total = scenes[i].ms;
+    progress.style.width = Math.min(100, (elapsed / total) * 100) + '%';
+    if (elapsed >= total) {
+      if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+      else { stop(); progress.style.width = '100%'; }
+    }
+  }, RES);
+}
+
+function next() {
+  if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+  else { stop(); progress.style.width = '100%'; }
+}
+function prev() { if (i > 0) { i--; elapsed = 0; render(); } }
+function play() {
+  playing = true; elapsed = 0;
+  btnPlay.textContent = '⏸ Pause';
+  document.getElementById('cover').classList.add('hide');
+  stage.classList.add('touched');
+  render(); loop();
+}
+function stop() {
+  playing = false;
+  btnPlay.textContent = '▶ Watch';
+  clearInterval(tick0);
+}
+function toggle(){ playing ? stop() : play(); }
+
+stage.addEventListener('click', e => {
+  if (e.target.closest('button')) return;
+  if (playing) toggle();
+});
+
+render();
+</script>
+
+<script>
+/* ?rec = modo gravacao.
+   Sem ?rec na URL, nada muda: e o short normal.
+   Com ?rec, o quadro preenche 1080x1920 (1920x1080 no video longo),
+   a capa e os botoes somem e a animacao comeca sozinha. */
+(function () {
+  if (location.search.indexOf('rec') < 0) return;
+  var css = '#cover{display:none!important}.ui{display:none!important}'
+          + '#stage{border-radius:0!important;box-shadow:none!important}';
+  var st = document.getElementById('stage');
+  if (st) {
+    var w = st.offsetWidth, h = st.offsetHeight;
+    if (w && h) {
+      css += '#stage{transform:scale(' + ((h > w ? 1920 : 1080) / h)
+           + ')!important;transform-origin:center center!important}';
+    }
+  }
+  if (document.getElementById('frame')) {
+    css += '#frame{transform:scale(1)!important;left:0!important;top:0!important}';
+  }
+  var tag = document.createElement('style');
+  tag.textContent = css;
+  document.head.appendChild(tag);
+  if (typeof showChapters === 'function') showChapters(false);
+  setTimeout(function () { if (typeof play === 'function') play(); }, 500);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>bench</title>
+<style>html,body{margin:0;background:#111}canvas{position:absolute;left:-2000px}
+pre{color:#ddd;font:12px monospace}</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<pre id="out">correndo</pre>
+<script>
+window.__log = [];
+function L(s){ window.__log.push(s); document.getElementById('out').textContent = window.__log.join('\n'); }
+var cx = document.getElementById('c').getContext('2d');
+var ARQ = new URLSearchParams(location.search).get('arq') || 'short.html';
+var N = 20;
+function ms(fn, n){ var t = performance.now(); for (var i=0;i<n;i++) fn(i); return (performance.now()-t)/n; }
+function blobURL(str){ return URL.createObjectURL(new Blob([str], {type:'image/svg+xml'})); }
+function serializa(el, lado){
+  var c = el.cloneNode(true);
+  c.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  c.setAttribute('width', lado); c.setAttribute('height', Math.round(lado*720/405));
+  return new XMLSerializer().serializeToString(c);
+}
+
+var f = document.createElement('iframe');
+f.style.cssText = 'width:405px;height:720px;border:0;position:absolute;left:-3000px';
+f.src = ARQ;
+document.body.appendChild(f);
+
+f.onload = function(){
+  var d = f.contentDocument, w = f.contentWindow;
+  if (!d || !w) { L('ERRO: nao consegui ler o iframe (precisa de --allow-file-access-from-files)'); window.__done='FAIL'; return; }
+  /* ATENCAO: `const scenes` no short e um binding lexical — NAO aparece como
+     w.scenes. Ler as cenas pelo DOM. */
+  var cenas = [].slice.call(d.querySelectorAll('svg.scene'));
+  var nAnim = 0;
+  d.getAnimations().forEach(function(a){
+    var t = a.effect && a.effect.target;
+    if (t && t.closest && t.closest('svg.scene')) nAnim++;
+  });
+  var live = cenas[3];
+  live.classList.add('on');
+  var total = live.querySelectorAll('*').length;
+  L('cenas: ' + cenas.length + ' | elementos animados: ' + nAnim + ' | nos na cena 4: ' + total);
+
+  // 1) clonar + assar TODOS os nos
+  var t1 = ms(function(){
+    var cl = live.cloneNode(true);
+    var a = live.querySelectorAll('*'), b = cl.querySelectorAll('*');
+    for (var k=0;k<a.length;k++){
+      var cs = w.getComputedStyle(a[k]);
+      var st = (b[k].getAttribute('style')||'').replace(/animation[^;]*;?/g,'');
+      if (cs.transform && cs.transform!=='none') st += 'transform:'+cs.transform+';';
+      b[k].setAttribute('style', st);
+    }
+    window.__cl = cl;
+  }, N);
+  L('1) clonar + assar os ' + total + ' nos         : ' + t1.toFixed(1) + ' ms');
+
+  var str = serializa(window.__cl, 1080);
+  L('   SVG serializado: ' + str.length + ' chars');
+  var t2 = ms(function(){ window.__u = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(str); }, N);
+  L('2) encodeURIComponent (data URL)  : ' + t2.toFixed(1) + ' ms');
+  var t3 = ms(function(){ window.__b = blobURL(str); }, N);
+  L('3) Blob + createObjectURL         : ' + t3.toFixed(1) + ' ms');
+
+  var t4 = performance.now(), n4 = 0;
+  (function p4(){
+    if (n4++ >= N) { L('4) DECODIFICAR data URL 1080x1920 : ' + ((performance.now()-t4)/N).toFixed(1) + ' ms'); p5(); return; }
+    var im = new Image(); im.onload = p4; im.onerror = p4; im.src = window.__u;
+  })();
+
+  function p5(){
+    var t = performance.now(), n = 0;
+    (function prox(){
+      if (n++ >= N) { L('5) DECODIFICAR blob URL 1080x1920 : ' + ((performance.now()-t)/N).toFixed(1) + ' ms'); p6(); return; }
+      var im = new Image(); im.onload = prox; im.onerror = prox; im.src = window.__b;
+    })();
+  }
+
+  function p6(){
+    var u2 = blobURL(serializa(window.__cl, 405));
+    var t = performance.now(), n = 0;
+    (function prox(){
+      if (n++ >= N) { L('6) DECODIFICAR blob URL 405x720   : ' + ((performance.now()-t)/N).toFixed(1) + ' ms'); p7(); return; }
+      var im = new Image(); im.onload = prox; im.onerror = prox; im.src = u2;
+    })();
+  }
+
+  function p7(){
+    var im = new Image();
+    im.onload = function(){
+      var t = performance.now();
+      for (var i=0;i<N;i++) cx.drawImage(im, 0, 0, 1080, 1920);
+      L('7) drawImage 1080x1920 (blit)     : ' + ((performance.now()-t)/N).toFixed(1) + ' ms');
+      p8();
+    };
+    im.src = window.__b;
+  }
+
+  function p8(){
+    var im = new Image();
+    im.onload = function(){
+      var t = performance.now();
+      for (var i=0;i<N;i++) cx.drawImage(im, 0, 0, 1080, 1920);
+      L('8) drawImage 405x720 esticado     : ' + ((performance.now()-t)/N).toFixed(1) + ' ms');
+      L('--- orcamento a 30 fps = 33 ms por quadro');
+      L('FIM');
+      window.__done = 'OK';
+    };
+    im.src = blobURL(serializa(window.__cl, 405));
+  }
+};
+</script>
+</body></html>

@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animation — Sauerkraut in 7 Days (EN · 1080x1920 upload format)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { overflow:hidden; }
+  body {
+    background:#0f0e0c;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    width:100vw; height:100vh;
+  }
+
+  /* ══ THE FRAME — native 1080x1920, full bleed, NO rounded corners, NO shadow ══
+     This IS the recording canvas: exactly what YouTube wants for a Short.
+     In an OBS Browser Source set to 1080x1920 the scale below resolves to 1
+     and you record pixel for pixel. On a normal monitor it only shrinks so
+     you can preview it. Nothing else changes. */
+  #stage {
+    position:relative; width:1080px; height:1920px;
+    background:#f4efe4; overflow:hidden;
+    transform-origin:center center;
+    flex:none;
+  }
+
+  /* the inner SVGs keep the series' 405x720 coordinate space and are drawn
+     into the full 1080x1920 frame — vector, so it stays razor sharp.
+     405x720 and 1080x1920 are the same 9:16 ratio: nothing is stretched. */
+  svg.scene {
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0; visibility:hidden; transition:opacity .42s ease;
+  }
+  svg.scene.on { opacity:1; visibility:visible; }
+
+  .bar { position:absolute; top:0; left:0; right:0; height:11px; background:rgba(0,0,0,.12); z-index:40; }
+  #progress { height:100%; width:0; background:#3b6d11; transition:width .2s linear; }
+
+  .tag {
+    position:absolute; top:59px; left:0; right:0; text-align:center;
+    font-size:27px; font-weight:800; letter-spacing:.2em;
+    text-transform:uppercase; opacity:.5; z-index:30; color:#2c2c2a;
+  }
+  .wm { position:absolute; top:48px; right:43px; font-size:24px; font-weight:800;
+        letter-spacing:.1em; opacity:.35; z-index:35; text-transform:uppercase; color:#2c2c2a; }
+
+  .ui { position:absolute; bottom:219px; left:0; right:0; display:flex;
+        justify-content:center; gap:24px; z-index:40; opacity:0; transition:opacity .3s; }
+  /* controls appear on mouse move and fade out by themselves, so a hands-off
+     recording never has buttons on top of the drawing */
+  #stage.touched .ui { opacity:1; }
+  .ui button { border:none; background:rgba(15,14,12,.8); color:#fff; font-size:31px;
+    font-weight:700; font-family:inherit; padding:21px 40px; border-radius:999px; cursor:pointer; }
+  .ui button:hover { background:#000; }
+
+  .cover { position:absolute; inset:0; z-index:50; background:rgba(0,0,0,.62);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:43px; }
+  .cover.hide { display:none; }
+  .cover button { width:208px; height:208px; border-radius:50%; border:none;
+    background:rgba(255,255,255,.95); color:#111; font-size:72px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding-left:13px; }
+  .cover p { color:#fff; font-size:32px; font-weight:700; letter-spacing:.08em; opacity:.9;
+             text-transform:uppercase; text-align:center; line-height:1.7; }
+  .cover p b { color:#f0c846; }
+  .cover .hint { font-size:24px; font-weight:600; opacity:.55; letter-spacing:.04em; text-transform:none; }
+
+  .cap {
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(15,14,12,.86); color:#fff;
+    padding:37px 59px 45px; font-size:43px; font-weight:800;
+    text-align:center; z-index:30; line-height:1.35;
+  }
+  .cap small { display:block; font-size:32px; font-weight:500; opacity:.72; margin-top:11px; letter-spacing:.01em; }
+
+  /* ══ keyframes — declared once, shared by every inline SVG scene ══ */
+  @keyframes swayLeaf {
+    0%,100% { transform: translate(0,0) rotate(0deg) }
+    50%     { transform: translate(3px,-4px) rotate(4deg) }
+  }
+  @keyframes washRock {
+    0%,100% { transform: translate(-15px,3px) rotate(-6deg) }
+    50%     { transform: translate(15px,-5px) rotate(6deg) }
+  }
+  @keyframes pressDown {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(16px) }
+  }
+  @keyframes holdSteady {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(-5px) }
+  }
+  @keyframes chopDown {
+    0%   { transform: translateY(-18px) rotate(-16deg) }
+    50%  { transform: translateY(7px) rotate(5deg) }
+    100% { transform: translateY(-18px) rotate(-16deg) }
+  }
+  @keyframes slideCut {
+    0%   { transform: translate(0,0) rotate(-3deg) }
+    100% { transform: translate(-26px,12px) rotate(-24deg) }
+  }
+  @keyframes massageL {
+    0%,100% { transform: translate(0,0) scale(1,1) }
+    50%     { transform: translate(12px,-6px) scale(.91,1.07) }
+  }
+  @keyframes massageR {
+    0%,100% { transform: translate(0,0) scale(1,1) }
+    50%     { transform: translate(-12px,-6px) scale(.91,1.07) }
+  }
+  @keyframes pourSalt {
+    0%,100% { transform: translateY(-15px) rotate(-24deg) }
+    35%     { transform: translateY(5px) rotate(-5deg) }
+    65%     { transform: translateY(1px) rotate(3deg) }
+  }
+  @keyframes saltFall {
+    0%   { transform: translateY(0) translateX(0); opacity: 0 }
+    16%  { opacity: .95 }
+    100% { transform: translateY(98px) translateX(7px); opacity: 0 }
+  }
+  @keyframes soakStain {
+    0%   { opacity: 0; transform: scaleX(.7) }
+    100% { opacity: .9; transform: scaleX(1) }
+  }
+  @keyframes dropFall {
+    0%   { transform: translateY(0) scaleY(.6); opacity: 0 }
+    22%  { opacity: .9 }
+    100% { transform: translateY(104px) scaleY(1.4); opacity: 0 }
+  }
+  @keyframes bubbleRise {
+    0%   { transform: translateY(0) scale(.6); opacity: 0 }
+    28%  { opacity: .9 }
+    100% { transform: translateY(-96px) scale(1.25); opacity: 0 }
+  }
+  @keyframes liquidRise {
+    0%   { transform: translateY(60px); opacity: 0 }
+    100% { transform: translateY(0); opacity: .86 }
+  }
+  @keyframes floatJar {
+    0%,100% { transform: translateY(0) rotate(0deg) }
+    50%     { transform: translateY(-9px) rotate(1.2deg) }
+  }
+  @keyframes counterTurn {
+    0%,100% { transform: rotate(0deg) }
+    50%     { transform: rotate(180deg) }
+  }
+  @keyframes clockSpin {
+    0%   { transform: rotate(0deg) }
+    100% { transform: rotate(360deg) }
+  }
+  @keyframes popInSeq {
+    0%   { transform: scale(.4); opacity: 0 }
+    60%  { transform: scale(1.08); opacity: 1 }
+    100% { transform: scale(1); opacity: 1 }
+  }
+  @keyframes fadeSlide {
+    0%   { opacity: 0; transform: translateY(8px) }
+    100% { opacity: 1; transform: translateY(0) }
+  }
+  @keyframes drawLine {
+    0%   { stroke-dashoffset: 301 }
+    100% { stroke-dashoffset: 0 }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div class="bar"><div id="progress"></div></div>
+  <div class="tag" id="tag">SAUERKRAUT 1 / 8</div>
+  <div class="wm">@yourhandle</div>
+
+  <!-- ══════════ SCENE 1 — HOOK: 1 CABBAGE, 2% SALT, 7 DAYS ══════════ -->
+  <svg class="scene on" id="s0" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="gCab0" cx="36%" cy="26%" r="76%">
+        <stop offset="0%" stop-color="#f2f9e4"/>
+        <stop offset="55%" stop-color="#d3e9b4"/>
+        <stop offset="100%" stop-color="#8fb854"/>
+      </radialGradient>
+      <linearGradient id="gBoard0" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#e6d3b4"/>
+        <stop offset="100%" stop-color="#c9ab84"/>
+      </linearGradient>
+    </defs>
+    <rect width="405" height="720" fill="#f1ece0"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#8b8f7c" font-family="system-ui" letter-spacing="2">THE BENCH · HANDS ONLY · NO FACE</text>
+
+    <ellipse cx="202" cy="560" rx="184" ry="46" fill="#cfc0a6" opacity=".45"/>
+    <rect x="46" y="404" width="313" height="34" rx="15" fill="url(#gBoard0)"/>
+    <rect x="46" y="404" width="313" height="12" rx="6" fill="#f0e0c6" opacity=".6"/>
+
+    <!-- the whole cabbage -->
+    <g transform="translate(202,330)">
+      <g style="animation:holdSteady 2.6s ease-in-out infinite">
+        <ellipse cx="0" cy="8" rx="96" ry="80" fill="url(#gCab0)"/>
+        <ellipse cx="0" cy="-6" rx="72" ry="58" fill="#e2f0c8" opacity=".7"/>
+        <path d="M0,-62 Q26,-30 0,4 Q-26,-30 0,-62Z" fill="#a9cc70" opacity=".85"/>
+        <path d="M-84,6 Q-40,-16 0,6 Q-40,30 -84,6Z" fill="#a9cc70" opacity=".8"/>
+        <path d="M84,6 Q40,-16 0,6 Q40,30 84,6Z" fill="#a9cc70" opacity=".8"/>
+        <ellipse cx="0" cy="8" rx="26" ry="20" fill="#c6dd9c"/>
+      </g>
+    </g>
+
+    <!-- outer leaves being torn off -->
+    <g>
+      <path d="M132,272 Q110,268 100,290 Q118,300 136,292Z" fill="#b7d484" style="animation:slideCut 3.2s ease-in infinite"/>
+      <path d="M258,266 Q284,262 296,282 Q276,296 256,286Z" fill="#a9cc70" style="animation:slideCut 3.2s ease-in .9s infinite"/>
+      <path d="M120,300 Q100,302 92,322 Q112,328 128,316Z" fill="#c2dc92" style="animation:slideCut 3.2s ease-in 1.8s infinite"/>
+    </g>
+
+    <!-- right hand pulling a leaf (transform outside, animation inside) -->
+    <g transform="translate(292,282)">
+      <g style="animation:swayLeaf 1.3s ease-in-out infinite">
+        <ellipse cx="-22" cy="-22" rx="10" ry="17" fill="#6b4636" transform="rotate(-30 -22 -22)"/>
+        <ellipse cx="-21.5" cy="-29" rx="5" ry="5.5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="-28" cy="-2" rx="9.5" ry="16" fill="#6b4636" transform="rotate(-16 -28 -2)"/>
+        <ellipse cx="-27.5" cy="-9" rx="4.8" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="-24" cy="18" rx="8.5" ry="14" fill="#6b4636" transform="rotate(-6 -24 18)"/>
+        <ellipse cx="-23.5" cy="11" rx="4.4" ry="5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="0" rx="30" ry="26" fill="#6b4636"/>
+        <ellipse cx="0" cy="0" rx="30" ry="26" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+        <ellipse cx="12" cy="-23" rx="11" ry="9" fill="#6b4636" transform="rotate(20 12 -23)"/>
+        <ellipse cx="15" cy="-29" rx="5.5" ry="4.5" fill="#e8c9b8" opacity=".92"/>
+      </g>
+    </g>
+    <!-- left hand holding it -->
+    <g transform="translate(112,318)">
+      <g style="animation:holdSteady 2.6s ease-in-out .4s infinite">
+        <ellipse cx="20" cy="-20" rx="10" ry="17" fill="#6b4636" transform="rotate(28 20 -20)"/>
+        <ellipse cx="19.5" cy="-27" rx="5" ry="5.5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="26" cy="-2" rx="9.5" ry="16" fill="#6b4636" transform="rotate(16 26 -2)"/>
+        <ellipse cx="25.5" cy="-9" rx="4.8" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="0" rx="30" ry="37" fill="#6b4636"/>
+        <ellipse cx="0" cy="0" rx="30" ry="37" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+        <ellipse cx="-13" cy="-30" rx="11" ry="9.5" fill="#6b4636" transform="rotate(-18 -13 -30)"/>
+        <ellipse cx="-16" cy="-36" rx="5.5" ry="4.8" fill="#e8c9b8" opacity=".92"/>
+      </g>
+    </g>
+
+    <g style="animation:fadeSlide .6s ease-out .25s both">
+      <rect x="16" y="556" width="373" height="76" rx="8" fill="#2c2c2a" opacity=".95"/>
+      <text x="202" y="584" text-anchor="middle" font-size="19" font-weight="900" fill="#fff" font-family="system-ui">HANDS ONLY. NO FACE.</text>
+      <text x="202" y="613" text-anchor="middle" font-size="14" font-weight="800" fill="#c0dd97" font-family="system-ui">1 CABBAGE · 2% SALT · 7 DAYS</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ SCENE 2 — WASH IT, PEEL THE OUTER LEAVES ══════════ -->
+  <svg class="scene" id="s1" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#e7eff2"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#7d8f94" font-family="system-ui" letter-spacing="2">SINK · COLD WATER · NO SOAP</text>
+
+    <ellipse cx="202" cy="520" rx="180" ry="52" fill="#b9c8cc" opacity=".5"/>
+    <ellipse cx="202" cy="506" rx="168" ry="44" fill="#d6e2e6"/>
+    <ellipse cx="202" cy="500" rx="150" ry="34" fill="#c2d3d8"/>
+
+    <!-- tap -->
+    <rect x="188" y="150" width="28" height="86" rx="10" fill="#a9b8bc"/>
+    <path d="M188,168 Q188,140 216,140 L250,140 Q272,140 272,162 L272,186" fill="none" stroke="#a9b8bc" stroke-width="26" stroke-linecap="round"/>
+    <rect x="256" y="180" width="32" height="30" rx="8" fill="#8fa0a4"/>
+
+    <!-- running water -->
+    <g>
+      <rect x="262" y="208" width="20" height="118" rx="9" fill="#8ec9e8" opacity=".5" style="animation:dropFall 1.05s linear infinite"/>
+      <rect x="266" y="208" width="12" height="110" rx="6" fill="#c9e6f6" opacity=".75" style="animation:dropFall 1.05s linear infinite .12s"/>
+    </g>
+
+    <!-- cabbage under the water -->
+    <g transform="translate(202,404)">
+      <ellipse cx="0" cy="6" rx="92" ry="76" fill="#eaf3de"/>
+      <ellipse cx="0" cy="6" rx="79" ry="64" fill="#d4e8b8"/>
+      <path d="M0,-58 Q28,-26 0,6 Q-28,-26 0,-58Z" fill="#97c459" opacity=".8"/>
+      <path d="M-78,6 Q-36,-14 0,6 Q-36,28 -78,6Z" fill="#97c459" opacity=".8"/>
+      <path d="M78,6 Q36,-14 0,6 Q36,28 78,6Z" fill="#97c459" opacity=".8"/>
+      <g>
+        <circle cx="-48" cy="42" r="4.6" fill="#8ec9e8" opacity=".85" style="animation:dropFall 1.5s linear infinite"/>
+        <circle cx="-10" cy="54" r="5.4" fill="#8ec9e8" opacity=".85" style="animation:dropFall 1.5s linear infinite .5s"/>
+        <circle cx="34" cy="46" r="4.2" fill="#8ec9e8" opacity=".85" style="animation:dropFall 1.5s linear infinite .95s"/>
+        <circle cx="62" cy="32" r="3.8" fill="#8ec9e8" opacity=".8" style="animation:dropFall 1.5s linear infinite 1.25s"/>
+      </g>
+    </g>
+
+    <!-- scrubbing hand -->
+    <g transform="translate(266,332)">
+      <g style="animation:washRock 1.4s ease-in-out infinite">
+        <ellipse cx="-22" cy="-22" rx="10" ry="17" fill="#6b4636" transform="rotate(-30 -22 -22)"/>
+        <ellipse cx="-21.5" cy="-29" rx="5" ry="5.5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="-28" cy="-2" rx="9.5" ry="16" fill="#6b4636" transform="rotate(-16 -28 -2)"/>
+        <ellipse cx="-27.5" cy="-9" rx="4.8" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="-24" cy="18" rx="8.5" ry="14" fill="#6b4636" transform="rotate(-6 -24 18)"/>
+        <ellipse cx="-23.5" cy="11" rx="4.4" ry="5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="0" rx="30" ry="26" fill="#6b4636"/>
+        <ellipse cx="0" cy="0" rx="30" ry="26" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+        <ellipse cx="12" cy="-23" rx="11" ry="9" fill="#6b4636" transform="rotate(20 12 -23)"/>
+        <ellipse cx="15" cy="-29" rx="5.5" ry="4.5" fill="#e8c9b8" opacity=".92"/>
+      </g>
+    </g>
+    <g transform="translate(132,348)">
+      <g style="animation:holdSteady 1.4s ease-in-out .4s infinite">
+        <ellipse cx="20" cy="-20" rx="10" ry="17" fill="#6b4636" transform="rotate(28 20 -20)"/>
+        <ellipse cx="19.5" cy="-27" rx="5" ry="5.5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="26" cy="-2" rx="9.5" ry="16" fill="#6b4636" transform="rotate(16 26 -2)"/>
+        <ellipse cx="25.5" cy="-9" rx="4.8" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="0" rx="30" ry="37" fill="#6b4636"/>
+        <ellipse cx="0" cy="0" rx="30" ry="37" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+        <ellipse cx="-13" cy="-30" rx="11" ry="9.5" fill="#6b4636" transform="rotate(-18 -13 -30)"/>
+        <ellipse cx="-16" cy="-36" rx="5.5" ry="4.8" fill="#e8c9b8" opacity=".92"/>
+      </g>
+    </g>
+
+    <g style="animation:fadeSlide .6s ease-out .25s both">
+      <rect x="16" y="556" width="373" height="76" rx="8" fill="#2b6a80" opacity=".95"/>
+      <text x="202" y="584" text-anchor="middle" font-size="19" font-weight="900" fill="#fff" font-family="system-ui">WASH THE WHOLE HEAD</text>
+      <text x="202" y="613" text-anchor="middle" font-size="14" font-weight="800" fill="#d5eef7" font-family="system-ui">PEEL OFF THE OUTER LEAVES</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ SCENE 3 — SHRED IT THIN ══════════ -->
+  <svg class="scene" id="s2" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="gCab2" cx="36%" cy="26%" r="76%">
+        <stop offset="0%" stop-color="#f2f9e4"/>
+        <stop offset="60%" stop-color="#d3e9b4"/>
+        <stop offset="100%" stop-color="#8fb854"/>
+      </radialGradient>
+    </defs>
+    <rect width="405" height="720" fill="#eae2d2"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#9a8f7c" font-family="system-ui" letter-spacing="2">HAND + KNIFE · SHRED 2 MM THIN</text>
+    <ellipse cx="202" cy="482" rx="170" ry="44" fill="#c6b69a" opacity=".45"/>
+    <ellipse cx="202" cy="472" rx="152" ry="30" fill="#dbcfb4"/>
+
+    <!-- cabbage cut in quarters -->
+    <g transform="translate(180,348)">
+      <path d="M0,0 A62,62 0 0,0 0,-118 Z" fill="url(#gCab2)"/>
+      <path d="M0,0 A62,62 0 0,1 0,-118 Z" fill="#d9ecbe"/>
+      <path d="M0,-118 L0,0" stroke="#a9cc70" stroke-width="2"/>
+      <path d="M0,-60 L60,-16" stroke="#a9cc70" stroke-width="2"/>
+      <path d="M0,-60 L-60,-16" stroke="#a9cc70" stroke-width="2"/>
+    </g>
+
+    <!-- pile of shreds -->
+    <g transform="translate(202,452)">
+      <ellipse cx="0" cy="0" rx="112" ry="24" fill="#eaf3de"/>
+      <path d="M-112,0 L-104,22 L104,22 L112,0Z" fill="#d4e8b8"/>
+      <g fill="#c0dd97" stroke="#97c459" stroke-width="1.4">
+        <rect x="-96" y="-14" width="17" height="38" rx="7" transform="rotate(-8 -88 4)"/>
+        <rect x="-66" y="-18" width="17" height="44" rx="7" transform="rotate(5 -58 3)"/>
+        <rect x="-36" y="-12" width="17" height="36" rx="7" transform="rotate(-4 -28 5)"/>
+        <rect x="-6" y="-20" width="17" height="46" rx="7" transform="rotate(7 2 2)"/>
+        <rect x="24" y="-14" width="17" height="40" rx="7" transform="rotate(-6 32 5)"/>
+        <rect x="54" y="-18" width="17" height="42" rx="7" transform="rotate(6 62 2)"/>
+        <rect x="84" y="-12" width="15" height="34" rx="7" transform="rotate(-5 91 4)"/>
+      </g>
+      <!-- the fresh shred falling away -->
+      <rect x="86" y="-30" width="16" height="42" rx="7" fill="#cee4a6" style="animation:slideCut 1.6s ease-in infinite"/>
+    </g>
+
+    <!-- hand with the knife -->
+    <g transform="translate(288,332)">
+      <g style="animation:chopDown .92s ease-in-out infinite">
+        <rect x="-5" y="-86" width="10" height="44" rx="4" fill="#5f5e5a"/>
+        <path d="M-4,-42 L4,-42 L6,12 L-6,12Z" fill="#b4b2a9"/>
+        <ellipse cx="-16" cy="-112" rx="8.5" ry="14" fill="#6b4636" transform="rotate(-30 -16 -112)"/>
+        <ellipse cx="-15.5" cy="-119" rx="4.5" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="-120" rx="8.5" ry="14" fill="#6b4636" transform="rotate(-12 0 -120)"/>
+        <ellipse cx="0" cy="-127" rx="4.5" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="15" cy="-113" rx="8.5" ry="14" fill="#6b4636" transform="rotate(18 15 -113)"/>
+        <ellipse cx="16.5" cy="-120" rx="4.5" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="-94" rx="22" ry="18" fill="#6b4636"/>
+        <ellipse cx="0" cy="-94" rx="22" ry="18" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+        <ellipse cx="-18" cy="-81" rx="9" ry="7.5" fill="#6b4636"/>
+        <ellipse cx="-21" cy="-86" rx="4.5" ry="3.8" fill="#e8c9b8" opacity=".92"/>
+      </g>
+    </g>
+    <!-- left hand steadying the cabbage -->
+    <g transform="translate(96,368)">
+      <g style="animation:holdSteady 1.9s ease-in-out infinite">
+        <ellipse cx="20" cy="-20" rx="10" ry="17" fill="#6b4636" transform="rotate(28 20 -20)"/>
+        <ellipse cx="19.5" cy="-27" rx="5" ry="5.5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="26" cy="-2" rx="9.5" ry="16" fill="#6b4636" transform="rotate(16 26 -2)"/>
+        <ellipse cx="25.5" cy="-9" rx="4.8" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="0" rx="30" ry="37" fill="#6b4636"/>
+        <ellipse cx="0" cy="0" rx="30" ry="37" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+        <ellipse cx="-13" cy="-30" rx="11" ry="9.5" fill="#6b4636" transform="rotate(-18 -13 -30)"/>
+        <ellipse cx="-16" cy="-36" rx="5.5" ry="4.8" fill="#e8c9b8" opacity=".92"/>
+      </g>
+    </g>
+
+    <g style="animation:fadeSlide .6s ease-out .25s both">
+      <rect x="16" y="556" width="373" height="76" rx="8" fill="#3b6d11" opacity=".95"/>
+      <text x="202" y="584" text-anchor="middle" font-size="19" font-weight="900" fill="#fff" font-family="system-ui">SHRED IT 2 TO 3 MM</text>
+      <text x="202" y="613" text-anchor="middle" font-size="14" font-weight="800" fill="#eaf3de" font-family="system-ui">TOO THICK STAYS HARD · TOO THIN = MUSH</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ SCENE 4 — MASSAGE 10 MINUTES, NO WATER ══════════ -->
+  <svg class="scene" id="s3" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <clipPath id="clBowl3"><path d="M64,434 Q64,412 88,412 L316,412 Q340,412 340,434 L340,470 Q340,540 202,540 Q64,540 64,470Z"/></clipPath>
+    </defs>
+    <rect width="405" height="720" fill="#f2e3da"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#a8907c" font-family="system-ui" letter-spacing="2">THE MOST IMPORTANT SCENE · 10 MINUTES</text>
+    <ellipse cx="202" cy="556" rx="176" ry="46" fill="#cbb09a" opacity=".42"/>
+
+    <!-- bowl -->
+    <path d="M64,434 Q64,412 88,412 L316,412 Q340,412 340,434 L340,470 Q340,540 202,540 Q64,540 64,470Z" fill="#e9e2d4"/>
+    <path d="M64,434 Q64,412 88,412 L316,412 Q340,412 340,434 L340,470 L64,470Z" fill="#d8cfbe"/>
+
+    <g clip-path="url(#clBowl3)">
+      <g transform="translate(202,432)">
+        <ellipse cx="0" cy="6" rx="126" ry="46" fill="#d4e8b8"/>
+        <g fill="#c0dd97">
+          <ellipse cx="-52" cy="-2" rx="40" ry="24" transform="rotate(-16 -52 -2)"/>
+          <ellipse cx="50" cy="-6" rx="40" ry="24" transform="rotate(14 50 -6)"/>
+          <ellipse cx="0" cy="-24" rx="36" ry="22"/>
+        </g>
+        <!-- the brine the salt pulls out of the cabbage -->
+        <g style="animation:liquidRise 3.4s ease-out .4s infinite">
+          <ellipse cx="0" cy="30" rx="118" ry="34" fill="#a8ce7e" opacity=".55"/>
+        </g>
+        <g fill="#8ec9e8" opacity=".8">
+          <circle cx="-62" cy="40" r="5" style="animation:bubbleRise 1.8s ease-out infinite"/>
+          <circle cx="-14" cy="52" r="4.2" style="animation:bubbleRise 1.8s ease-out .6s infinite"/>
+          <circle cx="34" cy="44" r="4.8" style="animation:bubbleRise 1.8s ease-out 1.2s infinite"/>
+          <circle cx="72" cy="54" r="4" style="animation:bubbleRise 1.8s ease-out .3s infinite"/>
+        </g>
+      </g>
+    </g>
+
+    <!-- both hands working, one from each side -->
+    <g transform="translate(118,364)">
+      <g style="animation:massageL 1.05s ease-in-out infinite">
+        <ellipse cx="-24" cy="-22" rx="11" ry="18" fill="#6b4636" transform="rotate(-28 -24 -22)"/>
+        <ellipse cx="-23" cy="-29" rx="5.2" ry="5.8" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="-30" cy="-2" rx="10" ry="17" fill="#6b4636" transform="rotate(-16 -30 -2)"/>
+        <ellipse cx="-29" cy="-9" rx="5" ry="5.4" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="-27" cy="18" rx="9" ry="15" fill="#6b4636" transform="rotate(-6 -27 18)"/>
+        <ellipse cx="-26" cy="11" rx="4.6" ry="5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="0" rx="36" ry="31" fill="#6b4636"/>
+        <ellipse cx="0" cy="0" rx="36" ry="31" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+        <ellipse cx="14" cy="-28" rx="12" ry="10" fill="#6b4636" transform="rotate(20 14 -28)"/>
+        <ellipse cx="17" cy="-34" rx="6" ry="5" fill="#e8c9b8" opacity=".92"/>
+      </g>
+    </g>
+    <g transform="translate(286,364)">
+      <g style="animation:massageR 1.05s ease-in-out .5s infinite">
+        <ellipse cx="24" cy="-22" rx="11" ry="18" fill="#6b4636" transform="rotate(28 24 -22)"/>
+        <ellipse cx="23" cy="-29" rx="5.2" ry="5.8" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="30" cy="-2" rx="10" ry="17" fill="#6b4636" transform="rotate(16 30 -2)"/>
+        <ellipse cx="29" cy="-9" rx="5" ry="5.4" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="27" cy="18" rx="9" ry="15" fill="#6b4636" transform="rotate(6 27 18)"/>
+        <ellipse cx="26" cy="11" rx="4.6" ry="5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="0" rx="36" ry="31" fill="#6b4636"/>
+        <ellipse cx="0" cy="0" rx="36" ry="31" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+        <ellipse cx="-14" cy="-28" rx="12" ry="10" fill="#6b4636" transform="rotate(-20 -14 -28)"/>
+        <ellipse cx="-17" cy="-34" rx="6" ry="5" fill="#e8c9b8" opacity=".92"/>
+      </g>
+    </g>
+
+    <!-- 10 minute clock -->
+    <g transform="translate(202,176)">
+      <circle r="52" fill="#fff" stroke="#e0d4c4" stroke-width="3"/>
+      <circle r="45" fill="none" stroke="#f0e8dc" stroke-width="1.4"/>
+      <path d="M0,-38 L0,-33 M0,38 L0,33 M-38,0 L-33,0 M38,0 L33,0" stroke="#c9b593" stroke-width="2.4" stroke-linecap="round"/>
+      <g style="animation:clockSpin 2s linear infinite">
+        <path d="M0,0 L0,-24" stroke="#d85a30" stroke-width="5" stroke-linecap="round"/>
+      </g>
+      <path d="M0,0 L18,10" stroke="#2c2c2a" stroke-width="4" stroke-linecap="round"/>
+      <circle r="5" fill="#2c2c2a"/>
+      <text y="24" text-anchor="middle" font-size="12" font-weight="900" fill="#d85a30" font-family="system-ui">10 MIN</text>
+    </g>
+
+    <g style="animation:fadeSlide .6s ease-out .25s both">
+      <rect x="16" y="556" width="373" height="76" rx="8" fill="#d85a30" opacity=".95"/>
+      <text x="202" y="584" text-anchor="middle" font-size="19" font-weight="900" fill="#fff" font-family="system-ui">PRESS IT FOR 10 MINUTES</text>
+      <text x="202" y="613" text-anchor="middle" font-size="14" font-weight="800" fill="#faece7" font-family="system-ui">NO WATER — IT MAKES ITS OWN</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ SCENE 5 — THE TRICK: 2% SALT, WEIGHED IN THE HAND ══════════ -->
+  <svg class="scene" id="s4" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#f0e6d0"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#9a8f7c" font-family="system-ui" letter-spacing="2">THE TRICK · 2% OF THE WEIGHT, WEIGHED IN YOUR HAND</text>
+
+    <!-- scale -->
+    <g transform="translate(202,148)">
+      <rect x="-104" y="32" width="208" height="16" rx="8" fill="#c9b593"/>
+      <ellipse cx="0" cy="52" rx="112" ry="14" fill="#bcaa8c" opacity=".55"/>
+      <rect x="-78" y="-24" width="156" height="58" rx="12" fill="#fdfaf3" stroke="#d6c9ac" stroke-width="2.4"/>
+      <text x="0" y="14" text-anchor="middle" font-size="26" font-weight="900" fill="#2c2c2a" font-family="system-ui">1,500 g</text>
+      <text x="0" y="-6" text-anchor="middle" font-size="9.5" font-weight="800" fill="#a89a80" font-family="system-ui" letter-spacing="1.4">WEIGHT OF THE CABBAGE</text>
+      <rect x="-78" y="-56" width="156" height="28" rx="9" fill="#3b6d11"/>
+      <text x="0" y="-36" text-anchor="middle" font-size="14" font-weight="900" fill="#eaf3de" font-family="system-ui">2% = 30 g OF SALT</text>
+    </g>
+
+    <!-- the hand holding the exact pile of salt -->
+    <g transform="translate(202,288) scale(1.18)">
+      <g style="animation:pourSalt 1.4s ease-in-out infinite">
+        <ellipse cx="-24" cy="-18" rx="10" ry="16" fill="#6b4636" transform="rotate(-30 -24 -18)"/>
+        <ellipse cx="-23.5" cy="-25" rx="5" ry="5.5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="-30" cy="0" rx="9.5" ry="15" fill="#6b4636" transform="rotate(-16 -30 0)"/>
+        <ellipse cx="-29.5" cy="-7" rx="4.8" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="-26" cy="18" rx="8.5" ry="13" fill="#6b4636" transform="rotate(-6 -26 18)"/>
+        <ellipse cx="-25.5" cy="12" rx="4.4" ry="4.8" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="0" rx="34" ry="27" fill="#6b4636"/>
+        <ellipse cx="0" cy="0" rx="34" ry="27" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+        <ellipse cx="14" cy="-25" rx="11" ry="8.5" fill="#6b4636" transform="rotate(20 14 -25)"/>
+        <ellipse cx="17" cy="-31" rx="5.5" ry="4.5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="-24" rx="24" ry="10" fill="#fff"/>
+        <ellipse cx="0" cy="-27" rx="17" ry="6" fill="#f8f6f0"/>
+      </g>
+    </g>
+
+    <!-- grains falling -->
+    <g>
+      <circle cx="188" cy="322" r="3.2" fill="#fff" stroke="#cfc7b6" stroke-width="1" style="animation:saltFall 1.05s linear infinite"/>
+      <circle cx="203" cy="330" r="2.8" fill="#fff" stroke="#cfc7b6" stroke-width="1" style="animation:saltFall 1.05s linear infinite .22s"/>
+      <circle cx="218" cy="324" r="3.4" fill="#fff" stroke="#cfc7b6" stroke-width="1" style="animation:saltFall 1.05s linear infinite .45s"/>
+      <circle cx="181" cy="334" r="2.6" fill="#fff" stroke="#cfc7b6" stroke-width="1" style="animation:saltFall 1.05s linear infinite .68s"/>
+      <circle cx="226" cy="332" r="3" fill="#fff" stroke="#cfc7b6" stroke-width="1" style="animation:saltFall 1.05s linear infinite .88s"/>
+    </g>
+
+    <!-- jar catching it -->
+    <g transform="translate(202,458)">
+      <rect x="-88" y="-28" width="176" height="116" rx="14" fill="#f4faf8" stroke="#1d9e75" stroke-width="4"/>
+      <path d="M-88,-4 Q0,-18 88,-4 L88,88 L-88,88Z" fill="#5dcaa5" opacity=".55"/>
+      <g fill="#c0dd97" stroke="#97c459" stroke-width="1.4">
+        <rect x="-76" y="-22" width="18" height="52" rx="8" transform="rotate(-8 -67 4)"/>
+        <rect x="-46" y="-30" width="18" height="60" rx="8" transform="rotate(6 -37 0)"/>
+        <rect x="-16" y="-20" width="18" height="48" rx="8" transform="rotate(-3 -7 4)"/>
+        <rect x="14" y="-32" width="18" height="62" rx="8" transform="rotate(8 23 -1)"/>
+        <rect x="44" y="-18" width="18" height="46" rx="8" transform="rotate(-6 53 5)"/>
+      </g>
+      <rect x="-88" y="-28" width="176" height="116" rx="14" fill="none" stroke="#1d9e75" stroke-width="4"/>
+      <rect x="-88" y="8" width="176" height="80" fill="#a8dcc6" opacity="0" style="animation:soakStain 2.4s ease-out .2s infinite"/>
+    </g>
+
+    <g style="animation:fadeSlide .6s ease-out .25s both">
+      <rect x="16" y="556" width="373" height="76" rx="8" fill="#ba7517" opacity=".95"/>
+      <text x="202" y="584" text-anchor="middle" font-size="19" font-weight="900" fill="#fff" font-family="system-ui">JUST 30 g IN YOUR HAND</text>
+      <text x="202" y="613" text-anchor="middle" font-size="14" font-weight="800" fill="#faeeda" font-family="system-ui">NON-IODIZED SALT · NO WATER</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ SCENE 6 — PRESS IT UNDER THE BRINE ══════════ -->
+  <svg class="scene" id="s5" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gGlass5" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity=".55"/>
+        <stop offset="22%" stop-color="#ffffff" stop-opacity=".06"/>
+        <stop offset="78%" stop-color="#ffffff" stop-opacity=".04"/>
+        <stop offset="100%" stop-color="#ffffff" stop-opacity=".38"/>
+      </linearGradient>
+      <clipPath id="clJar5"><path d="M118,268 Q118,254 132,254 L272,254 Q286,254 286,268 L286,520 Q286,544 262,544 L142,544 Q118,544 118,520Z"/></clipPath>
+    </defs>
+    <rect width="405" height="720" fill="#e7ece8"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#84908a" font-family="system-ui" letter-spacing="2">PRESS IT DOWN · THE LIQUID MUST COVER EVERYTHING</text>
+    <ellipse cx="202" cy="566" rx="144" ry="26" fill="#9fb0a8" opacity=".42"/>
+
+    <path d="M118,268 Q118,254 132,254 L272,254 Q286,254 286,268 L286,520 Q286,544 262,544 L142,544 Q118,544 118,520Z" fill="#f4faf8" opacity=".75"/>
+    <g clip-path="url(#clJar5)">
+      <g fill="#c0dd97" stroke="#97c459" stroke-width="1.5">
+        <rect x="-6" y="290" width="22" height="66" rx="9" transform="rotate(-8 5 320)"/>
+        <rect x="28" y="278" width="22" height="76" rx="9" transform="rotate(6 39 316)"/>
+        <rect x="64" y="288" width="22" height="70" rx="9" transform="rotate(-3 75 323)"/>
+        <rect x="100" y="274" width="22" height="78" rx="9" transform="rotate(8 111 313)"/>
+        <rect x="136" y="290" width="22" height="64" rx="9" transform="rotate(-6 147 322)"/>
+        <rect x="172" y="280" width="22" height="74" rx="9" transform="rotate(5 183 317)"/>
+        <rect x="208" y="292" width="22" height="62" rx="9" transform="rotate(-7 219 323)"/>
+        <rect x="244" y="282" width="22" height="72" rx="9" transform="rotate(4 255 318)"/>
+      </g>
+      <g style="animation:liquidRise 2.6s ease-out .3s infinite">
+        <rect x="118" y="352" width="168" height="192" fill="#5dcaa5" opacity=".72"/>
+      </g>
+      <path d="M118,354 Q202,344 286,354 L286,362 L118,362Z" fill="#9fe1cb" opacity=".9"/>
+      <g fill="#fff" opacity=".85">
+        <circle cx="140" cy="400" r="5" style="animation:bubbleRise 1.7s ease-out infinite"/>
+        <circle cx="200" cy="420" r="4.2" style="animation:bubbleRise 1.7s ease-out .5s infinite"/>
+        <circle cx="256" cy="404" r="4.8" style="animation:bubbleRise 1.7s ease-out 1s infinite"/>
+      </g>
+      <rect x="118" y="254" width="168" height="292" fill="url(#gGlass5)"/>
+    </g>
+    <path d="M118,268 Q118,254 132,254 L272,254 Q286,254 286,268 L286,520 Q286,544 262,544 L142,544 Q118,544 118,520Z" fill="none" stroke="#1d9e75" stroke-width="4"/>
+    <rect x="126" y="230" width="152" height="26" rx="7" fill="#9fe1cb" stroke="#1d9e75" stroke-width="4"/>
+
+    <!-- both hands pushing it down -->
+    <g transform="translate(160,186)">
+      <g style="animation:pressDown 1.5s ease-in-out infinite">
+        <ellipse cx="-14" cy="26" rx="9" ry="16" fill="#6b4636" transform="rotate(8 -14 26)"/>
+        <ellipse cx="-14" cy="33" rx="4.6" ry="5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="28" rx="9.5" ry="17" fill="#6b4636"/>
+        <ellipse cx="0" cy="36" rx="4.8" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="15" cy="26" rx="9" ry="16" fill="#6b4636" transform="rotate(-8 15 26)"/>
+        <ellipse cx="15" cy="33" rx="4.6" ry="5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="0" rx="30" ry="26" fill="#6b4636"/>
+        <ellipse cx="0" cy="0" rx="30" ry="26" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+      </g>
+    </g>
+    <g transform="translate(244,186)">
+      <g style="animation:pressDown 1.5s ease-in-out .25s infinite">
+        <ellipse cx="-14" cy="26" rx="9" ry="16" fill="#6b4636" transform="rotate(8 -14 26)"/>
+        <ellipse cx="-14" cy="33" rx="4.6" ry="5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="28" rx="9.5" ry="17" fill="#6b4636"/>
+        <ellipse cx="0" cy="36" rx="4.8" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="15" cy="26" rx="9" ry="16" fill="#6b4636" transform="rotate(-8 15 26)"/>
+        <ellipse cx="15" cy="33" rx="4.6" ry="5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="0" rx="30" ry="26" fill="#6b4636"/>
+        <ellipse cx="0" cy="0" rx="30" ry="26" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+      </g>
+    </g>
+
+    <g style="animation:fadeSlide .6s ease-out .25s both">
+      <rect x="16" y="556" width="373" height="76" rx="8" fill="#0f6e56" opacity=".95"/>
+      <text x="202" y="584" text-anchor="middle" font-size="19" font-weight="900" fill="#fff" font-family="system-ui">PRESS IT UNDER THE LIQUID</text>
+      <text x="202" y="613" text-anchor="middle" font-size="14" font-weight="800" fill="#e1f5ee" font-family="system-ui">ANYTHING STICKING OUT GOES BAD</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ SCENE 7 — TRICK 2: FLIP THE JAR EVERY DAY ══════════ -->
+  <svg class="scene" id="s6" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gGlass6" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity=".55"/>
+        <stop offset="22%" stop-color="#ffffff" stop-opacity=".06"/>
+        <stop offset="78%" stop-color="#ffffff" stop-opacity=".04"/>
+        <stop offset="100%" stop-color="#ffffff" stop-opacity=".38"/>
+      </linearGradient>
+      <clipPath id="clJar6"><path d="M138,220 Q138,206 152,206 L252,206 Q266,206 266,220 L266,472 Q266,496 242,496 L162,496 Q138,496 138,472Z"/></clipPath>
+    </defs>
+    <rect width="405" height="720" fill="#e9efe9"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#84908a" font-family="system-ui" letter-spacing="2">TRICK 2 · FLIP THE JAR UPSIDE DOWN</text>
+
+    <g transform="translate(202,410)">
+      <g style="animation:counterTurn 3.4s ease-in-out infinite">
+        <g transform="translate(-202,-410)">
+          <path d="M138,220 Q138,206 152,206 L252,206 Q266,206 266,220 L266,472 Q266,496 242,496 L162,496 Q138,496 138,472Z" fill="#f4faf8" opacity=".75"/>
+          <g clip-path="url(#clJar6)">
+            <g fill="#c0dd97" stroke="#97c459" stroke-width="1.4">
+              <rect x="146" y="250" width="20" height="60" rx="9" transform="rotate(-7 156 280)"/>
+              <rect x="178" y="240" width="20" height="70" rx="9" transform="rotate(5 188 275)"/>
+              <rect x="210" y="252" width="20" height="62" rx="9" transform="rotate(-4 220 282)"/>
+              <rect x="240" y="242" width="18" height="68" rx="9" transform="rotate(6 249 276)"/>
+            </g>
+            <rect x="138" y="312" width="128" height="184" fill="#5dcaa5" opacity=".68"/>
+            <path d="M138,314 Q202,306 266,314 L266,322 L138,322Z" fill="#9fe1cb" opacity=".9"/>
+            <rect x="138" y="206" width="128" height="290" fill="url(#gGlass6)"/>
+          </g>
+          <path d="M138,220 Q138,206 152,206 L252,206 Q266,206 266,220 L266,472 Q266,496 242,496 L162,496 Q138,496 138,472Z" fill="none" stroke="#1d9e75" stroke-width="3.6"/>
+          <rect x="146" y="182" width="112" height="26" rx="7" fill="#9fe1cb" stroke="#1d9e75" stroke-width="3.6"/>
+        </g>
+      </g>
+    </g>
+
+    <!-- circular arrow -->
+    <g transform="translate(202,410)" opacity=".5">
+      <path d="M-104,-54 A118,118 0 1,1 -102,58" fill="none" stroke="#1d9e75" stroke-width="3" stroke-linecap="round" stroke-dasharray="9 11"/>
+      <polygon points="-102,58 -114,42 -90,44" fill="#1d9e75"/>
+    </g>
+
+    <!-- hands turning it -->
+    <g transform="translate(122,352)">
+      <g style="animation:counterTurn 3.4s ease-in-out infinite; transform-origin:80px 58px">
+        <ellipse cx="-22" cy="-20" rx="10" ry="17" fill="#6b4636" transform="rotate(-30 -22 -20)"/>
+        <ellipse cx="-21.5" cy="-27" rx="5" ry="5.5" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="-28" cy="0" rx="9.5" ry="16" fill="#6b4636" transform="rotate(-16 -28 0)"/>
+        <ellipse cx="-27.5" cy="-7" rx="4.8" ry="5.2" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="0" cy="0" rx="30" ry="26" fill="#6b4636"/>
+        <ellipse cx="0" cy="0" rx="30" ry="26" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+        <ellipse cx="13" cy="-22" rx="11" ry="9" fill="#6b4636" transform="rotate(20 13 -22)"/>
+        <ellipse cx="16" cy="-28" rx="5.5" ry="4.5" fill="#e8c9b8" opacity=".92"/>
+      </g>
+    </g>
+
+    <g style="animation:fadeSlide .6s ease-out .3s both">
+      <rect x="30" y="544" width="345" height="92" rx="14" fill="#ffffff" stroke="#c9ded6" stroke-width="2"/>
+      <text x="202" y="572" text-anchor="middle" font-size="13" font-weight="900" fill="#0f6e56" font-family="system-ui" letter-spacing="1.2">WHY FLIP IT?</text>
+      <text x="202" y="597" text-anchor="middle" font-size="11.5" font-weight="600" fill="#3d5c52" font-family="system-ui">The brine sinks and the salt stays at the bottom.</text>
+      <text x="202" y="618" text-anchor="middle" font-size="11.5" font-weight="600" fill="#3d5c52" font-family="system-ui">Flipping it salts every layer the same. Once a day.</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ SCENE 8 — 7 DAYS, THEN WHAT TO DO WITH IT ══════════ -->
+  <svg class="scene" id="s7" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gGlass7" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity=".55"/>
+        <stop offset="22%" stop-color="#ffffff" stop-opacity=".06"/>
+        <stop offset="78%" stop-color="#ffffff" stop-opacity=".04"/>
+        <stop offset="100%" stop-color="#ffffff" stop-opacity=".38"/>
+      </linearGradient>
+      <clipPath id="clJar7"><path d="M148,150 Q148,136 162,136 L242,136 Q256,136 256,150 L256,340 Q256,362 234,362 L166,362 Q148,362 148,340Z"/></clipPath>
+    </defs>
+    <rect width="405" height="720" fill="#f4efe4"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#8b8f7c" font-family="system-ui" letter-spacing="2">READY · WHAT TO DO WITH IT</text>
+
+    <g transform="translate(202,262)">
+      <g style="animation:floatJar 3.6s ease-in-out infinite">
+        <g transform="translate(-202,-262)">
+          <path d="M148,150 Q148,136 162,136 L242,136 Q256,136 256,150 L256,340 Q256,362 234,362 L166,362 Q148,362 148,340Z" fill="#f4faf8" opacity=".75"/>
+          <g clip-path="url(#clJar7)">
+            <g fill="#bdd998" stroke="#97c459" stroke-width="1.4">
+              <rect x="158" y="196" width="20" height="58" rx="9" transform="rotate(-8 168 225)"/>
+              <rect x="188" y="182" width="20" height="68" rx="9" transform="rotate(6 198 216)"/>
+              <rect x="218" y="198" width="20" height="56" rx="9" transform="rotate(-5 228 226)"/>
+              <rect x="170" y="266" width="20" height="62" rx="9" transform="rotate(4 180 297)"/>
+              <rect x="204" y="274" width="20" height="56" rx="9" transform="rotate(-6 214 302)"/>
+            </g>
+            <g style="animation:liquidRise 3s ease-out .4s infinite">
+              <rect x="148" y="228" width="108" height="134" fill="#5dcaa5" opacity=".7"/>
+            </g>
+            <path d="M148,230 Q202,222 256,230 L256,238 L148,238Z" fill="#9fe1cb" opacity=".9"/>
+            <g fill="#fff" opacity=".9">
+              <circle cx="166" cy="260" r="4" style="animation:bubbleRise 2.6s ease-out infinite"/>
+              <circle cx="212" cy="280" r="3.4" style="animation:bubbleRise 2.6s ease-out .8s infinite"/>
+              <circle cx="240" cy="266" r="3.8" style="animation:bubbleRise 2.6s ease-out 1.6s infinite"/>
+            </g>
+            <rect x="148" y="136" width="108" height="226" fill="url(#gGlass7)"/>
+          </g>
+          <path d="M148,150 Q148,136 162,136 L242,136 Q256,136 256,150 L256,340 Q256,362 234,362 L166,362 Q148,362 148,340Z" fill="none" stroke="#1d9e75" stroke-width="3.4"/>
+          <rect x="154" y="114" width="96" height="24" rx="7" fill="#9fe1cb" stroke="#1d9e75" stroke-width="3.4"/>
+        </g>
+      </g>
+    </g>
+
+    <!-- 7 day timeline -->
+    <g transform="translate(0,382)">
+      <line x1="52" y1="34" x2="353" y2="34" stroke="#ddd2be" stroke-width="4" stroke-linecap="round"/>
+      <line x1="52" y1="34" x2="353" y2="34" stroke="#3b6d11" stroke-width="4" stroke-linecap="round"
+            stroke-dasharray="301" stroke-dashoffset="301" style="animation:drawLine 2.4s ease-out .4s forwards"/>
+      <g style="animation:popInSeq .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.5s">
+        <circle cx="52" cy="34" r="11" fill="#fff" stroke="#3b6d11" stroke-width="3.4"/>
+        <text x="52" y="70" text-anchor="middle" font-size="11" font-weight="900" fill="#2c2c2a" font-family="system-ui">DAY 1</text>
+        <text x="52" y="88" text-anchor="middle" font-size="9.5" font-weight="600" fill="#8a7a5e" font-family="system-ui">jar closed</text>
+      </g>
+      <g style="animation:popInSeq .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.95s">
+        <circle cx="202" cy="34" r="11" fill="#fff" stroke="#3b6d11" stroke-width="3.4"/>
+        <text x="202" y="70" text-anchor="middle" font-size="11" font-weight="900" fill="#2c2c2a" font-family="system-ui">DAY 2-6</text>
+        <text x="202" y="88" text-anchor="middle" font-size="9.5" font-weight="600" fill="#8a7a5e" font-family="system-ui">taste every 2 days</text>
+      </g>
+      <g style="animation:popInSeq .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay:1.4s">
+        <circle cx="353" cy="34" r="11" fill="#3b6d11" stroke="#3b6d11" stroke-width="3.4"/>
+        <text x="353" y="70" text-anchor="middle" font-size="11" font-weight="900" fill="#2c2c2a" font-family="system-ui">DAY 7</text>
+        <text x="353" y="88" text-anchor="middle" font-size="9.5" font-weight="600" fill="#8a7a5e" font-family="system-ui">fridge</text>
+      </g>
+    </g>
+
+    <!-- where to use it -->
+    <g transform="translate(0,492)">
+      <text x="202" y="0" text-anchor="middle" font-size="12" font-weight="800" fill="#2c2c2a" font-family="system-ui" style="animation:fadeSlide .5s ease both; animation-delay:.2s">WHERE TO USE IT</text>
+      <g style="animation:popInSeq .5s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.4s">
+        <rect x="30" y="14" width="106" height="46" rx="11" fill="#fff" stroke="#ddd2be" stroke-width="2"/>
+        <text x="83" y="43" text-anchor="middle" font-size="12" font-weight="800" fill="#2c2c2a" font-family="system-ui">Hot dogs</text>
+      </g>
+      <g style="animation:popInSeq .5s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.55s">
+        <rect x="150" y="14" width="106" height="46" rx="11" fill="#fff" stroke="#ddd2be" stroke-width="2"/>
+        <text x="203" y="43" text-anchor="middle" font-size="12" font-weight="800" fill="#2c2c2a" font-family="system-ui">Sandwiches</text>
+      </g>
+      <g style="animation:popInSeq .5s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.7s">
+        <rect x="270" y="14" width="106" height="46" rx="11" fill="#fff" stroke="#ddd2be" stroke-width="2"/>
+        <text x="323" y="43" text-anchor="middle" font-size="12" font-weight="800" fill="#2c2c2a" font-family="system-ui">Sausages</text>
+      </g>
+    </g>
+
+    <!-- CTA -->
+    <g style="animation:fadeSlide .6s ease both; animation-delay:1.5s">
+      <rect x="34" y="574" width="337" height="62" rx="13" fill="#f0ebe0" stroke="#ddd2be" stroke-width="2"/>
+      <text x="202" y="598" text-anchor="middle" font-size="13.5" font-weight="900" fill="#2c2c2a" font-family="system-ui">Which one should I ferment next?</text>
+      <text x="202" y="620" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a7a5e" font-family="system-ui">Tell me in the comments 👇</text>
+    </g>
+  </svg>
+
+  <div class="cap" id="cap">Sauerkraut in 7 days<small>hands only · no face · no voice</small></div>
+
+  <div class="ui">
+    <button onclick="prev()">◀</button>
+    <button onclick="toggle()" id="btnPlay">⏸ Pause</button>
+    <button onclick="next()">▶</button>
+  </div>
+
+  <div class="cover" id="cover">
+    <button onclick="play()">▶</button>
+    <p>Sauerkraut · 8 scenes · 52s<br><b>1080 × 1920</b> · ready to record</p>
+    <p class="hint">Click ▶ to start. Space = play / pause.<br>Add <b>?play</b> to the URL to auto-start.</p>
+  </div>
+</div>
+
+<script>
+const scenes = [
+  { id:'s0', ms:6000, tag:'SAUERKRAUT 1 / 8', cap:'Hands only. No face.',              sub:'1 cabbage · 2% salt · 7 days',              color:'#2c2c2a' },
+  { id:'s1', ms:6000, tag:'SAUERKRAUT 2 / 8', cap:'Wash it, peel the outer leaves',    sub:'cold water, no soap',                       color:'#2b6a80' },
+  { id:'s2', ms:6500, tag:'SAUERKRAUT 3 / 8', cap:'Shred it 2 to 3 mm thin',           sub:'too thick and it stays hard',               color:'#3b6d11' },
+  { id:'s3', ms:7500, tag:'SAUERKRAUT 4 / 8', cap:'Massage it for 10 minutes',         sub:'no water added — it comes out of the cabbage', color:'#d85a30' },
+  { id:'s4', ms:7000, tag:'SAUERKRAUT 5 / 8', cap:'30 g of salt, weighed in your hand',sub:'2% of the weight · never iodized',          color:'#ba7517' },
+  { id:'s5', ms:6000, tag:'SAUERKRAUT 6 / 8', cap:'Press it under the liquid',         sub:'anything sticking out will go bad',         color:'#0f6e56' },
+  { id:'s6', ms:6500, tag:'SAUERKRAUT 7 / 8', cap:'Flip the jar once a day',           sub:'so the salt does not sit at the bottom',    color:'#0f6e56' },
+  { id:'s7', ms:6500, tag:'SAUERKRAUT 8 / 8', cap:'7 days and it is ready',            sub:'keeps in the fridge for months',            color:'#3b6d11' }
+];
+
+const stage    = document.getElementById('stage');
+const progress = document.getElementById('progress');
+const capEl    = document.getElementById('cap');
+const tagEl    = document.getElementById('tag');
+const btnPlay  = document.getElementById('btnPlay');
+
+let i = 0, playing = false, tick0 = null, elapsed = 0;
+const RES = 70;
+
+/* ── Fit the 1080x1920 frame to the window ──────────────────────────────
+   In an OBS Browser Source set to 1080x1920 the viewport IS 1080x1920,
+   so k = 1 and the recording is pixel for pixel. On a landscape monitor
+   it only shrinks, so you can preview it. The ceiling of 1 is deliberate:
+   never upscale, or the overlay text would blur. */
+function fit() {
+  const k = Math.min(1, window.innerWidth / 1080, window.innerHeight / 1920);
+  stage.style.transform = 'scale(' + k + ')';
+}
+window.addEventListener('resize', fit);
+
+function render() {
+  scenes.forEach((s, n) => {
+    const el = document.getElementById(s.id);
+    el.classList.remove('on');
+    if (n === i) el.classList.add('on');
+  });
+  tagEl.textContent = scenes[i].tag;
+  capEl.innerHTML = scenes[i].cap + '<small>' + scenes[i].sub + '</small>';
+  progress.style.background = scenes[i].color;
+  progress.style.width = '0%';
+}
+
+function loop() {
+  clearInterval(tick0);
+  tick0 = setInterval(() => {
+    if (!playing) return;
+    elapsed += RES;
+    const total = scenes[i].ms;
+    progress.style.width = Math.min(100, (elapsed / total) * 100) + '%';
+    if (elapsed >= total) {
+      if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+      else { stop(); progress.style.width = '100%'; }
+    }
+  }, RES);
+}
+
+function next() {
+  if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+  else { stop(); progress.style.width = '100%'; }
+}
+function prev() { if (i > 0) { i--; elapsed = 0; render(); } }
+function play() {
+  playing = true; elapsed = 0;
+  btnPlay.textContent = '⏸ Pause';
+  document.getElementById('cover').classList.add('hide');
+  stage.classList.remove('touched');   /* keep the controls out of the recording */
+  render(); loop();
+}
+function stop() {
+  playing = false;
+  btnPlay.textContent = '▶ Play';
+  clearInterval(tick0);
+}
+function toggle() { playing ? stop() : play(); }
+
+stage.addEventListener('click', e => {
+  if (e.target.closest('button')) return;
+  if (playing) toggle();
+});
+
+/* controls: show on mouse move, hide again after 2.2 s of stillness */
+let uiTimer = null;
+stage.addEventListener('mousemove', () => {
+  stage.classList.add('touched');
+  clearTimeout(uiTimer);
+  uiTimer = setTimeout(() => stage.classList.remove('touched'), 2200);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space') { e.preventDefault(); toggle(); }
+  if (e.code === 'ArrowRight') next();
+  if (e.code === 'ArrowLeft') prev();
+});
+
+fit();
+render();
+
+/* ?play in the URL = auto-start 1.5 s after load (handy for OBS recording) */
+if (/[?&]play\b/.test(location.search)) setTimeout(play, 1500);
+</script>
+
+<script>
+/* ?rec = modo gravacao.
+   Sem ?rec na URL, nada muda: e o short normal.
+   Com ?rec, o quadro preenche 1080x1920 (1920x1080 no video longo),
+   a capa e os botoes somem e a animacao comeca sozinha. */
+(function () {
+  if (location.search.indexOf('rec') < 0) return;
+  var css = '#cover{display:none!important}.ui{display:none!important}'
+          + '#stage{border-radius:0!important;box-shadow:none!important}';
+  var st = document.getElementById('stage');
+  if (st) {
+    var w = st.offsetWidth, h = st.offsetHeight;
+    if (w && h) {
+      css += '#stage{transform:scale(' + ((h > w ? 1920 : 1080) / h)
+           + ')!important;transform-origin:center center!important}';
+    }
+  }
+  if (document.getElementById('frame')) {
+    css += '#frame{transform:scale(1)!important;left:0!important;top:0!important}';
+  }
+  var tag = document.createElement('style');
+  tag.textContent = css;
+  document.head.appendChild(tag);
+  if (typeof showChapters === 'function') showChapters(false);
+  setTimeout(function () { if (typeof play === 'function') play(); }, 500);
+})();
+</script>
+</body>
+</html>

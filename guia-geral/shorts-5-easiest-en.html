@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animation — The 5 Easiest Vegetables to Ferment (EN · 1080x1920)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { overflow:hidden; }
+  body {
+    background:#0f0e0c;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    width:100vw; height:100vh;
+  }
+
+  /* ══ THE FRAME — native 1080x1920, full bleed, NO rounded corners, NO shadow ══
+     This is the recording canvas. It is exactly what YouTube wants for a Short.
+     In an OBS Browser Source set to 1080x1920 the scale below resolves to 1
+     and you record pixel for pixel. On a normal monitor it shrinks to fit
+     so you can preview it. Nothing else changes. */
+  #stage {
+    position:relative; width:1080px; height:1920px;
+    background:#fdf8ee; overflow:hidden;
+    transform-origin:center center;
+    flex:none;
+  }
+
+  /* the inner SVGs stay in the series' 405x720 coordinate space and are
+     stretched to the full 1080x1920 frame — vector, so it stays razor sharp */
+  svg.scene {
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0; visibility:hidden; transition:opacity .42s ease;
+  }
+  svg.scene.on { opacity:1; visibility:visible; }
+
+  .bar { position:absolute; top:0; left:0; right:0; height:11px; background:rgba(0,0,0,.12); z-index:40; }
+  #progress { height:100%; width:0; background:#2c2c2a; transition:width .2s linear; }
+
+  .tag {
+    position:absolute; top:59px; left:0; right:0; text-align:center;
+    font-size:27px; font-weight:800; letter-spacing:.2em;
+    text-transform:uppercase; opacity:.5; z-index:30; color:#2c2c2a;
+  }
+  .wm { position:absolute; top:48px; right:43px; font-size:24px; font-weight:800;
+        letter-spacing:.1em; opacity:.35; z-index:35; text-transform:uppercase; color:#2c2c2a; }
+
+  .ui { position:absolute; bottom:219px; left:0; right:0; display:flex;
+        justify-content:center; gap:24px; z-index:40; opacity:0; transition:opacity .3s; }
+  /* the controls only appear when the mouse moves, then fade out by themselves —
+     so a hands-off recording never has buttons on top of the drawing */
+  #stage.touched .ui { opacity:1; }
+  .ui button { border:none; background:rgba(15,14,12,.8); color:#fff; font-size:31px;
+    font-weight:700; font-family:inherit; padding:21px 40px; border-radius:999px; cursor:pointer; }
+  .ui button:hover { background:#000; }
+
+  .cover { position:absolute; inset:0; z-index:50; background:rgba(0,0,0,.62);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:43px; }
+  .cover.hide { display:none; }
+  .cover button { width:208px; height:208px; border-radius:50%; border:none;
+    background:rgba(255,255,255,.95); color:#111; font-size:72px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding-left:13px; }
+  .cover p { color:#fff; font-size:32px; font-weight:700; letter-spacing:.08em; opacity:.9;
+             text-transform:uppercase; text-align:center; line-height:1.7; }
+  .cover p b { color:#f0c846; }
+  .cover .hint { font-size:24px; font-weight:600; opacity:.55; letter-spacing:.04em; text-transform:none; }
+
+  .cap {
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(15,14,12,.86); color:#fff;
+    padding:37px 59px 45px; font-size:43px; font-weight:800;
+    text-align:center; z-index:30; line-height:1.35;
+  }
+  .cap small { display:block; font-size:32px; font-weight:500; opacity:.72; margin-top:11px; letter-spacing:.01em; }
+
+  @keyframes floatUpDown {
+    0%,100% { transform: translateY(0) rotate(0deg) }
+    50%     { transform: translateY(-9px) rotate(1.4deg) }
+  }
+  @keyframes wobble {
+    0%,100% { transform: rotate(-2.5deg) }
+    50%     { transform: rotate(2.5deg) }
+  }
+  @keyframes popInSeq {
+    0%   { transform: scale(.4); opacity: 0 }
+    60%  { transform: scale(1.08); opacity: 1 }
+    100% { transform: scale(1); opacity: 1 }
+  }
+  @keyframes fadeSlide {
+    0%   { opacity: 0; transform: translateY(8px) }
+    100% { opacity: 1; transform: translateY(0) }
+  }
+  @keyframes slideUp {
+    0%   { transform: translateY(24px); opacity: 0 }
+    100% { transform: translateY(0); opacity: 1 }
+  }
+  @keyframes saltFall {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 0 }
+    15%  { opacity: .95 }
+    100% { transform: translateY(190px) rotate(180deg); opacity: 0 }
+  }
+  @keyframes riseF {
+    0%   { transform: translateY(0) scale(.7); opacity: 0 }
+    25%  { opacity: .9 }
+    100% { transform: translateY(-96px) scale(1.2); opacity: 0 }
+  }
+  @keyframes shimmer {
+    0%,100% { opacity: .3 }
+    50%     { opacity: .8 }
+  }
+  @keyframes spinFlat {
+    0%   { transform: rotate(0deg) }
+    100% { transform: rotate(360deg) }
+  }
+  @keyframes spinRev {
+    0%   { transform: rotate(0deg) }
+    100% { transform: rotate(-360deg) }
+  }
+  @keyframes pulseRing {
+    0%   { transform: scale(.62); opacity: .7 }
+    100% { transform: scale(1.55); opacity: 0 }
+  }
+  @keyframes pulseSoft {
+    0%,100% { transform: scale(1) }
+    50%     { transform: scale(1.045) }
+  }
+  @keyframes barGrow {
+    0%   { transform: scaleX(0) }
+    100% { transform: scaleX(1) }
+  }
+  @keyframes drawLine {
+    0%   { stroke-dashoffset: 300 }
+    100% { stroke-dashoffset: 0 }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div class="bar"><div id="progress"></div></div>
+  <div class="tag" id="tag">GUIDE 1 / 8</div>
+  <div class="wm">@yourhandle</div>
+
+  <!-- ══════════════ SCENE 1 — HOOK: THE 5 EASIEST ══════════════ -->
+  <svg class="scene on" id="s0" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="grCab" cx="34%" cy="26%" r="76%">
+        <stop offset="0%" stop-color="#a8497c"/><stop offset="55%" stop-color="#7d2f5e"/><stop offset="100%" stop-color="#42162e"/>
+      </radialGradient>
+      <radialGradient id="grBee" cx="36%" cy="28%" r="76%">
+        <stop offset="0%" stop-color="#b8305f"/><stop offset="55%" stop-color="#8c1f47"/><stop offset="100%" stop-color="#4f0d26"/>
+      </radialGradient>
+      <linearGradient id="grCar" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#f5a13c"/><stop offset="55%" stop-color="#e07d22"/><stop offset="100%" stop-color="#b85a12"/>
+      </linearGradient>
+      <radialGradient id="grRad" cx="34%" cy="26%" r="78%">
+        <stop offset="0%" stop-color="#ee5a4e"/><stop offset="55%" stop-color="#cf2f2b"/><stop offset="100%" stop-color="#8e1a1c"/>
+      </radialGradient>
+      <linearGradient id="grCuc" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#3f9a63"/><stop offset="55%" stop-color="#227a4c"/><stop offset="100%" stop-color="#0d4429"/>
+      </linearGradient>
+    </defs>
+    <rect width="405" height="720" fill="#fdf8ee"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">FERMENTATION · BEGINNER CHART</text>
+    <ellipse cx="202" cy="336" rx="152" ry="30" fill="#e6dbc6" opacity=".5"/>
+
+    <!-- the five, on a gentle arc -->
+    <g transform="translate(52,306) scale(.52)"><g style="animation:floatUpDown 3.4s ease-in-out infinite; animation-delay:.15s">
+      <circle r="68" fill="url(#grCab)"/>
+      <circle r="42" fill="#8e3a68" opacity=".32"/>
+      <g fill="none" stroke="#3d1430" stroke-width="2.4" opacity=".5">
+        <path d="M0,-68 C-26,-38 -30,12 0,68"/><path d="M0,-68 C26,-38 30,12 0,68"/>
+        <path d="M-50,-44 C-28,-28 -18,12 -28,56"/><path d="M50,-44 C28,-28 18,12 28,56"/>
+      </g>
+      <ellipse cx="-24" cy="-28" rx="26" ry="18" fill="#ffffff" opacity=".18"/>
+    </g></g>
+
+    <g transform="translate(127,298) scale(.44)"><g style="animation:floatUpDown 3.4s ease-in-out infinite; animation-delay:.35s">
+      <path d="M0,-62 C40,-62 62,-34 62,4 C62,42 34,74 0,86 C-34,74 -62,42 -62,4 C-62,-34 -40,-62 0,-62Z" fill="url(#grBee)"/>
+      <path d="M0,86 C-3,102 -4,114 -2,126" stroke="#5a0f2c" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <g stroke="#8c2a4a" stroke-width="5.5" fill="none" stroke-linecap="round">
+        <path d="M0,-58 C-2,-72 -2,-82 -1,-90"/>
+        <path d="M-14,-54 C-26,-66 -34,-74 -42,-80"/>
+        <path d="M14,-54 C26,-66 34,-74 42,-80"/>
+      </g>
+      <g fill="#5c8a2a">
+        <ellipse cx="0" cy="-102" rx="13" ry="20" transform="rotate(-4 0 -102)"/>
+        <ellipse cx="-46" cy="-90" rx="12" ry="18" transform="rotate(-36 -46 -90)"/>
+        <ellipse cx="46" cy="-90" rx="12" ry="18" transform="rotate(36 46 -90)"/>
+      </g>
+      <ellipse cx="-22" cy="-26" rx="22" ry="15" fill="#ffffff" opacity=".14"/>
+    </g></g>
+
+    <g transform="translate(202,286) scale(.5)"><g style="animation:floatUpDown 3.4s ease-in-out infinite; animation-delay:.55s">
+      <path d="M-26,-56 L26,-56 C24,-10 10,40 0,74 C-10,40 -24,-10 -26,-56Z" fill="url(#grCar)"/>
+      <g stroke="#a94a12" stroke-width="1.8" opacity=".5" fill="none">
+        <path d="M-22,-34 L20,-30"/><path d="M-19,-12 L17,-8"/><path d="M-15,10 L12,14"/><path d="M-10,32 L7,36"/>
+      </g>
+      <g stroke="#4e7a22" stroke-width="5" fill="none" stroke-linecap="round">
+        <path d="M0,-56 C-4,-76 -10,-88 -18,-98"/><path d="M0,-56 C2,-78 6,-90 14,-100"/><path d="M0,-56 C0,-78 0,-92 0,-104"/>
+      </g>
+    </g></g>
+
+    <g transform="translate(277,294) scale(.5)"><g style="animation:floatUpDown 3.4s ease-in-out infinite; animation-delay:.75s">
+      <path d="M0,-46 C26,-46 46,-24 46,4 C46,32 26,54 0,54 C-26,54 -46,32 -46,4 C-46,-24 -26,-46 0,-46Z" fill="url(#grRad)"/>
+      <path d="M-42,8 C-32,40 32,40 42,8 C40,32 22,54 0,54 C-22,54 -40,32 -42,8Z" fill="#fdf3ef" opacity=".92"/>
+      <path d="M-2,54 C-6,72 -8,86 -4,100" stroke="#e8dcd6" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <g stroke="#4e7a22" stroke-width="5" fill="none" stroke-linecap="round">
+        <path d="M-6,-44 C-14,-64 -22,-74 -32,-82"/><path d="M8,-44 C16,-64 24,-74 34,-82"/>
+      </g>
+      <g fill="#5c8a2a">
+        <ellipse cx="-34" cy="-84" rx="11" ry="19" transform="rotate(-36 -34 -84)"/>
+        <ellipse cx="34" cy="-84" rx="11" ry="19" transform="rotate(36 34 -84)"/>
+      </g>
+      <ellipse cx="-18" cy="-18" rx="15" ry="11" fill="#ffffff" opacity=".22"/>
+    </g></g>
+
+    <g transform="translate(352,306) scale(.52)"><g style="animation:floatUpDown 3.4s ease-in-out infinite; animation-delay:.95s">
+      <g transform="rotate(-16)">
+        <rect x="-30" y="-70" width="60" height="140" rx="30" fill="url(#grCuc)"/>
+        <g fill="#082c19" opacity=".38">
+          <circle cx="-14" cy="-42" r="3.6"/><circle cx="12" cy="-30" r="3.4"/><circle cx="-6" cy="-12" r="3.8"/>
+          <circle cx="16" cy="8" r="3.4"/><circle cx="-16" cy="24" r="3.6"/><circle cx="6" cy="44" r="3.8"/>
+        </g>
+        <rect x="-20" y="-58" width="9" height="112" rx="4.5" fill="#ffffff" opacity=".2"/>
+      </g>
+    </g></g>
+
+    <text x="202" y="466" text-anchor="middle" font-size="28" font-weight="900" fill="#3d3222" font-family="system-ui" letter-spacing="-.5" style="animation:popInSeq .7s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.25s">THE 5 EASIEST</text>
+    <text x="202" y="502" text-anchor="middle" font-size="28" font-weight="900" fill="#3d3222" font-family="system-ui" letter-spacing="-.5" style="animation:popInSeq .7s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.4s">TO FERMENT</text>
+    <text x="202" y="540" text-anchor="middle" font-size="12.5" font-weight="600" fill="#8a7a5e" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.65s">Pick one. You only need salt and time.</text>
+
+    <g style="animation:slideUp .6s ease both; animation-delay:.9s">
+      <rect x="106" y="562" width="193" height="44" rx="22" fill="#2c2c2a"/>
+      <text x="202" y="590" text-anchor="middle" font-size="12.5" font-weight="900" fill="#ffffff" font-family="system-ui" letter-spacing="1.2">2% SALT · 5 TO 9 DAYS</text>
+    </g>
+  </svg>
+
+  <!-- ══════════════ SCENE 2 — THE ONE RULE ══════════════ -->
+  <svg class="scene" id="s1" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="grMound" cx="42%" cy="30%" r="72%">
+        <stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#dcd3c2"/>
+      </radialGradient>
+    </defs>
+    <rect width="405" height="720" fill="#fdf8ee"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">THE ONLY RULE THAT MATTERS</text>
+
+    <!-- salt falling -->
+    <g fill="#ffffff">
+      <rect x="176" y="86" width="5" height="5" rx="1.4" stroke="#d8cfbc" stroke-width="1" style="animation:saltFall 2.2s linear infinite"/>
+      <rect x="200" y="86" width="4.4" height="4.4" rx="1.2" stroke="#d8cfbc" stroke-width="1" style="animation:saltFall 2.2s linear infinite; animation-delay:.5s"/>
+      <rect x="224" y="86" width="5" height="5" rx="1.4" stroke="#d8cfbc" stroke-width="1" style="animation:saltFall 2.2s linear infinite; animation-delay:1s"/>
+      <rect x="188" y="86" width="4" height="4" rx="1.2" stroke="#d8cfbc" stroke-width="1" style="animation:saltFall 2.2s linear infinite; animation-delay:1.5s"/>
+    </g>
+
+    <!-- rings behind the number -->
+    <g transform="translate(202,238)">
+      <circle r="104" fill="none" stroke="#e6dbc6" stroke-width="1.6" stroke-dasharray="5 9" style="animation:spinFlat 24s linear infinite"/>
+      <circle r="82" fill="none" stroke="#efe6d6" stroke-width="1.4" stroke-dasharray="4 8" style="animation:spinRev 17s linear infinite"/>
+      <circle r="96" fill="none" stroke="#c08a2e" stroke-width="2" opacity=".55" style="animation:pulseRing 3s ease-out infinite"/>
+    </g>
+
+    <g transform="translate(202,262)">
+      <g style="animation:pulseSoft 3.6s ease-in-out infinite">
+        <text x="0" y="0" text-anchor="middle" font-size="128" font-weight="900" fill="#2c2c2a" font-family="system-ui" letter-spacing="-6">2%</text>
+      </g>
+    </g>
+    <text x="202" y="312" text-anchor="middle" font-size="12.5" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2.6">OF THE VEGETABLE'S WEIGHT</text>
+
+    <!-- salt mound -->
+    <g transform="translate(202,364)">
+      <path d="M-64,26 C-52,-8 -24,-22 0,-22 C24,-22 52,-8 64,26Z" fill="url(#grMound)" stroke="#e0d7c6" stroke-width="1.4" style="animation:wobble 5s ease-in-out infinite"/>
+      <g fill="#ffffff" style="animation:shimmer 1.9s ease-in-out infinite">
+        <circle cx="-30" cy="10" r="2.6"/><circle cx="-12" cy="2" r="2.2"/><circle cx="8" cy="6" r="2.6"/>
+        <circle cx="26" cy="14" r="2.2"/><circle cx="-2" cy="18" r="2.4"/>
+      </g>
+    </g>
+
+    <!-- the formula -->
+    <g style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.3s">
+      <rect x="42" y="414" width="321" height="72" rx="14" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/>
+      <text x="76" y="457" text-anchor="middle" font-size="14" font-weight="900" fill="#3d3222" font-family="system-ui">1 kg</text>
+      <text x="152" y="457" text-anchor="middle" font-size="14" font-weight="600" fill="#a89270" font-family="system-ui">→</text>
+      <text x="266" y="457" text-anchor="middle" font-size="16" font-weight="900" fill="#c2551f" font-family="system-ui">20 g salt</text>
+      <text x="76" y="474" text-anchor="middle" font-size="9.5" font-weight="600" fill="#a89270" font-family="system-ui">vegetable</text>
+      <text x="266" y="474" text-anchor="middle" font-size="9.5" font-weight="600" fill="#a89270" font-family="system-ui">non-iodized</text>
+      <rect x="96" y="508" width="212" height="2" fill="#e6dcc6" opacity="0"/>
+    </g>
+
+    <!-- the exception -->
+    <g style="animation:slideUp .6s ease both; animation-delay:.55s">
+      <rect x="42" y="502" width="321" height="60" rx="14" fill="#fdf0e2" stroke="#f0c9a0" stroke-width="2"/>
+      <text x="202" y="528" text-anchor="middle" font-size="12.5" font-weight="900" fill="#c2551f" font-family="system-ui">⚠ CUCUMBER IS THE ONLY EXCEPTION</text>
+      <text x="202" y="548" text-anchor="middle" font-size="11.5" font-weight="600" fill="#7a4a26" font-family="system-ui">it drinks a lot of water → use 3% brine</text>
+    </g>
+
+    <text x="202" y="596" text-anchor="middle" font-size="17" font-weight="900" fill="#3d3222" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.75s">WEIGH IT. NEVER GUESS.</text>
+    <text x="202" y="622" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a7a5e" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.9s">Too little salt = mold · Too much = nothing ferments</text>
+  </svg>
+
+  <!-- ══════════════ SCENE 3 — RED CABBAGE ══════════════ -->
+  <svg class="scene" id="s2" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="grCab2" cx="34%" cy="26%" r="76%">
+        <stop offset="0%" stop-color="#a8497c"/><stop offset="55%" stop-color="#7d2f5e"/><stop offset="100%" stop-color="#42162e"/>
+      </radialGradient>
+    </defs>
+    <rect width="405" height="720" fill="#fdf8ee"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">EASIEST TO FERMENT · 1 OF 5</text>
+    <ellipse cx="202" cy="352" rx="112" ry="24" fill="#e2d5b8" opacity=".5"/>
+
+    <g transform="translate(202,254) scale(1.15)">
+      <g style="animation:floatUpDown 3.6s ease-in-out infinite">
+        <circle r="68" fill="url(#grCab2)"/>
+        <circle r="44" fill="#8e3a68" opacity=".32"/>
+        <circle r="21" fill="#a8497c" opacity=".26"/>
+        <g fill="none" stroke="#3d1430" stroke-width="2.2" opacity=".62">
+          <path d="M0,-68 C-26,-38 -30,12 0,68"/><path d="M0,-68 C26,-38 30,12 0,68"/>
+          <path d="M-50,-44 C-28,-28 -18,12 -28,56"/><path d="M50,-44 C28,-28 18,12 28,56"/>
+          <path d="M-64,-14 C-38,-8 -28,22 -32,50"/><path d="M64,-14 C38,-8 28,22 32,50"/>
+        </g>
+        <ellipse cx="-24" cy="-28" rx="26" ry="18" fill="#ffffff" opacity=".18"/>
+        <ellipse cx="30" cy="34" rx="18" ry="12" fill="#2b0d1f" opacity=".22"/>
+      </g>
+    </g>
+
+    <text x="202" y="432" text-anchor="middle" font-size="28" font-weight="900" fill="#3d3222" font-family="system-ui" letter-spacing="-.5" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.2s">RED CABBAGE</text>
+    <text x="202" y="460" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8e3a68" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.4s">the classic · shred it thin</text>
+
+    <g style="animation:popInSeq .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.5s">
+      <rect x="42" y="484" width="150" height="86" rx="14" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/>
+      <text x="117" y="512" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="1.4">SALT</text>
+      <text x="117" y="550" text-anchor="middle" font-size="30" font-weight="900" fill="#8e3a68" font-family="system-ui">2%</text>
+    </g>
+    <g style="animation:popInSeq .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.65s">
+      <rect x="213" y="484" width="150" height="86" rx="14" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/>
+      <text x="288" y="512" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="1.4">READY IN</text>
+      <text x="288" y="550" text-anchor="middle" font-size="30" font-weight="900" fill="#3d3222" font-family="system-ui">7 DAYS</text>
+    </g>
+
+    <text x="202" y="602" text-anchor="middle" font-size="12.5" font-weight="800" fill="#3d3222" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.85s">Massage 10 minutes until water comes out</text>
+    <text x="202" y="626" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a7a5e" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:1s">then press it down so it stays submerged</text>
+  </svg>
+
+  <!-- ══════════════ SCENE 4 — BEETROOT ══════════════ -->
+  <svg class="scene" id="s3" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="grBee2" cx="36%" cy="28%" r="76%">
+        <stop offset="0%" stop-color="#b8305f"/><stop offset="55%" stop-color="#8c1f47"/><stop offset="100%" stop-color="#4f0d26"/>
+      </radialGradient>
+    </defs>
+    <rect width="405" height="720" fill="#fdf8ee"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">EASIEST TO FERMENT · 2 OF 5</text>
+    <ellipse cx="202" cy="352" rx="104" ry="24" fill="#e2d5b8" opacity=".5"/>
+
+    <g transform="translate(202,248) scale(1.15)">
+      <g style="animation:floatUpDown 3.6s ease-in-out infinite; animation-delay:.2s">
+        <path d="M0,-62 C40,-62 62,-34 62,4 C62,42 34,74 0,86 C-34,74 -62,42 -62,4 C-62,-34 -40,-62 0,-62Z" fill="url(#grBee2)"/>
+        <path d="M0,86 C-3,102 -4,114 -2,126" stroke="#5a0f2c" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <g stroke="#8c2a4a" stroke-width="5.5" fill="none" stroke-linecap="round">
+          <path d="M0,-58 C-2,-72 -2,-82 -1,-90"/>
+          <path d="M-14,-54 C-26,-66 -34,-74 -42,-80"/>
+          <path d="M14,-54 C26,-66 34,-74 42,-80"/>
+        </g>
+        <g fill="#5c8a2a">
+          <ellipse cx="0" cy="-102" rx="13" ry="20" transform="rotate(-4 0 -102)"/>
+          <ellipse cx="-46" cy="-90" rx="12" ry="18" transform="rotate(-36 -46 -90)"/>
+          <ellipse cx="46" cy="-90" rx="12" ry="18" transform="rotate(36 46 -90)"/>
+        </g>
+        <ellipse cx="-22" cy="-26" rx="22" ry="15" fill="#ffffff" opacity=".16"/>
+        <ellipse cx="30" cy="34" rx="16" ry="11" fill="#3a0a1c" opacity=".2"/>
+      </g>
+    </g>
+
+    <text x="202" y="432" text-anchor="middle" font-size="28" font-weight="900" fill="#3d3222" font-family="system-ui" letter-spacing="-.5" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.2s">BEETROOT</text>
+    <text x="202" y="460" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8c1f47" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.4s">the prettiest of the five</text>
+
+    <g style="animation:popInSeq .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.5s">
+      <rect x="42" y="484" width="150" height="86" rx="14" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/>
+      <text x="117" y="512" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="1.4">SALT</text>
+      <text x="117" y="550" text-anchor="middle" font-size="30" font-weight="900" fill="#8c1f47" font-family="system-ui">2%</text>
+    </g>
+    <g style="animation:popInSeq .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.65s">
+      <rect x="213" y="484" width="150" height="86" rx="14" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/>
+      <text x="288" y="512" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="1.4">READY IN</text>
+      <text x="288" y="550" text-anchor="middle" font-size="30" font-weight="900" fill="#3d3222" font-family="system-ui">9 DAYS</text>
+    </g>
+
+    <text x="202" y="602" text-anchor="middle" font-size="12.5" font-weight="800" fill="#3d3222" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.85s">The slowest of the five — and the sweetest</text>
+    <text x="202" y="626" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a7a5e" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:1s">your hands stay pink for about 2 days</text>
+  </svg>
+
+  <!-- ══════════════ SCENE 5 — CARROTS ══════════════ -->
+  <svg class="scene" id="s4" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="grCar2" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#f5a13c"/><stop offset="55%" stop-color="#e07d22"/><stop offset="100%" stop-color="#b85a12"/>
+      </linearGradient>
+    </defs>
+    <rect width="405" height="720" fill="#fdf8ee"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">EASIEST TO FERMENT · 3 OF 5</text>
+    <ellipse cx="202" cy="352" rx="112" ry="24" fill="#e2d5b8" opacity=".5"/>
+
+    <g transform="translate(202,252) scale(1.12)">
+      <g style="animation:floatUpDown 3.6s ease-in-out infinite; animation-delay:.4s">
+        <path d="M-26,-56 L26,-56 C24,-10 10,40 0,74 C-10,40 -24,-10 -26,-56Z" fill="url(#grCar2)"/>
+        <g stroke="#a94a12" stroke-width="1.9" opacity=".5" fill="none">
+          <path d="M-22,-34 L20,-30"/><path d="M-19,-12 L17,-8"/><path d="M-15,10 L12,14"/><path d="M-10,32 L7,36"/>
+        </g>
+        <g stroke="#4e7a22" stroke-width="5" fill="none" stroke-linecap="round">
+          <path d="M0,-56 C-4,-76 -10,-88 -18,-98"/><path d="M0,-56 C2,-78 6,-90 14,-100"/><path d="M0,-56 C0,-78 0,-92 0,-104"/>
+        </g>
+        <ellipse cx="-12" cy="-2" rx="7" ry="30" fill="#ffffff" opacity=".16" transform="rotate(-6 -12 -2)"/>
+      </g>
+    </g>
+
+    <text x="202" y="432" text-anchor="middle" font-size="28" font-weight="900" fill="#3d3222" font-family="system-ui" letter-spacing="-.5" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.2s">CARROTS</text>
+    <text x="202" y="460" text-anchor="middle" font-size="11.5" font-weight="600" fill="#c06018" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.4s">the one that needs a top-up</text>
+
+    <g style="animation:popInSeq .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.5s">
+      <rect x="42" y="484" width="150" height="86" rx="14" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/>
+      <text x="117" y="512" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="1.4">SALT</text>
+      <text x="117" y="550" text-anchor="middle" font-size="30" font-weight="900" fill="#c06018" font-family="system-ui">2%</text>
+    </g>
+    <g style="animation:popInSeq .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.65s">
+      <rect x="213" y="484" width="150" height="86" rx="14" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/>
+      <text x="288" y="512" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="1.4">READY IN</text>
+      <text x="288" y="550" text-anchor="middle" font-size="30" font-weight="900" fill="#3d3222" font-family="system-ui">6 DAYS</text>
+    </g>
+
+    <text x="202" y="602" text-anchor="middle" font-size="12.5" font-weight="800" fill="#3d3222" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.85s">Cut into sticks — carrots barely release water</text>
+    <text x="202" y="626" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a7a5e" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:1s">so top it up with brine until covered</text>
+  </svg>
+
+  <!-- ══════════════ SCENE 6 — RADISH ══════════════ -->
+  <svg class="scene" id="s5" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="grRad2" cx="34%" cy="26%" r="78%">
+        <stop offset="0%" stop-color="#ee5a4e"/><stop offset="55%" stop-color="#cf2f2b"/><stop offset="100%" stop-color="#8e1a1c"/>
+      </radialGradient>
+    </defs>
+    <rect width="405" height="720" fill="#fdf8ee"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">EASIEST TO FERMENT · 4 OF 5</text>
+    <ellipse cx="202" cy="352" rx="104" ry="24" fill="#e2d5b8" opacity=".5"/>
+
+    <g transform="translate(202,252) scale(1.15)">
+      <g style="animation:floatUpDown 3.6s ease-in-out infinite; animation-delay:.6s">
+        <path d="M0,-46 C26,-46 46,-24 46,4 C46,32 26,54 0,54 C-26,54 -46,32 -46,4 C-46,-24 -26,-46 0,-46Z" fill="url(#grRad2)"/>
+        <path d="M-42,8 C-32,40 32,40 42,8 C40,32 22,54 0,54 C-22,54 -40,32 -42,8Z" fill="#fdf3ef" opacity=".92"/>
+        <path d="M-2,54 C-7,74 -9,88 -5,104" stroke="#e8dcd6" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <g stroke="#4e7a22" stroke-width="5" fill="none" stroke-linecap="round">
+          <path d="M-6,-44 C-14,-64 -22,-74 -32,-82"/><path d="M8,-44 C16,-64 24,-74 34,-82"/>
+        </g>
+        <ellipse cx="-34" cy="-84" rx="11" ry="19" fill="#5c8a2a" transform="rotate(-36 -34 -84)"/>
+        <ellipse cx="34" cy="-84" rx="11" ry="19" fill="#5c8a2a" transform="rotate(36 34 -84)"/>
+        <ellipse cx="-18" cy="-18" rx="15" ry="11" fill="#ffffff" opacity=".22"/>
+      </g>
+    </g>
+
+    <text x="202" y="432" text-anchor="middle" font-size="28" font-weight="900" fill="#3d3222" font-family="system-ui" letter-spacing="-.5" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.2s">RADISH</text>
+    <text x="202" y="460" text-anchor="middle" font-size="11.5" font-weight="600" fill="#c1272d" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.4s">the fastest · start here</text>
+
+    <g style="animation:popInSeq .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.5s">
+      <rect x="42" y="484" width="150" height="86" rx="14" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/>
+      <text x="117" y="512" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="1.4">SALT</text>
+      <text x="117" y="550" text-anchor="middle" font-size="30" font-weight="900" fill="#c1272d" font-family="system-ui">2%</text>
+    </g>
+    <g style="animation:popInSeq .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.65s">
+      <rect x="213" y="484" width="150" height="86" rx="14" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/>
+      <text x="288" y="512" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="1.4">READY IN</text>
+      <text x="288" y="550" text-anchor="middle" font-size="30" font-weight="900" fill="#3d3222" font-family="system-ui">6 DAYS</text>
+    </g>
+
+    <text x="202" y="602" text-anchor="middle" font-size="12.5" font-weight="800" fill="#3d3222" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.85s">Only 3 minutes of massaging — not 10</text>
+    <text x="202" y="626" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a7a5e" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:1s">3 mm slices · never fermented before? this one</text>
+  </svg>
+
+  <!-- ══════════════ SCENE 7 — CUCUMBER, THE EXCEPTION ══════════════ -->
+  <svg class="scene" id="s6" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="grCuc2" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#3f9a63"/><stop offset="55%" stop-color="#227a4c"/><stop offset="100%" stop-color="#0d4429"/>
+      </linearGradient>
+      <linearGradient id="grBay" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#7fa63c"/><stop offset="100%" stop-color="#3f6b1e"/>
+      </linearGradient>
+    </defs>
+    <rect width="405" height="720" fill="#fdf8ee"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">EASIEST TO FERMENT · 5 OF 5</text>
+    <ellipse cx="202" cy="352" rx="112" ry="24" fill="#e2d5b8" opacity=".5"/>
+
+    <g transform="translate(202,250) scale(1.12)">
+      <g style="animation:floatUpDown 3.6s ease-in-out infinite; animation-delay:.8s">
+        <g transform="rotate(-14)">
+          <rect x="-30" y="-70" width="60" height="140" rx="30" fill="url(#grCuc2)"/>
+          <g fill="#082c19" opacity=".38">
+            <circle cx="-14" cy="-42" r="3.6"/><circle cx="12" cy="-30" r="3.4"/><circle cx="-6" cy="-12" r="3.8"/>
+            <circle cx="16" cy="8" r="3.4"/><circle cx="-16" cy="24" r="3.6"/><circle cx="6" cy="44" r="3.8"/>
+          </g>
+          <rect x="-20" y="-58" width="9" height="112" rx="4.5" fill="#ffffff" opacity=".2"/>
+        </g>
+        <!-- bay leaf = the crunch trick -->
+        <g transform="translate(52,26) rotate(24)">
+          <path d="M-9,0 C-9,-16 -3,-26 0,-30 C3,-26 9,-16 9,0 C9,14 3,22 0,26 C-3,22 -9,14 -9,0Z" fill="url(#grBay)" style="animation:wobble 4.4s ease-in-out infinite"/>
+          <path d="M0,-28 L0,24" stroke="#2f5416" stroke-width="1.6" fill="none"/>
+        </g>
+        <!-- brine bubbles -->
+        <g fill="#bfe3cd" opacity=".9">
+          <circle cx="-6" cy="30" r="3" style="animation:riseF 2.4s ease-out infinite"/>
+          <circle cx="14" cy="30" r="2.6" style="animation:riseF 2.4s ease-out infinite; animation-delay:.8s"/>
+          <circle cx="-24" cy="30" r="2.4" style="animation:riseF 2.4s ease-out infinite; animation-delay:1.6s"/>
+        </g>
+      </g>
+    </g>
+
+    <text x="202" y="432" text-anchor="middle" font-size="28" font-weight="900" fill="#3d3222" font-family="system-ui" letter-spacing="-.5" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.2s">CUCUMBER</text>
+    <text x="202" y="460" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f6e56" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.4s">the exception to the rule</text>
+
+    <g style="animation:popInSeq .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.5s">
+      <rect x="42" y="484" width="150" height="86" rx="14" fill="#fdf0e2" stroke="#f0c9a0" stroke-width="2"/>
+      <text x="117" y="512" text-anchor="middle" font-size="10" font-weight="800" fill="#c2551f" font-family="system-ui" letter-spacing="1.4">BRINE</text>
+      <text x="117" y="550" text-anchor="middle" font-size="30" font-weight="900" fill="#c2551f" font-family="system-ui">3%</text>
+    </g>
+    <g style="animation:popInSeq .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.65s">
+      <rect x="213" y="484" width="150" height="86" rx="14" fill="#ffffff" stroke="#e6dcc6" stroke-width="2"/>
+      <text x="288" y="512" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="1.4">READY IN</text>
+      <text x="288" y="550" text-anchor="middle" font-size="30" font-weight="900" fill="#3d3222" font-family="system-ui">5 DAYS</text>
+    </g>
+
+    <text x="202" y="602" text-anchor="middle" font-size="12.5" font-weight="800" fill="#3d3222" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.85s">1 L water + 30 g salt, and drop in a bay leaf</text>
+    <text x="202" y="626" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a7a5e" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:1s">tannin is what keeps them crunchy</text>
+  </svg>
+
+  <!-- ══════════════ SCENE 8 — THE FULL CHART + CTA ══════════════ -->
+  <svg class="scene" id="s7" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fdf8ee"/>
+    <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">SAVE THIS BEFORE YOU START</text>
+
+    <text x="202" y="98" text-anchor="middle" font-size="23" font-weight="900" fill="#3d3222" font-family="system-ui" letter-spacing="-.4" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.1s">THE FULL CHART</text>
+    <line x1="131" y1="110" x2="273" y2="110" stroke="#c08a2e" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="300" stroke-dashoffset="300" style="animation:drawLine 1s ease-out .45s forwards"/>
+
+    <!-- column headers -->
+    <g style="animation:fadeSlide .5s ease both; animation-delay:.3s">
+      <text x="26" y="136" font-size="9.5" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="1.2">VEGETABLE</text>
+      <text x="218" y="136" text-anchor="middle" font-size="9.5" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="1.2">DAYS</text>
+      <text x="379" y="136" text-anchor="end" font-size="9.5" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="1.2">SALT</text>
+    </g>
+
+    <!-- rows: track + coloured bar proportional to days -->
+    <g style="animation:popInSeq .5s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.35s">
+      <text x="26" y="170" font-size="12.5" font-weight="900" fill="#3d3222" font-family="system-ui">RED CABBAGE</text>
+      <rect x="136" y="157" width="164" height="22" rx="11" fill="#f1ece1"/>
+      <rect x="136" y="157" width="115" height="22" rx="11" fill="#8e3a68" style="transform-box:fill-box; transform-origin:left center; animation:barGrow .8s cubic-bezier(.3,1,.4,1) both; animation-delay:.45s"/>
+      <text x="263" y="173" font-size="12" font-weight="900" fill="#3d3222" font-family="system-ui">7</text>
+      <text x="379" y="173" text-anchor="end" font-size="12.5" font-weight="900" fill="#8e3a68" font-family="system-ui">2%</text>
+    </g>
+    <g style="animation:popInSeq .5s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.55s">
+      <text x="26" y="218" font-size="12.5" font-weight="900" fill="#3d3222" font-family="system-ui">BEETROOT</text>
+      <rect x="136" y="205" width="164" height="22" rx="11" fill="#f1ece1"/>
+      <rect x="136" y="205" width="160" height="22" rx="11" fill="#8c1f47" style="transform-box:fill-box; transform-origin:left center; animation:barGrow .8s cubic-bezier(.3,1,.4,1) both; animation-delay:.65s"/>
+      <text x="308" y="221" font-size="12" font-weight="900" fill="#3d3222" font-family="system-ui">9</text>
+      <text x="379" y="221" text-anchor="end" font-size="12.5" font-weight="900" fill="#8c1f47" font-family="system-ui">2%</text>
+    </g>
+    <g style="animation:popInSeq .5s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.75s">
+      <text x="26" y="266" font-size="12.5" font-weight="900" fill="#3d3222" font-family="system-ui">CARROTS</text>
+      <rect x="136" y="253" width="164" height="22" rx="11" fill="#f1ece1"/>
+      <rect x="136" y="253" width="92" height="22" rx="11" fill="#e07d22" style="transform-box:fill-box; transform-origin:left center; animation:barGrow .8s cubic-bezier(.3,1,.4,1) both; animation-delay:.85s"/>
+      <text x="240" y="269" font-size="12" font-weight="900" fill="#3d3222" font-family="system-ui">6</text>
+      <text x="379" y="269" text-anchor="end" font-size="12.5" font-weight="900" fill="#c06018" font-family="system-ui">2%</text>
+    </g>
+    <g style="animation:popInSeq .5s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.95s">
+      <text x="26" y="314" font-size="12.5" font-weight="900" fill="#3d3222" font-family="system-ui">RADISH</text>
+      <rect x="136" y="301" width="164" height="22" rx="11" fill="#f1ece1"/>
+      <rect x="136" y="301" width="92" height="22" rx="11" fill="#cf2f2b" style="transform-box:fill-box; transform-origin:left center; animation:barGrow .8s cubic-bezier(.3,1,.4,1) both; animation-delay:1.05s"/>
+      <text x="240" y="317" font-size="12" font-weight="900" fill="#3d3222" font-family="system-ui">6</text>
+      <text x="379" y="317" text-anchor="end" font-size="12.5" font-weight="900" fill="#c1272d" font-family="system-ui">2%</text>
+    </g>
+    <g style="animation:popInSeq .5s cubic-bezier(.3,1.5,.5,1) both; animation-delay:1.15s">
+      <text x="26" y="362" font-size="12.5" font-weight="900" fill="#3d3222" font-family="system-ui">CUCUMBER</text>
+      <rect x="136" y="349" width="164" height="22" rx="11" fill="#f1ece1"/>
+      <rect x="136" y="349" width="60" height="22" rx="11" fill="#227a4c" style="transform-box:fill-box; transform-origin:left center; animation:barGrow .8s cubic-bezier(.3,1,.4,1) both; animation-delay:1.25s"/>
+      <text x="208" y="365" font-size="12" font-weight="900" fill="#3d3222" font-family="system-ui">5</text>
+      <text x="379" y="365" text-anchor="end" font-size="12.5" font-weight="900" fill="#c2551f" font-family="system-ui">3%</text>
+    </g>
+
+    <!-- the save card -->
+    <g style="animation:slideUp .7s ease both; animation-delay:1.5s">
+      <rect x="26" y="404" width="353" height="104" rx="16" fill="#2c2c2a"/>
+      <text x="202" y="444" text-anchor="middle" font-size="21" font-weight="900" fill="#ffffff" font-family="system-ui" letter-spacing="-.3">SAVE THIS VIDEO</text>
+      <text x="202" y="474" text-anchor="middle" font-size="12" font-weight="600" fill="#c9c4ba" font-family="system-ui">one rule for all five · 2% salt · 5 to 9 days</text>
+      <text x="202" y="494" text-anchor="middle" font-size="15" font-weight="900" fill="#f0c846" font-family="system-ui">📌</text>
+    </g>
+
+    <g style="animation:fadeSlide .6s ease both; animation-delay:1.8s">
+      <text x="202" y="546" text-anchor="middle" font-size="12.5" font-weight="800" fill="#3d3222" font-family="system-ui">Start with radish. It is the fastest of the five.</text>
+      <text x="202" y="572" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a7a5e" font-family="system-ui">Cut thin · weigh the salt · press it down</text>
+    </g>
+
+    <g style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:2s">
+      <rect x="72" y="592" width="261" height="40" rx="20" fill="#f3ece0" stroke="#ddd0b8" stroke-width="2"/>
+      <text x="202" y="617" text-anchor="middle" font-size="12.5" font-weight="900" fill="#3d3222" font-family="system-ui">Which one are you trying first? 👇</text>
+    </g>
+  </svg>
+
+  <div class="cap" id="cap">The 5 easiest to ferment<small>One rule: 2% salt · 5 to 9 days</small></div>
+
+  <div class="ui">
+    <button onclick="prev()">◀</button>
+    <button onclick="toggle()" id="btnPlay">⏸ Pause</button>
+    <button onclick="next()">▶</button>
+  </div>
+
+  <div class="cover" id="cover">
+    <button onclick="play()">▶</button>
+    <p>Fermentation · beginner chart<br>8 scenes · 49s<br><b>1080 × 1920</b> · ready to record</p>
+    <p class="hint">Click ▶ to start. Space = play / pause.<br>Add <b>?play</b> to the URL to auto-start.</p>
+  </div>
+</div>
+
+<script>
+const scenes = [
+  { id:'s0', ms:5500, tag:'GUIDE 1 / 8', cap:'The 5 easiest to ferment',   sub:'start with any of these',              color:'#2c2c2a' },
+  { id:'s1', ms:6500, tag:'GUIDE 2 / 8', cap:'2% salt — the only rule',    sub:'1 kg of vegetable → 20 g of salt',     color:'#2c2c2a' },
+  { id:'s2', ms:6000, tag:'GUIDE 3 / 8', cap:'Red cabbage · 2% salt',      sub:'7 days · the classic',                 color:'#8e3a68' },
+  { id:'s3', ms:6000, tag:'GUIDE 4 / 8', cap:'Beetroot · 2% salt',         sub:'9 days · the slowest of the five',     color:'#8c1f47' },
+  { id:'s4', ms:6000, tag:'GUIDE 5 / 8', cap:'Carrots · 2% salt',          sub:'6 days · top it up with brine',        color:'#c06018' },
+  { id:'s5', ms:6000, tag:'GUIDE 6 / 8', cap:'Radish · 2% salt',           sub:'6 days · the fastest to start with',   color:'#c1272d' },
+  { id:'s6', ms:6000, tag:'GUIDE 7 / 8', cap:'Cucumber · 3% brine',        sub:'5 days · the only exception',          color:'#0f6e56' },
+  { id:'s7', ms:7000, tag:'GUIDE 8 / 8', cap:'The full chart',             sub:'save it and pick one',                 color:'#2c2c2a' }
+];
+
+const stage    = document.getElementById('stage');
+const progress = document.getElementById('progress');
+const capEl    = document.getElementById('cap');
+const tagEl    = document.getElementById('tag');
+const btnPlay  = document.getElementById('btnPlay');
+
+let i = 0, playing = false, tick0 = null, elapsed = 0;
+const RES = 70;
+
+/* ── Fit the 1080x1920 frame to the window ──────────────────────────────
+   Inside an OBS Browser Source set to 1080x1920 the viewport IS 1080x1920,
+   so k = 1 and the recording is pixel for pixel.
+   On a normal landscape monitor it only shrinks, so you can preview it.  */
+function fit() {
+  const k = Math.min(1, window.innerWidth / 1080, window.innerHeight / 1920);
+  stage.style.transform = 'scale(' + k + ')';
+}
+window.addEventListener('resize', fit);
+
+function render() {
+  scenes.forEach((s, n) => {
+    const el = document.getElementById(s.id);
+    el.classList.remove('on');
+    if (n === i) el.classList.add('on');
+  });
+  tagEl.textContent = scenes[i].tag;
+  capEl.innerHTML = scenes[i].cap + '<small>' + scenes[i].sub + '</small>';
+  progress.style.background = scenes[i].color;
+  progress.style.width = '0%';
+}
+
+function loop() {
+  clearInterval(tick0);
+  tick0 = setInterval(() => {
+    if (!playing) return;
+    elapsed += RES;
+    const total = scenes[i].ms;
+    progress.style.width = Math.min(100, (elapsed / total) * 100) + '%';
+    if (elapsed >= total) {
+      if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+      else { stop(); progress.style.width = '100%'; }
+    }
+  }, RES);
+}
+
+function next() {
+  if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+  else { stop(); progress.style.width = '100%'; }
+}
+function prev() { if (i > 0) { i--; elapsed = 0; render(); } }
+function play() {
+  playing = true; elapsed = 0;
+  btnPlay.textContent = '⏸ Pause';
+  document.getElementById('cover').classList.add('hide');
+  stage.classList.remove('touched');   /* controls stay out of the recording */
+  render(); loop();
+}
+function stop() {
+  playing = false;
+  btnPlay.textContent = '▶ Play';
+  clearInterval(tick0);
+}
+function toggle() { playing ? stop() : play(); }
+
+stage.addEventListener('click', e => {
+  if (e.target.closest('button')) return;
+  if (playing) toggle();
+});
+
+/* controls: show on mouse move, hide again after 2.2s of stillness */
+let uiTimer = null;
+stage.addEventListener('mousemove', () => {
+  stage.classList.add('touched');
+  clearTimeout(uiTimer);
+  uiTimer = setTimeout(() => stage.classList.remove('touched'), 2200);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space') { e.preventDefault(); toggle(); }
+  if (e.code === 'ArrowRight') next();
+  if (e.code === 'ArrowLeft') prev();
+});
+
+fit();
+render();
+
+/* ?play in the URL = auto-start 1.5s after load (handy for OBS recording) */
+if (/[?&]play\b/.test(location.search)) setTimeout(play, 1500);
+</script>
+
+<script>
+/* ?rec = modo gravacao.
+   Sem ?rec na URL, nada muda: e o short normal.
+   Com ?rec, o quadro preenche 1080x1920 (1920x1080 no video longo),
+   a capa e os botoes somem e a animacao comeca sozinha. */
+(function () {
+  if (location.search.indexOf('rec') < 0) return;
+  var css = '#cover{display:none!important}.ui{display:none!important}'
+          + '#stage{border-radius:0!important;box-shadow:none!important}';
+  var st = document.getElementById('stage');
+  if (st) {
+    var w = st.offsetWidth, h = st.offsetHeight;
+    if (w && h) {
+      css += '#stage{transform:scale(' + ((h > w ? 1920 : 1080) / h)
+           + ')!important;transform-origin:center center!important}';
+    }
+  }
+  if (document.getElementById('frame')) {
+    css += '#frame{transform:scale(1)!important;left:0!important;top:0!important}';
+  }
+  var tag = document.createElement('style');
+  tag.textContent = css;
+  document.head.appendChild(tag);
+  if (typeof showChapters === 'function') showChapters(false);
+  setTimeout(function () { if (typeof play === 'function') play(); }, 500);
+})();
+</script>
+</body>
+</html>

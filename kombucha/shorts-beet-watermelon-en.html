@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shorts animado — Beetroot and watermelon kombucha (2nd ferment)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#0f0e0c;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    min-height:100vh; overflow:hidden;
+  }
+  #stage {
+    position:relative; width:405px; height:720px;
+    background:#f4faf3; overflow:hidden; border-radius:16px;
+    box-shadow:0 24px 70px rgba(0,0,0,.7);
+  }
+  @media (max-height:790px){ #stage{ transform:scale(.86);} }
+  @media (max-height:700px){ #stage{ transform:scale(.72);} }
+
+  svg.scene {
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0; visibility:hidden; transition:opacity .18s ease;
+  }
+  svg.scene.on { opacity:1; visibility:visible; }
+
+  .bar { position:absolute; top:0; left:0; right:0; height:5px; background:rgba(0,0,0,.1); z-index:40; }
+  #progress { height:100%; width:0; background:#1d9e75; transition:width .1s linear; }
+
+  .tag {
+    position:absolute; top:26px; left:0; right:0; text-align:center;
+    font-size:11px; font-weight:800; letter-spacing:.22em;
+    text-transform:uppercase; opacity:.45; z-index:30; color:#04342c;
+  }
+  .cap {
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(15,14,12,.86); color:#fff;
+    padding:14px 22px 17px; font-size:16px; font-weight:800;
+    text-align:center; z-index:30; line-height:1.35;
+  }
+  .cap small { display:block; font-size:12px; font-weight:500; opacity:.7; margin-top:4px; }
+
+  .wm { position:absolute; top:22px; right:18px; font-size:10px; font-weight:800;
+        letter-spacing:.1em; opacity:.3; z-index:35; text-transform:uppercase; color:#04342c; }
+
+  .speed-badge {
+    position:absolute; top:52px; left:18px; z-index:36;
+    background:#d97706; color:#fff;
+    font-size:11px; font-weight:800; letter-spacing:.1em;
+    padding:5px 11px; border-radius:999px;
+    animation:pulseBadge 1.1s ease-in-out infinite;
+  }
+  @keyframes pulseBadge { 0%,100%{opacity:1} 50%{opacity:.55} }
+
+  .ui { position:absolute; bottom:86px; left:0; right:0; display:flex;
+        justify-content:center; gap:10px; z-index:40; opacity:0; transition:opacity .25s; }
+  #stage:hover .ui, #stage.touched .ui { opacity:1; }
+  .ui button { border:none; background:rgba(15,14,12,.78); color:#fff; font-size:12px;
+    font-weight:700; font-family:inherit; padding:9px 16px; border-radius:999px; cursor:pointer; }
+  .ui button:hover { background:#000; }
+
+  .cover { position:absolute; inset:0; z-index:50; background:rgba(0,0,0,.45);
+    display:flex; align-items:center; justify-content:center; }
+  .cover.hide { display:none; }
+  .cover button { width:80px; height:80px; border-radius:50%; border:none;
+    background:rgba(255,255,255,.95); color:#111; font-size:28px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding-left:5px; }
+
+  @keyframes chop2x { 0%,100%{transform:rotate(-16deg)} 50%{transform:rotate(8deg)} }
+  @keyframes pour2x { 0%{transform:translateY(-30px) scaleY(.6);opacity:0} 100%{transform:translateY(0) scaleY(1);opacity:1} }
+  @keyframes riseFast { 0%{transform:translateY(0);opacity:0} 25%{opacity:.9} 100%{transform:translateY(-110px);opacity:0} }
+  @keyframes wobble { 0%,100%{transform:rotate(-2.5deg)} 50%{transform:rotate(2.5deg)} }
+  @keyframes tick { 0%,100%{transform:rotate(-4deg)} 50%{transform:rotate(4deg)} }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div class="bar"><div id="progress"></div></div>
+  <div class="tag" id="tag">KOMBUCHA 1 / 7</div>
+  <div class="wm">@yourchannel</div>
+  <div class="speed-badge">🟣 + 🍉</div>
+
+    <svg class="scene on" id="s0" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fdf6f8"/>
+    <circle cx="256" cy="300" r="150" fill="#fdf1f4" opacity=".85"/>
+    <g transform="translate(84,300)"><rect x="-15" y="-150" width="30" height="300" rx="15" fill="#f7ecf1" stroke="#c9bda8" stroke-width="2.5"/><rect x="-15" y="-90" width="30" height="180" fill="#e58aae" opacity=".6"/><line x1="-33" y1="-90" x2="33" y2="-90" stroke="#7b1440" stroke-width="2.5"/><line x1="-33" y1="90" x2="33" y2="90" stroke="#7b1440" stroke-width="2.5"/><text x="-39" y="-85" text-anchor="end" font-size="14" font-weight="800" fill="#7b1440" font-family="system-ui">6</text><text x="-39" y="95" text-anchor="end" font-size="14" font-weight="800" fill="#7b1440" font-family="system-ui">3</text><circle cx="0" cy="90" r="10" fill="#1d9e75" stroke="#fff" stroke-width="2.5"/><text x="37" y="95" font-size="13" font-weight="800" fill="#1d9e75" font-family="system-ui">3.0</text><text x="0" y="174" text-anchor="middle" font-size="13" font-weight="800" fill="#a08a5c" font-family="system-ui">2</text><text x="0" y="-162" text-anchor="middle" font-size="13" font-weight="800" fill="#a08a5c" font-family="system-ui">7</text></g>
+    <g transform="translate(252,404)">
+      <g style="animation:wobble 2.8s ease-in-out infinite">
+        <g transform="scale(0.78)"><path d="M-62,-104 L-62,84 Q-62,104 -42,104 L42,104 Q62,104 62,84 L62,-104 Z" fill="#fdf6ea" stroke="#8a6a2f" stroke-width="4"/><path d="M-54,-72 L-54,80 Q-54,96 -38,96 L38,96 Q54,96 54,80 L54,-72 Z" fill="#b32d63"/><ellipse cx="-38" cy="-10" rx="7" ry="46" fill="#fff" opacity=".28"/></g>
+      </g>
+    </g>
+    <g transform="translate(252,404)"><g style="animation:riseFast 1.4s ease-out infinite"><circle cx="-10" cy="52" r="4" fill="#fff" opacity=".8"/><circle cx="14" cy="62" r="3.2" fill="#fff" opacity=".75"/></g><g style="animation:riseFast 1.4s ease-out .5s infinite"><circle cx="2" cy="44" r="3.6" fill="#fff" opacity=".7"/><circle cx="-24" cy="58" r="3" fill="#fff" opacity=".65"/></g></g>
+    <g transform="translate(214,168)">
+      <g style="animation:pulseBadge 2.2s ease-in-out infinite">
+        <rect x="-62" y="-19" width="124" height="38" rx="19" fill="#b32d63" stroke="#fff" stroke-width="3"/>
+        <text x="0" y="7" text-anchor="middle" font-size="17" font-weight="800" fill="#fff" font-family="system-ui">pH 3 - 6</text>
+      </g>
+    </g>
+    <g transform="translate(202,568)">
+      <rect x="-176" y="-46" width="352" height="92" rx="12" fill="#fff" stroke="#b32d63" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="18" font-weight="800" fill="#7b1440" font-family="system-ui">RED BETWEEN 3 AND 6</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#a8728c" font-family="system-ui">outside that window the pigment breaks down</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s1" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fdf6f8"/>
+    <g transform="translate(202,196)">
+      <rect x="-176" y="-46" width="352" height="92" rx="12" fill="#fff" stroke="#1d9e75" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="18" font-weight="800" fill="#0f6e56" font-family="system-ui">THE JAR MATCHES THE WINDOW</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#4a8a6e" font-family="system-ui">the first ferment ends inside the safe band</text>
+    </g>
+    <g transform="translate(202,300)"><rect x="-156" y="-17" width="312" height="34" rx="17" fill="#f7ecf1"/><rect x="-93.6" y="-17" width="187.2" height="34" fill="#e58aae" opacity=".55"/><rect x="-156" y="-17" width="312" height="34" rx="17" fill="none" stroke="#c9bda8" stroke-width="2.5"/><line x1="-93.6" y1="-25" x2="-93.6" y2="25" stroke="#7b1440" stroke-width="2.5"/><text x="-93.6" y="-32" text-anchor="middle" font-size="14" font-weight="800" fill="#7b1440" font-family="system-ui">3</text><line x1="93.6" y1="-25" x2="93.6" y2="25" stroke="#7b1440" stroke-width="2.5"/><text x="93.6" y="-32" text-anchor="middle" font-size="14" font-weight="800" fill="#7b1440" font-family="system-ui">6</text><circle cx="-93.6" cy="0" r="9" fill="#1d9e75" stroke="#fff" stroke-width="2.5"/><text x="-93.6" y="42" text-anchor="middle" font-size="13" font-weight="800" fill="#1d9e75" font-family="system-ui">KOMBUCHA</text><circle cx="43.68" cy="0" r="9" fill="#b83148" stroke="#fff" stroke-width="2.5"/><text x="43.68" y="42" text-anchor="middle" font-size="13" font-weight="800" fill="#b83148" font-family="system-ui">WATERMELON</text></g>
+    <g transform="translate(202,450)">
+      <g style="animation:wobble 2.6s ease-in-out infinite"><g transform="scale(0.55)"><path d="M-40,-56 L-40,70 Q-40,88 -22,88 L22,88 Q40,88 40,70 L40,-56 Q40,-70 26,-80 L14,-92 L14,-124 L-14,-124 L-14,-92 L-26,-80 Q-40,-70 -40,-56 Z" fill="#fdf6ea" stroke="#8a6a2f" stroke-width="4"/><path d="M-34,-28 L-34,66 Q-34,82 -20,82 L20,82 Q34,82 34,66 L34,-28 Q34,-42 22,-52 L12,-62 L12,-118 L-12,-118 L-12,-62 L-22,-52 Q-34,-42 -34,-28 Z" fill="#b32d63"/><ellipse cx="-19" cy="18" rx="7" ry="42" fill="#fff" opacity=".22"/><rect x="-19" y="-140" width="38" height="16" rx="5" fill="#cfd8c4" stroke="#8a6a2f" stroke-width="3"/><line x1="0" y1="-140" x2="0" y2="-124" stroke="#8a6a2f" stroke-width="2"/></g></g>
+    </g>
+    <g transform="translate(202,420)"><g style="animation:riseFast 1.4s ease-out infinite"><circle cx="-10" cy="52" r="4" fill="#fff" opacity=".8"/><circle cx="14" cy="62" r="3.2" fill="#fff" opacity=".75"/></g><g style="animation:riseFast 1.4s ease-out .5s infinite"><circle cx="2" cy="44" r="3.6" fill="#fff" opacity=".7"/><circle cx="-24" cy="58" r="3" fill="#fff" opacity=".65"/></g></g>
+    <g transform="translate(202,556)">
+      <rect x="-172" y="-42" width="344" height="84" rx="12" fill="#eaf7f1" stroke="#1d9e75" stroke-width="3"/>
+      <text x="0" y="-6" text-anchor="middle" font-size="16" font-weight="800" fill="#0f6e56" font-family="system-ui">2.5 TO 3.5 IS WHERE IT STOPS</text>
+      <text x="0" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="#4a8a6e" font-family="system-ui">the pigment holds inside the band</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s2" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fdf6f8"/>
+    <circle cx="188" cy="286" r="136" fill="#fdf1f4" opacity=".8"/>
+    <g transform="translate(188,318)">
+      <g style="animation:wobble 2.9s ease-in-out infinite"><g transform="translate(0,0) scale(1)"><path d="M-86,0 A86,86 0 0 1 86,0 Z" fill="#7fb542" stroke="#4e7a26" stroke-width="3"/><path d="M-76,0 A76,76 0 0 1 76,0 Z" fill="#f4f7e8"/><path d="M-68,0 A68,68 0 0 1 68,0 Z" fill="#e8556d"/><ellipse cx="-30" cy="-30" rx="4" ry="6" fill="#3a2b2b"/><ellipse cx="6" cy="-40" rx="4" ry="6" fill="#3a2b2b"/><ellipse cx="38" cy="-20" rx="4" ry="6" fill="#3a2b2b"/><ellipse cx="-10" cy="-16" rx="4" ry="6" fill="#3a2b2b"/></g></g>
+    </g>
+    <g transform="translate(322,340)"><g transform="translate(0,0) rotate(35)"><g style="animation:chop2x 1.7s ease-in-out infinite"><path d="M-92,-13 L22,-13 L22,13 L-62,13 Q-92,13 -92,-1 Z" fill="#cdd6dc" stroke="#7a8a92" stroke-width="2.5" stroke-linejoin="round"/><path d="M-88,-9 L20,-9 L20,-2 L-88,-2 Z" fill="#eef3f6"/><rect x="22" y="-15" width="9" height="30" rx="3" fill="#9aa8b0" stroke="#6f7d85" stroke-width="2"/><rect x="31" y="-12" width="46" height="24" rx="8" fill="#8a5a34" stroke="#5e3a1f" stroke-width="2.5"/><circle cx="44" cy="0" r="2.6" fill="#5e3a1f"/><circle cx="62" cy="0" r="2.6" fill="#5e3a1f"/></g></g></g>
+    <g transform="translate(152,348) scale(1)"><path d="M0,-15 Q7,-5 7,2 Q7,9 0,9 Q-7,9 -7,2 Q-7,-5 0,-15 Z" fill="#e8556d" stroke="#b83148" stroke-width="2"/></g>
+    <g transform="translate(192,364) scale(1.25)"><path d="M0,-15 Q7,-5 7,2 Q7,9 0,9 Q-7,9 -7,2 Q-7,-5 0,-15 Z" fill="#e8556d" stroke="#b83148" stroke-width="2"/></g>
+    <g transform="translate(230,346) scale(0.85)"><path d="M0,-15 Q7,-5 7,2 Q7,9 0,9 Q-7,9 -7,2 Q-7,-5 0,-15 Z" fill="#e8556d" stroke="#b83148" stroke-width="2"/></g>
+    <g transform="translate(202,556)">
+      <rect x="-176" y="-46" width="352" height="92" rx="12" fill="#fff" stroke="#b83148" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="18" font-weight="800" fill="#b83148" font-family="system-ui">MOSTLY WATER</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#c07a8a" font-family="system-ui">pH 5.2 and 92% water - it dilutes, not acidifies</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s3" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fdf6f8"/>
+    <circle cx="202" cy="292" r="140" fill="#fdf1f4" opacity=".8"/>
+    <g transform="translate(202,292)">
+      <g style="animation:wobble 3.0s ease-in-out infinite"><g transform="translate(0,0) scale(1)"><path d="M-6,-40 C-18,-62 -32,-74 -42,-82" stroke="#7fb542" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M0,-42 C1,-68 4,-82 6,-94" stroke="#7fb542" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M7,-40 C19,-60 32,-70 42,-76" stroke="#7fb542" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M-42,-82 C-68,-98 -94,-90 -90,-72 C-82,-54 -54,-60 -42,-82 Z" fill="#5c8f2a" stroke="#3f6b1e" stroke-width="2"/><path d="M-42,-82 C-62,-86 -78,-82 -86,-76" stroke="#3f6b1e" stroke-width="1.8" fill="none" opacity=".55"/><path d="M6,-94 C16,-122 42,-124 46,-105 C40,-86 20,-80 6,-94 Z" fill="#5c8f2a" stroke="#3f6b1e" stroke-width="2"/><path d="M6,-94 C20,-107 34,-114 44,-108" stroke="#3f6b1e" stroke-width="1.8" fill="none" opacity=".55"/><path d="M42,-76 C66,-86 88,-76 82,-60 C70,-46 50,-54 42,-76 Z" fill="#5c8f2a" stroke="#3f6b1e" stroke-width="2"/><path d="M42,-76 C60,-78 74,-72 80,-64" stroke="#3f6b1e" stroke-width="1.8" fill="none" opacity=".55"/><path d="M0,-44 C32,-44 52,-20 51,8 C50,34 30,56 0,56 C-30,56 -50,34 -51,8 C-52,-20 -32,-44 0,-44 Z" fill="#b32d63" stroke="#7b1440" stroke-width="3.5"/><path d="M0,54 C-1,72 -4,88 -10,102" stroke="#7b1440" stroke-width="4.5" fill="none" stroke-linecap="round"/><ellipse cy="-16" rx="36" ry="7" fill="none" stroke="#e58aae" stroke-width="2.4" opacity=".75"/><ellipse cy="8" rx="30" ry="6" fill="none" stroke="#e58aae" stroke-width="2.4" opacity=".65"/><ellipse cy="30" rx="18" ry="4.5" fill="none" stroke="#e58aae" stroke-width="2.4" opacity=".55"/><ellipse cx="-20" cy="-16" rx="10" ry="18" fill="#fff" opacity=".2"/></g></g>
+    </g>
+    <g transform="translate(202,130)">
+      <g style="animation:pour2x 1.6s ease-out infinite">
+        <g transform="rotate(28) scale(.88)">
+          <path d="M-30,-32 L30,-32 L23,26 Q0,38 -23,26 Z" fill="#f2ead6" stroke="#a8935f" stroke-width="3.5"/>
+          <text x="0" y="6" text-anchor="middle" font-size="15" font-weight="800" fill="#6b5a3a" font-family="system-ui">SUGAR</text>
+        </g>
+      </g>
+    </g>
+    <circle cx="184" cy="196" r="3.4" fill="#ffffff" stroke="#a8935f" stroke-width="1.8"/>
+    <circle cx="204" cy="208" r="2.8" fill="#ffffff" stroke="#a8935f" stroke-width="1.8"/>
+    <circle cx="194" cy="224" r="3.2" fill="#ffffff" stroke="#a8935f" stroke-width="1.8"/>
+    <circle cx="212" cy="190" r="2.6" fill="#ffffff" stroke="#a8935f" stroke-width="1.8"/>
+    <circle cx="178" cy="212" r="2.4" fill="#ffffff" stroke="#a8935f" stroke-width="1.8"/>
+    <g transform="translate(202,468)">
+      <rect x="-160" y="-34" width="320" height="68" rx="12" fill="#fff" stroke="#b32d63" stroke-width="3"/>
+      <text x="0" y="-2" text-anchor="middle" font-size="17" font-weight="800" fill="#7b1440" font-family="system-ui">FUEL AND COLOUR AT ONCE</text>
+      <text x="0" y="22" text-anchor="middle" font-size="13" font-weight="600" fill="#a8728c" font-family="system-ui">7 g of sugar per 100 g - more than the watermelon</text>
+    </g>
+    <g transform="translate(202,588)">
+      <rect x="-176" y="-38" width="352" height="76" rx="12" fill="#fdf0f5" stroke="#e58aae" stroke-width="3"/>
+      <text x="0" y="-4" text-anchor="middle" font-size="15" font-weight="800" fill="#7b1440" font-family="system-ui">SUGAR FEEDS THE SECOND FERMENT</text>
+      <text x="0" y="19" text-anchor="middle" font-size="13" font-weight="600" fill="#a8728c" font-family="system-ui">and the pigment comes along for free</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s4" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fdf6f8"/>
+    <g transform="translate(202,116)">
+      <text x="0" y="0" text-anchor="middle" font-size="17" font-weight="800" fill="#7b1440" font-family="system-ui">SAME JUICE, TWO STATES</text>
+    </g>
+    <g transform="translate(118,268)">
+      <g style="animation:wobble 2.8s ease-in-out infinite"><g transform="translate(0,0) scale(1.05)"><circle r="40" fill="#b32d63" stroke="#7b1440" stroke-width="3"/><circle r="32" fill="none" stroke="#e58aae" stroke-width="2.4" opacity=".8"/><circle r="23" fill="none" stroke="#e58aae" stroke-width="2.4" opacity=".65"/><circle r="13" fill="none" stroke="#e58aae" stroke-width="2.2" opacity=".5"/><ellipse cx="-13" cy="-13" rx="8" ry="12" fill="#fff" opacity=".16"/></g></g>
+    </g>
+    <g transform="translate(290,268)">
+      <g style="animation:wobble 3.1s ease-in-out infinite"><g transform="translate(0,0) scale(1.05)"><circle r="40" fill="#b07a68" stroke="#a89488" stroke-width="3"/><circle r="32" fill="none" stroke="#e0d0c8" stroke-width="2.4" opacity=".8"/><circle r="23" fill="none" stroke="#e0d0c8" stroke-width="2.4" opacity=".65"/><circle r="13" fill="none" stroke="#e0d0c8" stroke-width="2.2" opacity=".5"/><ellipse cx="-13" cy="-13" rx="8" ry="12" fill="#fff" opacity=".16"/></g></g>
+    </g>
+    <g transform="translate(118,344)">
+      <g style="animation:tick 2.2s ease-in-out infinite">
+        <path d="M-14,-8 L-3,4 L15,-16" stroke="#4e7a26" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+    </g>
+    <g transform="translate(290,344)">
+      <path d="M-13,-13 L13,13 M13,-13 L-13,13" stroke="#c0392b" stroke-width="6" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(118,424)">
+      <rect x="-72" y="-26" width="144" height="52" rx="10" fill="#fdf0f5" stroke="#b32d63" stroke-width="2.5"/>
+      <text x="0" y="7" text-anchor="middle" font-size="19" font-weight="800" fill="#7b1440" font-family="system-ui">MAGENTA</text>
+    </g>
+    <g transform="translate(290,424)">
+      <rect x="-72" y="-26" width="144" height="52" rx="10" fill="#f2ece6" stroke="#a89488" stroke-width="2.5"/>
+      <text x="0" y="7" text-anchor="middle" font-size="19" font-weight="800" fill="#7d6a5c" font-family="system-ui">BRICK</text>
+    </g>
+    <g transform="translate(202,548)">
+      <rect x="-176" y="-46" width="352" height="92" rx="12" fill="#fff" stroke="#b32d63" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="18" font-weight="800" fill="#7b1440" font-family="system-ui">THE JAR IS THE STATUS LIGHT</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#a8728c" font-family="system-ui">vivid means in, brick means you went past</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s5" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fdf6f8"/>
+    <rect x="66" y="118" width="272" height="292" rx="18" fill="#2b2233"/>
+    <rect x="86" y="138" width="232" height="252" rx="12" fill="#3a2f45"/>
+    <g transform="translate(202,290)">
+      <g style="animation:wobble 3.2s ease-in-out infinite"><g transform="scale(0.72)"><path d="M-40,-56 L-40,70 Q-40,88 -22,88 L22,88 Q40,88 40,70 L40,-56 Q40,-70 26,-80 L14,-92 L14,-124 L-14,-124 L-14,-92 L-26,-80 Q-40,-70 -40,-56 Z" fill="#fdf6ea" stroke="#8a6a2f" stroke-width="4"/><path d="M-34,-28 L-34,66 Q-34,82 -20,82 L20,82 Q34,82 34,66 L34,-28 Q34,-42 22,-52 L12,-62 L12,-118 L-12,-118 L-12,-62 L-22,-52 Q-34,-42 -34,-28 Z" fill="#b32d63"/><ellipse cx="-19" cy="18" rx="7" ry="42" fill="#fff" opacity=".22"/><rect x="-19" y="-140" width="38" height="16" rx="5" fill="#cfd8c4" stroke="#8a6a2f" stroke-width="3"/><line x1="0" y1="-140" x2="0" y2="-124" stroke="#8a6a2f" stroke-width="2"/></g></g>
+    </g>
+    <g transform="translate(202,290)"><g style="animation:riseFast 1.4s ease-out infinite"><circle cx="-10" cy="52" r="4" fill="#fff" opacity=".8"/><circle cx="14" cy="62" r="3.2" fill="#fff" opacity=".75"/></g><g style="animation:riseFast 1.4s ease-out .5s infinite"><circle cx="2" cy="44" r="3.6" fill="#fff" opacity=".7"/><circle cx="-24" cy="58" r="3" fill="#fff" opacity=".65"/></g></g>
+    <g transform="translate(322,164)"><g transform="translate(0,0) scale(1.15)"><circle r="16" fill="#f7d774" stroke="#d9a441" stroke-width="3"/><line x1="22" y1="0" x2="34" y2="0" stroke="#d9a441" stroke-width="4" stroke-linecap="round"/><line x1="15.5563" y1="15.5563" x2="24.0416" y2="24.0416" stroke="#d9a441" stroke-width="4" stroke-linecap="round"/><line x1="1.34711e-15" y1="22" x2="2.0819e-15" y2="34" stroke="#d9a441" stroke-width="4" stroke-linecap="round"/><line x1="-15.5563" y1="15.5563" x2="-24.0416" y2="24.0416" stroke="#d9a441" stroke-width="4" stroke-linecap="round"/><line x1="-22" y1="2.69422e-15" x2="-34" y2="4.1638e-15" stroke="#d9a441" stroke-width="4" stroke-linecap="round"/><line x1="-15.5563" y1="-15.5563" x2="-24.0416" y2="-24.0416" stroke="#d9a441" stroke-width="4" stroke-linecap="round"/><line x1="-4.04133e-15" y1="-22" x2="-6.2457e-15" y2="-34" stroke="#d9a441" stroke-width="4" stroke-linecap="round"/><line x1="15.5563" y1="-15.5563" x2="24.0416" y2="-24.0416" stroke="#d9a441" stroke-width="4" stroke-linecap="round"/><line x1="-30" y1="-30" x2="30" y2="30" stroke="#c0392b" stroke-width="6" stroke-linecap="round"/><line x1="30" y1="-30" x2="-30" y2="30" stroke="#c0392b" stroke-width="6" stroke-linecap="round"/></g></g>
+    <g transform="translate(202,468)">
+      <rect x="-176" y="-46" width="352" height="92" rx="12" fill="#fff" stroke="#b32d63" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="18" font-weight="800" fill="#7b1440" font-family="system-ui">NO SUN, NO HEAT</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#a8728c" font-family="system-ui">light and warmth break the pigment</text>
+    </g>
+    <g transform="translate(202,580)">
+      <rect x="-172" y="-38" width="344" height="76" rx="12" fill="#fdf0f5" stroke="#e58aae" stroke-width="3"/>
+      <text x="0" y="-4" text-anchor="middle" font-size="15" font-weight="800" fill="#7b1440" font-family="system-ui">A CUPBOARD, NOT A WINDOWSILL</text>
+      <text x="0" y="19" text-anchor="middle" font-size="13" font-weight="600" fill="#a8728c" font-family="system-ui">the colour fades in daylight</text>
+    </g>
+  </svg>
+
+    <svg class="scene" id="s6" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fdf6f8"/>
+    <circle cx="202" cy="250" r="136" fill="#fdf1f4" opacity=".8"/>
+    <g transform="translate(202,250)">
+      <g style="animation:wobble 2.7s ease-in-out infinite"><g transform="scale(0.78)"><path d="M-40,-56 L-40,70 Q-40,88 -22,88 L22,88 Q40,88 40,70 L40,-56 Q40,-70 26,-80 L14,-92 L14,-124 L-14,-124 L-14,-92 L-26,-80 Q-40,-70 -40,-56 Z" fill="#fdf6ea" stroke="#8a6a2f" stroke-width="4"/><path d="M-34,-28 L-34,66 Q-34,82 -20,82 L20,82 Q34,82 34,66 L34,-28 Q34,-42 22,-52 L12,-62 L12,-118 L-12,-118 L-12,-62 L-22,-52 Q-34,-42 -34,-28 Z" fill="#b32d63"/><ellipse cx="-19" cy="18" rx="7" ry="42" fill="#fff" opacity=".22"/><rect x="-19" y="-140" width="38" height="16" rx="5" fill="#cfd8c4" stroke="#8a6a2f" stroke-width="3"/><line x1="0" y1="-140" x2="0" y2="-124" stroke="#8a6a2f" stroke-width="2"/></g></g>
+    </g>
+    <g transform="translate(202,250)"><g style="animation:riseFast 1.4s ease-out infinite"><circle cx="-10" cy="52" r="4" fill="#fff" opacity=".8"/><circle cx="14" cy="62" r="3.2" fill="#fff" opacity=".75"/></g><g style="animation:riseFast 1.4s ease-out .5s infinite"><circle cx="2" cy="44" r="3.6" fill="#fff" opacity=".7"/><circle cx="-24" cy="58" r="3" fill="#fff" opacity=".65"/></g></g>
+    <g transform="translate(202,412)">
+      <rect x="-176" y="-46" width="352" height="92" rx="12" fill="#fff" stroke="#d9a441" stroke-width="3"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="18" font-weight="800" fill="#8a6a2f" font-family="system-ui">DRINK IT FRESH</text>
+      <text x="0" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="#b08f4e" font-family="system-ui">the longer it sits, the more alcohol it makes</text>
+    </g>
+    <g transform="translate(202,508)">
+      <rect x="-172" y="-40" width="344" height="80" rx="12" fill="#fff8e6" stroke="#d9a441" stroke-width="3"/>
+      <text x="0" y="-4" text-anchor="middle" font-size="15" font-weight="800" fill="#8a6a2f" font-family="system-ui">THREE DAYS, THEN THE FRIDGE</text>
+      <text x="0" y="20" text-anchor="middle" font-size="13" font-weight="600" fill="#b08f4e" font-family="system-ui">cold slows it down and holds the colour</text>
+    </g>
+    <g transform="translate(202,604)">
+      <text x="0" y="0" text-anchor="middle" font-size="15" font-weight="800" fill="#0f6e56" font-family="system-ui">which one should I ferment next?</text>
+    </g>
+  </svg>
+
+  <div class="cap" id="cap">Beetroot and watermelon kombucha<small>the colour tells you where you are</small></div>
+
+  <div class="ui">
+    <button onclick="prev()">◀</button>
+    <button onclick="toggle()" id="btnPlay">⏸ Pause</button>
+    <button onclick="next()">▶</button>
+  </div>
+
+  <div class="cover" id="cover"><button onclick="play()">▶</button></div>
+</div>
+
+<script>
+const scenes = [
+  { id:'s0', ms:6400, tag:'KOMBUCHA 1 / 7', cap:'The colour has a window', sub:'beetroot only holds its red between pH 3 and 6', color:'#7b1440' },
+  { id:'s1', ms:6400, tag:'KOMBUCHA 2 / 7', cap:'And kombucha lands inside it', sub:'the first ferment ends at pH 2.5 to 3.5', color:'#1d9e75' },
+  { id:'s2', ms:6200, tag:'KOMBUCHA 3 / 7', cap:'Watermelon is water with sugar', sub:'pH 5.2 and 92% water - it dilutes', color:'#b83148' },
+  { id:'s3', ms:6400, tag:'KOMBUCHA 4 / 7', cap:'The beetroot is the fuel', sub:'7 g of sugar per 100 g, and the pigment', color:'#b32d63' },
+  { id:'s4', ms:6400, tag:'KOMBUCHA 5 / 7', cap:'Read the jar, not the clock', sub:'vivid magenta is in, dull brick is past', color:'#7d6a5c' },
+  { id:'s5', ms:6200, tag:'KOMBUCHA 6 / 7', cap:'Keep it in the dark', sub:'light and heat break the pigment', color:'#3a2f45' },
+  { id:'s6', ms:6400, tag:'KOMBUCHA 7 / 7', cap:'It makes a little alcohol', sub:'the longer it sits, the more it makes', color:'#8a6a2f' }
+];
+
+const stage = document.getElementById('stage');
+const progress = document.getElementById('progress');
+const capEl = document.getElementById('cap');
+const tagEl = document.getElementById('tag');
+const btnPlay = document.getElementById('btnPlay');
+
+let i = 0, playing = false, tick0 = null, elapsed = 0;
+const RES = 50;
+
+function render() {
+  scenes.forEach((s, n) => {
+    const el = document.getElementById(s.id);
+    el.classList.remove('on');
+    if (n === i) el.classList.add('on');
+  });
+  tagEl.textContent = scenes[i].tag;
+  capEl.innerHTML = scenes[i].cap + '<small>' + scenes[i].sub + '</small>';
+  progress.style.background = scenes[i].color;
+  progress.style.width = '0%';
+}
+
+function loop() {
+  clearInterval(tick0);
+  tick0 = setInterval(() => {
+    if (!playing) return;
+    elapsed += RES;
+    const total = scenes[i].ms;
+    progress.style.width = Math.min(100, (elapsed / total) * 100) + '%';
+    if (elapsed >= total) {
+      if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+      else { stop(); progress.style.width = '100%'; }
+    }
+  }, RES);
+}
+
+function next() {
+  if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+  else { stop(); progress.style.width = '100%'; }
+}
+function prev() { if (i > 0) { i--; elapsed = 0; render(); } }
+function play() {
+  playing = true; elapsed = 0;
+  btnPlay.textContent = '⏸ Pause';
+  document.getElementById('cover').classList.add('hide');
+  stage.classList.add('touched');
+  render(); loop();
+}
+function stop() {
+  playing = false;
+  btnPlay.textContent = '▶ Watch';
+  clearInterval(tick0);
+}
+function toggle(){ playing ? stop() : play(); }
+
+stage.addEventListener('click', e => {
+  if (e.target.closest('button')) return;
+  if (playing) toggle();
+});
+
+render();
+</script>
+
+<script>
+/* ?rec = modo gravacao.
+   Sem ?rec na URL, nada muda: e o short normal.
+   Com ?rec, o quadro preenche 1080x1920 (1920x1080 no video longo),
+   a capa e os botoes somem e a animacao comeca sozinha. */
+(function () {
+  if (location.search.indexOf('rec') < 0) return;
+  var css = '#cover{display:none!important}.ui{display:none!important}'
+          + '#stage{border-radius:0!important;box-shadow:none!important}';
+  var st = document.getElementById('stage');
+  if (st) {
+    var w = st.offsetWidth, h = st.offsetHeight;
+    if (w && h) {
+      css += '#stage{transform:scale(' + ((h > w ? 1920 : 1080) / h)
+           + ')!important;transform-origin:center center!important}';
+    }
+  }
+  if (document.getElementById('frame')) {
+    css += '#frame{transform:scale(1)!important;left:0!important;top:0!important}';
+  }
+  var tag = document.createElement('style');
+  tag.textContent = css;
+  document.head.appendChild(tag);
+  if (typeof showChapters === 'function') showChapters(false);
+  setTimeout(function () { if (typeof play === 'function') play(); }, 500);
+})();
+</script>
+</body>
+</html>

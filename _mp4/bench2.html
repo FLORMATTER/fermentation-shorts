@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>bench2</title>
+<style>pre{color:#ddd;font:12px monospace;background:#111}</style></head>
+<body>
+<pre id="out">correndo</pre>
+<script>
+window.__log = [];
+function L(s){ window.__log.push(s); document.getElementById('out').textContent = window.__log.join('\n'); }
+var ARQ = new URLSearchParams(location.search).get('arq') || 'short.html';
+var CENA = parseInt(new URLSearchParams(location.search).get('cena') || '1', 10);
+var N = 12;
+
+var f = document.createElement('iframe');
+f.style.cssText = 'width:405px;height:720px;border:0;position:absolute;left:-3000px';
+f.src = ARQ;
+document.body.appendChild(f);
+
+f.onload = function(){
+  var d = f.contentDocument, w = f.contentWindow;
+  var cenas = [].slice.call(d.querySelectorAll('svg.scene'));
+  if (!cenas.length) { L('sem cenas'); window.__done='FAIL'; return; }
+  var live = cenas[CENA];
+  live.classList.add('on');
+  L('cena testada: ' + live.id + ' | nos: ' + live.querySelectorAll('*').length);
+
+  function serializa(lado){
+    var c = live.cloneNode(true);
+    c.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    c.setAttribute('width', lado); c.setAttribute('height', Math.round(lado*720/405));
+    return new XMLSerializer().serializeToString(c);
+  }
+
+  var tamanhos = [1080, 810, 540, 405];
+  var i = 0;
+  function proximoTamanho(){
+    if (i >= tamanhos.length) { L('FIM'); window.__done = 'OK'; return; }
+    var lado = tamanhos[i++];
+    var t0 = performance.now();
+    var str = serializa(lado);
+    var tSer = performance.now() - t0;
+    var url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(str);
+    var tEnc = performance.now() - t0 - tSer;
+    var soma = 0, n = 0, max = 0;
+    (function prox(){
+      if (n >= N) {
+        L(lado + 'px (' + (lado*720/405) + ') | svg ' + str.length + ' ch | serializar ' + tSer.toFixed(1) +
+          ' ms | encode ' + tEnc.toFixed(1) + ' ms | DECODIFICAR media ' + (soma/N).toFixed(1) +
+          ' ms | pior ' + max.toFixed(1) + ' ms');
+        setTimeout(proximoTamanho, 30);
+        return;
+      }
+      var t = performance.now();
+      var im = new Image();
+      im.onload = function(){ var dt = performance.now() - t; soma += dt; if (dt > max) max = dt; n++; prox(); };
+      im.onerror = function(){ L('erro ao decodificar ' + lado); window.__done='FAIL'; };
+      im.src = url;
+    })();
+  }
+  proximoTamanho();
+};
+</script>
+</body></html>

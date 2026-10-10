@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Aula 4 — Troca de cenas com JavaScript</title>
+<style>
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: #fdf9f3;
+    color: #2c2c2a;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 28px 90px;
+    line-height: 1.7;
+  }
+  h1 { font-size: 30px; margin-bottom: 6px; }
+  h2 {
+    font-size: 21px;
+    margin: 46px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #dfeec2;
+  }
+  h3 { font-size: 16px; margin: 26px 0 10px; color: #4d4632; }
+  p { margin-bottom: 12px; }
+  pre {
+    background: #2c2c2a;
+    color: #eaf3de;
+    padding: 16px 18px;
+    border-radius: 9px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.65;
+    font-family: 'Consolas', 'Monaco', monospace;
+    margin: 12px 0 18px;
+  }
+  pre .cm { color: #8fb854; }   /* comentário */
+  pre .kw { color: #f0b57a; }   /* palavra-chave */
+  pre .st { color: #9ede76; }   /* string */
+  code {
+    background: #eef3e2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13.5px;
+    color: #3b6d11;
+  }
+  .caixa {
+    background: #faeeda;
+    border-left: 6px solid #ba7517;
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 18px 0;
+    font-size: 14.5px;
+  }
+  .caixa.verde { background: #eaf3de; border-left-color: #7d8c46; }
+  .caixa.vermelha { background: #fbe9e7; border-left-color: #c1272d; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+  th, td { border: 1px solid #ddd6c4; padding: 9px 12px; text-align: left; }
+  th { background: #eef3e2; font-weight: 700; }
+  hr { border: none; border-top: 1px dashed #ddd6c4; margin: 44px 0; }
+  ol, ul { margin: 0 0 14px 22px; }
+  li { margin-bottom: 6px; }
+
+  /* ═════════ DEMO AO VIVO ═════════ */
+  .demo {
+    background: #fff;
+    border: 2px solid #e2d5bb;
+    border-radius: 14px;
+    padding: 22px;
+    margin: 18px 0;
+  }
+  .demo-top {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .demo-top b { font-size: 14px; }
+  .demo-top button {
+    border: none; background: #2c2c2a; color: #fff;
+    font-size: 12.5px; font-weight: 700; font-family: inherit;
+    padding: 8px 16px; border-radius: 999px; cursor: pointer;
+  }
+  .demo-top button:hover { background: #000; }
+  .demo-top .st {
+    font-family: 'Consolas','Monaco',monospace; font-size: 12.5px;
+    color: #3b6d11; background: #eef3e2; padding: 5px 10px; border-radius: 6px;
+  }
+
+  /* a "tela" do vídeo, igualzinha à dos shorts */
+  #palco {
+    position: relative; width: 405px; height: 720px;
+    background: #f4efe4; overflow: hidden; border-radius: 16px;
+    margin: 0 auto; box-shadow: 0 12px 40px rgba(0,0,0,.22);
+  }
+  @media (max-height:900px) { #palco { transform: scale(.78); transform-origin: top center; margin-bottom:-158px; } }
+  @media (max-height:700px) { #palco { transform: scale(.58); transform-origin: top center; margin-bottom:-302px; } }
+
+  svg.cena {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    opacity: 0; visibility: hidden; transition: opacity .42s ease;
+  }
+  svg.cena.ligada { opacity: 1; visibility: visible; }
+
+  #barra {
+    position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: rgba(0,0,0,.12); z-index: 40;
+  }
+  #prog { height: 100%; width: 0; background: #3b6d11; transition: width .2s linear; }
+  #legenda {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(15,14,12,.86); color: #fff;
+    padding: 14px 22px 17px; font-size: 16px; font-weight: 800;
+    text-align: center; z-index: 30; line-height: 1.35;
+  }
+  #legenda small { display: block; font-size: 12px; font-weight: 500; opacity: .72; margin-top: 4px; }
+  #num {
+    position: absolute; top: 22px; left: 0; right: 0; text-align: center;
+    font-size: 10px; font-weight: 800; letter-spacing: .2em;
+    text-transform: uppercase; opacity: .5; z-index: 30; color: #2c2c2a;
+  }
+
+  @keyframes girar {
+    0%   { transform: rotate(0deg) }
+    100% { transform: rotate(360deg) }
+  }
+  @keyframes subir {
+    0%   { transform: translateY(0); opacity: 0 }
+    30%  { opacity: .9 }
+    100% { transform: translateY(-90px); opacity: 0 }
+  }
+  @keyframes pulsar {
+    0%,100% { transform: scale(1); opacity: .85 }
+    50%     { transform: scale(1.12); opacity: 1 }
+  }
+</style>
+</head>
+<body>
+
+<h1>Aula 4 — Troca de cenas com JavaScript</h1>
+<p><em>Aula 4 de 4. É a última e a mais importante: é este motor que faz todos os seus vídeos funcionarem.</em></p>
+
+<div class="caixa">
+<strong>Como usar:</strong> leia de cima para baixo. No meio da aula tem uma
+<strong>tela de verdade rodando</strong> — aperte play e veja as cenas trocando sozinhas.
+É exatamente o motor dos seus shorts.
+</div>
+
+<hr>
+
+<h2>1. O problema que o JavaScript resolve</h2>
+
+<p>Nas aulas 1 a 3 você aprendeu a <strong>desenhar</strong> (HTML), <strong>pintar</strong>
+(CSS) e <strong>animar cada peça</strong> (keyframes).</p>
+
+<p>Mas tem uma coisa que o CSS <strong>sozinho não faz</strong>: trocar uma cena inteira por outra,
+na hora certa, e parar no fim.</p>
+
+<p>Pensa num short seu: são 8 telas diferentes passando uma atrás da outra.
+Alguém precisa ficar contando "1... 2... 3... agora!". <strong>Esse alguém é o JavaScript.</strong></p>
+
+<table>
+  <tr><th>Quem faz</th><th>O quê</th></tr>
+  <tr><td><strong>HTML</strong></td><td>Desenha as 8 telas (as <code>&lt;svg&gt;</code>)</td></tr>
+  <tr><td><strong>CSS</strong></td><td>Pinta e anima cada peça dentro da tela</td></tr>
+  <tr><td><strong>JavaScript</strong></td><td><strong>Decide qual das 8 está aparecendo e quando trocar</strong></td></tr>
+</table>
+
+<hr>
+
+<h2>2. A ideia toda em uma frase</h2>
+
+<div class="caixa verde">
+<strong>Todas as 8 telas existem ao mesmo tempo no arquivo. Só uma está visível.
+O JavaScript liga uma e desliga as outras.</strong>
+</div>
+
+<p>É isso. Não tem mágica. As 8 telas ficam empilhadas no mesmo lugar, uma em cima da outra.
+Por padrão todas estão <strong>invisíveis</strong> (<code>opacity: 0</code>).
+O JavaScript só dá permissão para <strong>uma</strong> aparecer.</p>
+
+<hr>
+
+<h2>3. As duas classes de CSS</h2>
+
+<p>Precisa de duas regras: uma para as telas escondidas, outra para a tela ligada.</p>
+
+<pre>&lt;style&gt;
+  svg.cena {
+    position: absolute; inset: 0;   <span class="cm">/* todas no mesmo lugar */</span>
+    opacity: 0; visibility: hidden; <span class="cm">/* escondida        */</span>
+    transition: opacity .42s ease;  <span class="cm">/* troca suave      */</span>
+  }
+  svg.cena<span class="kw">.ligada</span> {
+    opacity: 1; visibility: visible; <span class="cm">/* apareceu */</span>
+  }
+&lt;/style&gt;</pre>
+
+<p><code>position: absolute; inset: 0</code> é o que faz todas ficarem
+<strong>empilhadas no mesmo lugar</strong>. Sem isso elas ficariam uma embaixo da outra,
+e você veria as 8 de uma vez.</p>
+
+<p>A segunda regra só vale para quem tiver a classe <code>ligada</code>.
+Como o nome já diz: quem está ligado, aparece.</p>
+
+<div class="caixa">
+<strong>Por isso o nome "classe ligada":</strong> dar ou tirar a classe
+<code>ligada</code> é o único gesto que o JavaScript faz. Toda a troca de cena é isso.
+</div>
+
+<hr>
+
+<h2>4. O quadro de cenas (<code>scenes</code>)</h2>
+
+<p>Agora o coração. No fim do arquivo, dentro de <code>&lt;script&gt;</code>, você escreve
+uma lista com todas as cenas. Cada linha diz: qual tela, quanto tempo, e o que escrever embaixo.</p>
+
+<pre>const scenes = [
+  { id:<span class="st">'s0'</span>, ms:6000, cap:<span class="st">'Só as mãos. Sem rosto.'</span>, sub:<span class="st">'1 repolho, 7 dias'</span>, color:<span class="st">'#2c2c2a'</span> },
+  { id:<span class="st">'s1'</span>, ms:6000, cap:<span class="st">'Lava e tira as folhas'</span>,  sub:<span class="st">'água fria'</span>,       color:<span class="st">'#2b6a80'</span> },
+  { id:<span class="st">'s2'</span>, ms:6500, cap:<span class="st">'Corta bem fino, 2 mm'</span>,   sub:<span class="st">'grosso fica duro'</span>, color:<span class="st">'#3b6d11'</span> }
+];</pre>
+
+<table>
+  <tr><th>Peça</th><th>O que é</th></tr>
+  <tr><td><code>id</code></td><td>O nome da tela. Tem que ser <strong>igual</strong> ao <code>id="s0"</code> do SVG.</td></tr>
+  <tr><td><code>ms</code></td><td>Quantos milissegundos essa cena fica na tela. <code>6000</code> = 6 segundos.</td></tr>
+  <tr><td><code>cap</code></td><td>A legenda (letra grande, embaixo).</td></tr>
+  <tr><td><code>sub</code></td><td>A sublegenda (letra pequena, abaixo da legenda).</td></tr>
+  <tr><td><code>color</code></td><td>A cor da barra de progresso no topo.</td></tr>
+</table>
+
+<div class="caixa vermelha">
+<strong>Erro nº1 de quem começa:</strong> escrever <code>id:'s0'</code> na lista e
+<code>id="tela0"</code> no SVG. Se os dois nomes não forem <strong>idênticos</strong>,
+a cena nunca aparece — e a tela fica preta. Confira sempre letra por letra.
+</div>
+
+<hr>
+
+<h2>5. A peça que conta o tempo — <code>setInterval</code></h2>
+
+<p>Como o JavaScript sabe que passaram 6 segundos? Com um <strong>despertador</strong>
+que toca a cada pedacinho de tempo.</p>
+
+<pre>const RES = 70;   <span class="cm">// toca a cada 70 milissegundos (~14x por segundo)</span>
+
+tick0 = setInterval(() =&gt; {
+  elapsed += RES;                 <span class="cm">// soma 70 ao tempo que passou</span>
+  <span class="kw">if</span> (elapsed &gt;= scenes[i].ms) {   <span class="cm">// já passou do tempo da cena?</span>
+    i++;                          <span class="cm">// vai para a próxima</span>
+    elapsed = 0;                  <span class="cm">// zera o cronômetro</span>
+    render();                     <span class="cm">// redesenha</span>
+  }
+}, RES);</pre>
+
+<p>É só isso: a cada 70ms ele soma 70 ao tempo decorrido. Quando o tempo acumulado
+chega no <code>ms</code> da cena, pula para a próxima.</p>
+
+<p><strong>Por que 70 e não 1000 (1 segundo)?</strong> Porque a barra de progresso precisa
+ficar lisa. Se o relógio tocasse de segundo em segundo, a barra andaria aos pulos.</p>
+
+<hr>
+
+<h2>6. A função que troca a cena — <code>render()</code></h2>
+
+<p>Esta é a única função que faz a troca de verdade. São 4 linhas:</p>
+
+<pre>function render() {
+  <span class="cm">// 1. desliga TODAS as telas</span>
+  scenes.forEach((s, n) =&gt; {
+    const el = document.getElementById(s.id);
+    el.classList.remove(<span class="st">'ligada'</span>);
+    <span class="cm">// 2. liga só a que está na vez</span>
+    <span class="kw">if</span> (n === i) el.classList.add(<span class="st">'ligada'</span>);
+  });
+
+  <span class="cm">// 3. escreve a legenda</span>
+  capEl.innerHTML = scenes[i].cap + <span class="st">'&lt;small&gt;'</span> + scenes[i].sub + <span class="st">'&lt;/small&gt;'</span>;
+
+  <span class="cm">// 4. pinta a barra com a cor da cena</span>
+  progress.style.background = scenes[i].color;
+  progress.style.width = <span class="st">'0%'</span>;
+}</pre>
+
+<p>Traduzindo para o português:</p>
+
+<ol>
+  <li><strong>Tira</strong> a classe <code>ligada</code> de todas as telas (todas somem).</li>
+  <li><strong>Põe</strong> a classe <code>ligada</code> na tela da vez (só ela aparece).</li>
+  <li>Escreve o texto da legenda.</li>
+  <li>Deixa a barra do topo na cor certa e zera ela.</li>
+</ol>
+
+<div class="caixa verde">
+<strong>Guarde esta função.</strong> Ela é <strong>idêntica</strong> em todos os seus 7 shorts
+e no player do vídeo longo. Muda só a lista <code>scenes</code> e os desenhos.
+</div>
+
+<hr>
+
+<h2>7. As 4 variáveis de controle</h2>
+
+<pre>let i = 0;              <span class="cm">// qual cena está na vez (começa na 0)</span>
+let playing = false;    <span class="cm">// está tocando?</span>
+let tick0 = null;       <span class="cm">// o despertador (guardado para poder parar)</span>
+let elapsed = 0;        <span class="cm">// quanto tempo já passou da cena atual</span></pre>
+
+<p>Presta atenção no <code>i</code>: ele é só um <strong>número</strong>. Não é a cena,
+é a <em>posição</em> da cena na lista. Se <code>i</code> vale 2, estamos mostrando
+<code>scenes[2]</code> — a terceira cena, porque a lista começa a contar do zero.</p>
+
+<div class="caixa">
+<strong>Contar do zero:</strong> em programação a primeira posição é a <strong>0</strong>, não a 1.
+<code>scenes[0]</code> é a primeira cena, <code>scenes[7]</code> é a oitava.
+Isso confunde no começo, mas é regra fixa.
+</div>
+
+<hr>
+
+<h2>8. Play e Pause</h2>
+
+<pre>function play() {
+  playing = true;
+  elapsed = 0;
+  btnPlay.textContent = <span class="st">'⏸ Pausar'</span>;
+  render();   <span class="cm">// desenha a cena atual</span>
+  loop();     <span class="cm">// liga o despertador</span>
+}
+
+function stop() {
+  playing = false;
+  btnPlay.textContent = <span class="st">'▶ Assistir'</span>;
+  clearInterval(tick0);   <span class="cm">// desliga o despertador</span>
+}</pre>
+
+<p>Repare: o pause <strong>não esconde nada</strong>. Ele só desliga o despertador
+(<code>clearInterval</code>). A cena continua na tela, congelada, esperando você
+apertar play de novo. É por isso que pausar e continuar funciona tão bem.</p>
+
+<hr>
+
+<h2>9. 🎬 A tela rodando de verdade</h2>
+
+<p>Abaixo tem um short de <strong>3 cenas</strong> de verdade, feito com tudo o que
+esta aula ensinou. É a mesma estrutura dos seus arquivos, só menor.</p>
+
+<p>Aperte <strong>▶</strong> e olhe três coisas ao mesmo tempo:</p>
+
+<ol>
+  <li>A <strong>cena trocando</strong> sozinha a cada 6 segundos</li>
+  <li>A <strong>barra de progresso</strong> enchendo e trocando de cor a cada cena</li>
+  <li>O <strong>contador <code>i</code></strong> lá em cima mudando de 0 → 1 → 2</li>
+</ol>
+
+<div class="demo">
+  <div class="demo-top">
+    <button id="btnPlay" onclick="toggle()">▶ Assistir</button>
+    <button onclick="irPara(0)">cena 0</button>
+    <button onclick="irPara(1)">cena 1</button>
+    <button onclick="irPara(2)">cena 2</button>
+    <span class="st">i = <b id="mostraI">0</b></span>
+  </div>
+
+  <div id="palco">
+    <div id="barra"><div id="prog"></div></div>
+    <div id="num">DEMO · AULA 4</div>
+
+    <!-- CENA 0 -->
+    <svg class="cena ligada" id="s0" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+      <rect width="405" height="720" fill="#f1ece0"/>
+      <ellipse cx="202" cy="470" rx="176" ry="46" fill="#cfc0a6" opacity=".4"/>
+      <g transform="translate(202,330)" style="animation:pulsar 1.6s ease-in-out infinite">
+        <ellipse cx="0" cy="8" rx="96" ry="80" fill="#d3e9b4"/>
+        <ellipse cx="0" cy="-6" rx="72" ry="58" fill="#e2f0c8" opacity=".75"/>
+        <path d="M0,-62 Q26,-30 0,4 Q-26,-30 0,-62Z" fill="#a9cc70" opacity=".85"/>
+        <path d="M-84,6 Q-40,-16 0,6 Q-40,30 -84,6Z" fill="#a9cc70" opacity=".8"/>
+        <path d="M84,6 Q40,-16 0,6 Q40,30 84,6Z" fill="#a9cc70" opacity=".8"/>
+      </g>
+      <g>
+        <rect x="34" y="576" width="337" height="52" rx="8" fill="#2c2c2a"/>
+        <text x="202" y="599" text-anchor="middle" font-size="20" font-weight="900" fill="#fff" font-family="system-ui">CENA 0 · O REPOLHO</text>
+        <text x="202" y="619" text-anchor="middle" font-size="15" font-weight="700" fill="#c0dd97" font-family="system-ui">id="s0" · 6000 ms</text>
+      </g>
+    </svg>
+
+    <!-- CENA 1 -->
+    <svg class="cena" id="s1" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+      <rect width="405" height="720" fill="#f7f2e8"/>
+      <text x="202" y="56" text-anchor="middle" font-size="10" font-weight="800" fill="#a8907c" font-family="system-ui" letter-spacing="2">SEM ÁGUA · SÓ SAL</text>
+      <ellipse cx="202" cy="500" rx="170" ry="50" fill="#c9bfa8" opacity=".4"/>
+      <ellipse cx="202" cy="484" rx="162" ry="46" fill="#e8e0cd"/>
+      <g transform="translate(202,468)">
+        <path d="M-96,-4 Q-50,-22 -8,-4 Q-40,12 -96,-4Z" fill="#c2dc92"/>
+        <path d="M-20,-10 Q30,-28 78,-8 Q40,10 -20,-10Z" fill="#a9cc70"/>
+        <path d="M-70,10 Q-24,-6 22,10 Q-20,26 -70,10Z" fill="#b7d484"/>
+      </g>
+      <!-- mão massageando -->
+      <g transform="translate(150,400)" style="animation:girar 2.4s ease-in-out infinite;">
+        <ellipse cx="0" cy="0" rx="30" ry="37" fill="#6b4636"/>
+        <ellipse cx="0" cy="0" rx="30" ry="37" fill="none" stroke="#4e3125" stroke-width="1.5"/>
+        <ellipse cx="-13" cy="-30" rx="11" ry="9.5" fill="#6b4636" transform="rotate(-18 -13 -30)"/>
+        <ellipse cx="-16" cy="-36" rx="5.5" ry="4.8" fill="#e8c9b8" opacity=".92"/>
+        <ellipse cx="18" cy="-26" rx="11" ry="9" fill="#6b4636" transform="rotate(22 18 -26)"/>
+        <ellipse cx="21" cy="-32" rx="5.5" ry="4.5" fill="#e8c9b8" opacity=".92"/>
+      </g>
+      <g>
+        <rect x="34" y="576" width="337" height="52" rx="8" fill="#d85a30"/>
+        <text x="202" y="599" text-anchor="middle" font-size="20" font-weight="900" fill="#fff" font-family="system-ui">CENA 1 · MASSAGEIA</text>
+        <text x="202" y="619" text-anchor="middle" font-size="15" font-weight="700" fill="#ffe0d0" font-family="system-ui">id="s1" · 6000 ms</text>
+      </g>
+    </svg>
+
+    <!-- CENA 2 -->
+    <svg class="cena" id="s2" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+      <rect width="405" height="720" fill="#eaf3de"/>
+      <g transform="translate(202,300)">
+        <rect x="-86" y="-158" width="172" height="300" rx="16" fill="#eef6f0" opacity=".55"/>
+        <rect x="-86" y="-158" width="172" height="300" rx="16" fill="none" stroke="#639922" stroke-width="4"/>
+        <rect x="-78" y="-40" width="156" height="176" rx="10" fill="#b7d484" opacity=".92"/>
+        <path d="M-70,-14 Q-24,-32 22,-14 Q-24,4 -70,-14Z" fill="#c2dc92" opacity=".9"/>
+        <path d="M-20,-20 Q26,-38 72,-18 Q26,0 -20,-20Z" fill="#a9cc70" opacity=".9"/>
+        <g>
+          <circle cx="-40" cy="94" r="5.5" fill="#fff" opacity=".85" style="animation:subir 1.5s ease-out infinite"/>
+          <circle cx="8" cy="110" r="4.4" fill="#fff" opacity=".85" style="animation:subir 1.5s ease-out .45s infinite"/>
+          <circle cx="52" cy="100" r="5" fill="#fff" opacity=".85" style="animation:subir 1.5s ease-out .9s infinite"/>
+        </g>
+        <rect x="-98" y="-176" width="196" height="26" rx="9" fill="#8fa0a4"/>
+      </g>
+      <g>
+        <rect x="34" y="576" width="337" height="52" rx="8" fill="#3b6d11"/>
+        <text x="202" y="599" text-anchor="middle" font-size="20" font-weight="900" fill="#fff" font-family="system-ui">CENA 2 · FERMENTANDO</text>
+        <text x="202" y="619" text-anchor="middle" font-size="15" font-weight="700" fill="#d8ecb8" font-family="system-ui">id="s2" · 6500 ms</text>
+      </g>
+    </svg>
+
+    <div id="legenda">Só as mãos. Sem rosto.<small>1 repolho, 7 dias</small></div>
+  </div>
+</div>
+
+<div class="caixa verde">
+<strong>O que você acabou de ver:</strong> três telas empilhadas, e o JavaScript ligando
+uma de cada vez. A barra do topo trocou de cor junto porque cada cena tem sua
+<code>color</code>. Isso é exatamente o motor dos seus 7 shorts.
+</div>
+
+<hr>
+
+<h2>10. Como montar um short do zero</h2>
+
+<p>São <strong>4 passos</strong>, sempre na mesma ordem:</p>
+
+<h3>Passo 1 — Desenhe cada cena como um <code>&lt;svg&gt;</code></h3>
+<p>Um por cena, cada um com seu <code>id</code>. O primeiro leva a classe <code>ligada</code>:</p>
+<pre>&lt;svg class="cena <span class="kw">ligada</span>" id="s0" viewBox="0 0 405 720"&gt; ... &lt;/svg&gt;
+&lt;svg class="cena" id="s1" viewBox="0 0 405 720"&gt; ... &lt;/svg&gt;
+&lt;svg class="cena" id="s2" viewBox="0 0 405 720"&gt; ... &lt;/svg&gt;</pre>
+
+<h3>Passo 2 — Escreva a lista <code>scenes</code></h3>
+<p>Uma linha por cena, na mesma ordem dos SVGs, com os ids <strong>iguais</strong>:</p>
+<pre>const scenes = [
+  { id:<span class="st">'s0'</span>, ms:6000, cap:<span class="st">'Título da cena'</span>, sub:<span class="st">'sub'</span>, color:<span class="st">'#3b6d11'</span> },
+  { id:<span class="st">'s1'</span>, ms:6000, cap:<span class="st">'Segunda cena'</span>,   sub:<span class="st">'sub'</span>, color:<span class="st">'#d85a30'</span> },
+  { id:<span class="st">'s2'</span>, ms:6500, cap:<span class="st">'Terceira cena'</span>,  sub:<span class="st">'sub'</span>, color:<span class="st">'#3b6d11'</span> }
+];</pre>
+
+<h3>Passo 3 — Copie o motor</h3>
+<p>As funções <code>render()</code>, <code>loop()</code>, <code>play()</code>,
+<code>stop()</code> e <code>toggle()</code>. Já estão prontas — é só copiar
+de um short que funciona e colar.</p>
+
+<h3>Passo 4 — Ligue o motor no fim</h3>
+<pre>render();   <span class="cm">// desenha a primeira cena ao abrir</span></pre>
+
+<p>E no botão de play: <code>&lt;button onclick="play()"&gt;▶&lt;/button&gt;</code></p>
+
+<hr>
+
+<h2>11. Resumo dos comandos</h2>
+
+<table>
+  <tr><th>Quero...</th><th>Escrevo</th></tr>
+  <tr><td>Trocar para a cena 3</td><td><code>i = 2; elapsed = 0; render();</code></td></tr>
+  <tr><td>Fazer uma cena durar 8 segundos</td><td><code>ms: 8000</code> na lista</td></tr>
+  <tr><td>Ligar o despertador</td><td><code>setInterval(...)</code></td></tr>
+  <tr><td>Parar o despertador</td><td><code>clearInterval(tick0)</code></td></tr>
+  <tr><td>Descobrir o total do vídeo</td><td>Somar todos os <code>ms</code> da lista</td></tr>
+  <tr><td>Mudar a cor da barra</td><td><code>color: '#d85a30'</code> naquela cena</td></tr>
+</table>
+
+<div class="caixa">
+<strong>Descobrir a duração total:</strong> some os <code>ms</code>.
+Se cada cena tem 6000 e são 8 cenas: 8 × 6000 = 48000 ms = <strong>48 segundos</strong>.
+É assim que você sabe quanto tempo vai gravar.
+</div>
+
+<hr>
+
+<h2>12. 🎯 Teste você mesmo</h2>
+
+<p>Faça agora, em ordem:</p>
+
+<ol>
+  <li>Abra <code>repolho/shorts-repolho-maos-canva.html</code> no <strong>Bloco de Notas</strong></li>
+  <li>Ache a lista <code>const scenes = [ ... ]</code> (perto do fim do arquivo)</li>
+  <li>Na <strong>primeira</strong> linha, troque <code>ms:6000</code> por <code>ms:2000</code></li>
+  <li>Salve (<strong>Ctrl + S</strong>) e aperte <strong>F5</strong> no navegador</li>
+  <li>Aperte play. <strong>A cena 1 agora passa três vezes mais rápido.</strong></li>
+</ol>
+
+<div class="caixa verde">
+<strong>Experimentos para tentar depois:</strong>
+<ul style="margin:8px 0 0 0;">
+  <li>Troque a <code>color</code> de uma cena — a barra do topo muda</li>
+  <li>Troque o texto do <code>cap</code> — a legenda muda</li>
+  <li>Inverta a ordem de duas cenas na lista — o vídeo conta outra história</li>
+  <li>Troque os <code>id</code> entre dois SVGs — <strong>o vídeo quebra</strong>.
+      Faça isso de propósito para ver o erro acontecer (depois desfaça)</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>13. Fim da Aula 4 — e das aulas</h2>
+
+<p>Você aprendeu as 4 camadas:</p>
+
+<table>
+  <tr><th>Aula</th><th>Você aprendeu</th></tr>
+  <tr><td>1 — HTML</td><td>Montar a página e desenhar com <code>&lt;svg&gt;</code></td></tr>
+  <tr><td>2 — CSS</td><td>Pintar com cores e controlar tamanhos</td></tr>
+  <tr><td>3 — Animação</td><td>Fazer cada peça se mexer com <code>@keyframes</code></td></tr>
+  <tr><td><strong>4 — JavaScript</strong></td><td><strong>Trocar de cena na hora certa e parar no fim</strong></td></tr>
+</table>
+
+<p>Juntando as quatro, você faz qualquer um dos 7 shorts da série —
+e faz um novo, de qualquer legume, do zero.</p>
+
+<div class="caixa verde">
+<strong>O próximo passo não é aprender mais código.</strong> É gravar o vídeo longo
+e publicar. O material está pronto — agora é a vez da câmera.
+</div>
+
+<hr>
+
+<p><em>Fim da Aula 4. Fim das aulas.</em></p>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   ESTE É O MOTOR DA AULA — exatamente o mesmo dos shorts reais.
+   Leia junto com a explicação acima.
+   ═══════════════════════════════════════════════════════════════ */
+
+const scenes = [
+  { id:'s0', ms:6000, cap:'Só as mãos. Sem rosto.',     sub:'1 repolho, 7 dias',  color:'#2c2c2a' },
+  { id:'s1', ms:6000, cap:'Massageia 10 minutos',        sub:'sem água — ela sai', color:'#d85a30' },
+  { id:'s2', ms:6500, cap:'7 dias e está fermentado',    sub:'guarda na geladeira', color:'#3b6d11' }
+];
+
+const progress = document.getElementById('prog');
+const capEl    = document.getElementById('legenda');
+const btnPlay  = document.getElementById('btnPlay');
+const mostraI  = document.getElementById('mostraI');
+
+let i = 0, playing = false, tick0 = null, elapsed = 0;
+const RES = 70;
+
+function render() {
+  scenes.forEach((s, n) => {
+    const el = document.getElementById(s.id);
+    el.classList.remove('ligada');
+    if (n === i) el.classList.add('ligada');
+  });
+  capEl.innerHTML = scenes[i].cap + '<small>' + scenes[i].sub + '</small>';
+  progress.style.background = scenes[i].color;
+  progress.style.width = '0%';
+  mostraI.textContent = i;          /* só para a aula: mostra o valor de i */
+}
+
+function loop() {
+  clearInterval(tick0);
+  tick0 = setInterval(() => {
+    if (!playing) return;
+    elapsed += RES;
+    progress.style.width = Math.min(100, (elapsed / scenes[i].ms) * 100) + '%';
+    if (elapsed >= scenes[i].ms) {
+      if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+      else { stop(); progress.style.width = '100%'; }
+    }
+  }, RES);
+}
+
+function play()  { playing = true; elapsed = 0; btnPlay.textContent = '⏸ Pausar'; render(); loop(); }
+function stop()  { playing = false; btnPlay.textContent = '▶ Assistir'; clearInterval(tick0); }
+function toggle(){ playing ? stop() : play(); }
+
+/* extra da aula: pular direto para uma cena pelo botão */
+function irPara(n) { i = n; elapsed = 0; render(); }
+
+render();
+</script>
+
+</body>
+</html>

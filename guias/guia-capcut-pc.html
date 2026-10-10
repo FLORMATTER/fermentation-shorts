@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia CapCut PC — do HTML ao Short postável (Windows)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#fdf9f3;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    color:#2c2c2a; line-height:1.6;
+    padding:0 0 80px;
+  }
+  header {
+    background:linear-gradient(160deg,#12121a 0%,#2c2c2a 100%);
+    color:#fff; padding:48px 24px 40px; text-align:center;
+  }
+  header .kicker {
+    font-size:11px; font-weight:800; letter-spacing:.24em;
+    text-transform:uppercase; color:#9fd35c; opacity:.95;
+  }
+  header h1 {
+    font-size:31px; font-weight:900; letter-spacing:-.8px;
+    margin:14px 0 10px; line-height:1.15;
+  }
+  header p { font-size:14px; opacity:.75; max-width:540px; margin:0 auto; }
+  header .badge {
+    display:inline-block; margin-top:20px; padding:7px 16px;
+    background:rgba(159,211,92,.16); border:1.5px solid rgba(159,211,92,.45);
+    border-radius:999px; font-size:11.5px; font-weight:800;
+    letter-spacing:.12em; text-transform:uppercase; color:#b8e07a;
+  }
+
+  main { max-width:840px; margin:0 auto; padding:0 22px; }
+
+  .aviso-topo {
+    background:#eef3fb; border:1.5px solid #cfdff5; border-radius:13px;
+    padding:16px 19px; margin-top:26px; font-size:13.5px;
+  }
+  .aviso-topo b { color:#1e4b8f; }
+
+  .fase {
+    margin-top:44px; display:flex; align-items:center; gap:14px;
+    padding-bottom:14px; border-bottom:2.5px solid #e8e2d4;
+  }
+  .fase .num {
+    flex:none; width:44px; height:44px; border-radius:13px;
+    background:#2c2c2a; color:#fff; font-size:19px; font-weight:900;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .fase h2 { font-size:22px; font-weight:900; letter-spacing:-.4px; }
+  .fase .sub { font-size:12.5px; color:#8a8478; font-weight:600; margin-top:2px; }
+
+  .passo {
+    background:#fff; border:1.5px solid #e8e2d4; border-radius:15px;
+    padding:20px 22px; margin-top:16px;
+  }
+  .passo .titulo {
+    display:flex; align-items:center; gap:10px;
+    font-size:16.5px; font-weight:900; margin-bottom:12px;
+  }
+  .passo .titulo .b {
+    flex:none; width:26px; height:26px; border-radius:8px;
+    background:#eaf3ec; color:#3b6d11; font-size:13px; font-weight:900;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .passo p { font-size:14px; margin-bottom:9px; }
+  .passo p:last-child { margin-bottom:0; }
+  .passo ol, .passo ul { margin:0 0 9px 20px; font-size:14px; }
+  .passo li { margin-bottom:6px; }
+  kbd {
+    display:inline-block; background:#2c2c2a; color:#eaf3de;
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:11.5px; font-weight:700; padding:2px 7px;
+    border-radius:5px; letter-spacing:.02em;
+  }
+
+  .dica {
+    background:#eaf3ec; border-left:4px solid #5c8a2e;
+    border-radius:9px; padding:12px 15px; margin:12px 0 0;
+    font-size:13px;
+  }
+  .dica b { color:#2f5a12; }
+  .alerta {
+    background:#fdf0e2; border-left:4px solid #e08a2e;
+    border-radius:9px; padding:12px 15px; margin:12px 0 0;
+    font-size:13px;
+  }
+  .alerta b { color:#a8541a; }
+  .perigo {
+    background:#fdeceb; border-left:4px solid #c93a2c;
+    border-radius:9px; padding:12px 15px; margin:12px 0 0;
+    font-size:13px;
+  }
+  .perigo b { color:#9c2418; }
+
+  .fone { background:#f5f1e6; border-radius:13px; padding:16px; margin-top:14px; }
+  .fone .lbl {
+    font-size:10.5px; font-weight:800; letter-spacing:.18em;
+    text-transform:uppercase; color:#9a927e; margin-bottom:11px;
+  }
+  .fone pre {
+    background:#2c2c2a; color:#eaf3de; border-radius:9px;
+    padding:12px 14px; font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:12px; overflow-x:auto; line-height:1.7;
+  }
+
+  table {
+    width:100%; border-collapse:collapse; font-size:13.5px; margin-top:14px;
+  }
+  th {
+    background:#2c2c2a; color:#fff; font-size:11.5px; font-weight:800;
+    letter-spacing:.08em; text-transform:uppercase;
+    padding:10px 13px; text-align:left;
+  }
+  th:first-child { border-radius:10px 0 0 0; }
+  th:last-child  { border-radius:0 10px 0 0; }
+  td { padding:11px 13px; border-bottom:1.5px solid #ece7db; vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tbody tr:nth-child(even) { background:#faf7f0; }
+  td strong { font-weight:800; }
+
+  .resumo {
+    background:#2c2c2a; color:#eaf3de; border-radius:16px;
+    padding:26px 24px; margin-top:44px;
+  }
+  .resumo h3 { font-size:18px; font-weight:900; color:#fff; margin-bottom:16px; }
+  .resumo ol { margin-left:22px; font-size:14px; }
+  .resumo li { margin-bottom:9px; color:#d8e0cc; }
+  .resumo li b { color:#a8e06a; }
+
+  footer {
+    text-align:center; font-size:12px; color:#a8a293;
+    margin-top:52px; padding:0 22px;
+  }
+  .voltar {
+    display:inline-block; margin-top:30px; padding:12px 24px;
+    background:#2c2c2a; color:#fff; border-radius:11px;
+    font-size:13.5px; font-weight:800; text-decoration:none;
+  }
+  .opcao {
+    display:flex; gap:14px; align-items:flex-start;
+    background:#faf7f0; border:1.5px solid #e8e2d4; border-radius:12px;
+    padding:15px 17px; margin-top:12px;
+  }
+  .opcao .tag {
+    flex:none; padding:4px 10px; border-radius:7px;
+    font-size:11px; font-weight:900; letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .opcao .tag.a { background:#dff0d8; color:#2f5a12; }
+  .opcao .tag.b { background:#e8e2d4; color:#6b6455; }
+  .opcao h4 { font-size:14.5px; font-weight:900; margin-bottom:4px; }
+  .opcao p { font-size:13px; margin:0; color:#5a5650; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kicker">Guia prático · Windows</div>
+  <h1>Do HTML ao Short postável<br>usando o CapCut no PC</h1>
+  <p>Gravar a tela no computador, editar no CapCut de PC e exportar. Todos os botões, na ordem certa.</p>
+  <div class="badge">🖥️ Windows · CapCut PC · OBS</div>
+</header>
+
+<main>
+
+<div class="aviso-topo">
+  <b>Por que no PC é melhor?</b> No computador você grava em qualidade muito superior, sem tremer, sem notificação aparecendo e sem dedo na tela. O vídeo sai profissional de primeira. Vale o esforço de aprender.
+</div>
+
+<!-- ══════════════ FASE 1 ══════════════ -->
+<div class="fase">
+  <div class="num">1</div>
+  <div>
+    <h2>Instalar as 2 ferramentas</h2>
+    <div class="sub">Uma vez só — depois nunca mais precisa mexer nisso</div>
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">A</span>Baixar o OBS Studio (gravador de tela) ⭐</div>
+  <ol>
+    <li>Abra o navegador e vá em <kbd>obsproject.com</kbd></li>
+    <li>Clique no botão grande de <b>Download</b></li>
+    <li>Escolha a versão <b>Windows</b></li>
+    <li>Abra o arquivo baixado e clique <b>Avançar</b> até o fim (não mude nada)</li>
+    <li>Abra o OBS quando terminar</li>
+  </ol>
+  <div class="alerta">
+    <b>Na primeira vez o OBS abre um assistente.</b> Clique em <b>Cancelar</b> nesse assistente — a gente configura na mão, é mais rápido.
+  </div>
+  <div class="dica">
+    <b>Por que o OBS e não outro?</b> Ele é grátis, não tem marca d'água, não tem limite de tempo e grava em 1080p. É o que gente de verdade usa pra gravar tela.
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">B</span>Baixar o CapCut para PC</div>
+  <ol>
+    <li>Vá em <kbd>capcut.com</kbd></li>
+    <li>Clique em <b>Download</b> / <b>Baixar para PC</b></li>
+    <li>Escolha a versão <b>Windows</b></li>
+    <li>Instale e abra</li>
+    <li>Faça login (pode entrar com Google ou e-mail — é grátis)</li>
+  </ol>
+  <div class="alerta">
+    <b>Existe o CapCut de PC e o site do CapCut.</b> Você quer o <b>programa instalado</b>, não o site. Se a tela abriu dentro do navegador, você entrou no lugar errado — procure o botão de download do app.
+  </div>
+</div>
+
+<!-- ══════════════ FASE 2 ══════════════ -->
+<div class="fase">
+  <div class="num">2</div>
+  <div>
+    <h2>Gravar a tela no PC</h2>
+    <div class="sub">A parte que mais dá errado — leia a fase inteira antes de começar</div>
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">C</span>Preparar a tela (antes de gravar)</div>
+  <table>
+    <tr><th style="width:54%">O que fazer</th><th>Por quê</th></tr>
+    <tr><td><strong>Feche todas as abas</strong> menos a animação</td><td>Nada de aba estranha aparecendo</td></tr>
+    <tr><td><strong>Coloque o Windows em "Não Perturbe"</strong></td><td>Nenhum balãozinho no meio do vídeo</td></tr>
+    <tr><td><strong>Esconda a barra de tarefas</strong> (botão direito nela → Configurações → Ocultar automaticamente)</td><td>Barra aparecendo estraga o enquadramento</td></tr>
+    <tr><td><strong>Abra a animação</strong> (dois cliques no <kbd>.html</kbd>)</td><td>Ela abre no navegador</td></tr>
+    <tr><td><strong>Aperte F11</strong></td><td>Tela cheia — só o desenho aparece</td></tr>
+    <tr><td><strong>Tire o mouse da tela</strong> depois de dar play</td><td>O cursor aparecendo no vídeo é feio</td></tr>
+  </table>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">D</span>Configurar o OBS (uma vez só)</div>
+  <ol>
+    <li>No OBS, olhe a caixa <b>Fontes</b> (embaixo à esquerda)</li>
+    <li>Clique no <b>+</b> → escolha <b>Captura de Tela</b> → <b>OK</b> → <b>OK</b></li>
+    <li>Agora vá em <b>Configurações</b> (canto inferior direito) → aba <b>Saída</b>:
+      <ul style="margin-top:6px">
+        <li>Formato de gravação: <b>MP4</b></li>
+        <li>Qualidade: <b>Alta</b></li>
+      </ul>
+    </li>
+    <li>Na mesma janela, aba <b>Vídeo</b>:
+      <ul style="margin-top:6px">
+        <li>Resolução base: <b>1920x1080</b></li>
+        <li>FPS: <b>30</b></li>
+      </ul>
+    </li>
+    <li>Clique em <b>Aplicar</b> → <b>OK</b></li>
+  </ol>
+  <div class="dica">
+    <b>Não escolha 1080x1920 (vertical) no OBS.</b> Grave em <b>1920x1080 horizontal</b> mesmo. Você vai cortar pra vertical no CapCut de qualquer jeito, e o horizontal te dá margem de segurança.
+  </div>
+  <div class="alerta">
+    <b>Se aparecer a tela toda preta no OBS:</b> feche o OBS e abra de novo <b>como administrador</b> (botão direito no ícone → Executar como administrador). É o problema mais comum e resolve assim.
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">E</span>A ordem certa de gravar ⭐</div>
+  <p>Aqui está o segredo. <b>Não inverta esta ordem:</b></p>
+  <ol>
+    <li>No OBS, clique em <b>Iniciar Gravação</b> (canto inferior direito)</li>
+    <li><b>Espere 3 segundos</b> parado (isso vira sobra pra cortar depois)</li>
+    <li>Volte no navegador e clique no <b>▶</b> da animação</li>
+    <li><b>Não mexa no mouse. Não mexa em nada.</b> Deixe rodar até o fim</li>
+    <li>Quando acabar, <b>espere mais 3 segundos</b></li>
+    <li>Volte no OBS e clique em <b>Parar Gravação</b></li>
+  </ol>
+  <div class="dica">
+    <b>Atalhos que ajudam:</b> no OBS, você pode configurar <kbd>F9</kbd> pra iniciar e parar. Fica mais rápido que clicar no botão.
+  </div>
+  <div class="perigo">
+    <b>Não encoste no mouse durante a gravação.</b> Cada clique e cada passada de cursor aparece no vídeo. Se encostou sem querer, grave de novo — é mais rápido que tentar consertar.
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">F</span>Onde o arquivo foi salvo</div>
+  <p>Por padrão, na pasta <b>Vídeos</b> do Windows, com um nome tipo <kbd>2026-09-15 15-42-10.mp4</kbd>.</p>
+  <p>Não achou? No OBS: <b>Arquivo</b> → <b>Mostrar Gravações</b>. Ele abre a pasta certinha.</p>
+  <div class="dica">
+    <b>Renomeie o arquivo</b> antes de importar no CapCut. Tipo <kbd>repolho.mp4</kbd>. Com 10 vídeos gravados, você não vai lembrar qual é qual.
+  </div>
+</div>
+
+<!-- ══════════════ FASE 3 ══════════════ -->
+<div class="fase">
+  <div class="num">3</div>
+  <div>
+    <h2>Editar no CapCut PC</h2>
+    <div class="sub">Aqui o vídeo "cru" vira um Short de verdade</div>
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">1</span>Criar o projeto e importar</div>
+  <ol>
+    <li>Abra o <b>CapCut PC</b></li>
+    <li>Clique em <b>Criar projeto</b> (ou <b>Novo projeto</b>)</li>
+    <li>Clique em <b>Importar</b> (ou arraste o arquivo <kbd>.mp4</kbd> de dentro da pasta pra dentro do CapCut)</li>
+    <li>Arraste o vídeo da biblioteca para a <b>linha do tempo</b> (a faixa embaixo)</li>
+  </ol>
+  <div class="dica">
+    <b>Arrastar e soltar funciona.</b> Abra a pasta Vídeos numa janela e o CapCut em outra. Arraste o arquivo direto pra linha do tempo. É o jeito mais rápido.
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">2</span>Cortar as pontas</div>
+  <ol>
+    <li>Clique no clipe na linha do tempo — ele fica com <b>borda branca</b></li>
+    <li>Passe o mouse na <b>borda esquerda</b> do clipe até virar uma setinha <kbd>↔</kbd> e <b>arraste para a direita</b> — até onde a animação começa de verdade</li>
+    <li>Faça o mesmo na <b>borda direita</b>, arrastando para a esquerda — até onde a animação termina</li>
+  </ol>
+  <div class="dica">
+    <b>Use a régua de tempo.</b> Você acertou quando sumir todo o "antes" (tela parada) e todo o "depois". O vídeo deve começar já no primeiro desenho da animação.
+  </div>
+  <div class="dica">
+    <b>Atalho melhor ainda:</b> clique no meio do clipe e aperte <kbd>Ctrl</kbd> + <kbd>B</kbd>. Isso corta em dois. Você corta o pedaço ruim e apaga com <kbd>Delete</kbd>.
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">3</span>Forçar o formato vertical (9:16)</div>
+  <ol>
+    <li>Na <b>área de pré-visualização</b> (o quadrado grande, no meio), procure o seletor de proporção no canto</li>
+    <li>Escolha <b>9:16</b></li>
+    <li>Se aparecerem <b>barras pretas</b> nas laterais: clique no clipe → aba <b>Vídeo</b> (à direita) → <b>Básico</b> → aumente <b>Escala</b> até preencher</li>
+  </ol>
+  <div class="perigo">
+    <b>Nunca estique para os lados.</b> Se você mudar só a largura, o desenho fica gordo e feio. Use sempre <b>Escala</b> (aumenta tudo junto, proporcional) — nunca Largura ou Altura separadas.
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">4</span>Velocidade (opcional, mas ajuda muito)</div>
+  <ol>
+    <li>Clique no clipe → aba <b>Vídeo</b> (à direita)</li>
+    <li>Procure <b>Velocidade</b> → arraste para <b>1.2x</b></li>
+    <li>Assista. Deu tempo de ler os textos? Ótimo. Não deu? Volte pra <b>1.0x</b></li>
+  </ol>
+  <div class="dica">
+    <b>Regra simples:</b> se você consegue ler a legenda sem pausar, a velocidade está boa. Shorts com ritmo rápido retêm mais gente.
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">5</span>Música</div>
+  <ol>
+    <li>Clique em <b>Áudio</b> no menu de cima</li>
+    <li>Escolha <b>Músicas</b> (biblioteca do CapCut) ou <b>Som</b></li>
+    <li>Busque por: <kbd>lofi</kbd>, <kbd>cooking</kbd>, <kbd>kitchen</kbd>, <kbd>beat</kbd></li>
+    <li>Escolha uma <b>sem voz cantada</b> — voz compete com a sua legenda</li>
+    <li>Clique em <b>+</b> pra adicionar na linha do tempo</li>
+    <li>Arraste a alça da música pra que ela cubra o vídeo todo</li>
+  </ol>
+  <div class="perigo">
+    <b>⚠ Cuidado com direitos autorais.</b> O CapCut tem músicas famosas (tipo TikTok) que o YouTube pode identificar e bloquear. Se aparecer aviso de direitos autorais, troque pela <b>biblioteca de áudio do próprio YouTube</b> — é grátis e sempre liberada. Você encontra na hora de postar, dentro do app ou do site do YouTube.
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">6</span>Texto na tela (o toque final)</div>
+  <ol>
+    <li>Clique em <b>Texto</b> no menu de cima → <b>Adicionar texto padrão</b></li>
+    <li>Digite o gancho do vídeo. Exemplos:
+      <ul style="margin-top:6px">
+        <li><b>FERMENTEI RABANETE EM 5 DIAS</b></li>
+        <li><b>3 INGREDIENTES. SÓ ISSO.</b></li>
+        <li><b>O ERRO QUE ESTRAGA TUDO</b></li>
+      </ul>
+    </li>
+    <li>Na aba <b>Texto</b> (à direita): fonte <b>grossa</b>, cor <b>branca</b>, e em <b>Fundo</b> coloque uma caixinha escura</li>
+    <li>Posicione no <b>terço superior</b> — nunca embaixo (o YouTube cobre com legenda e botões)</li>
+    <li>Arraste a alça do texto na linha do tempo pra que ele apareça nos <b>primeiros 2 segundos</b></li>
+    <li>Em <b>Animação</b>, escolha <b>Digitar</b> ou <b>Aparecer</b></li>
+  </ol>
+  <div class="dica">
+    <b>Máximo 6 palavras por tela.</b> O cérebro não lê mais do que isso enquanto rola o feed. Mais texto = a pessoa passa direto.
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">7</span>Exportar</div>
+  <ol>
+    <li>Clique em <b>Exportar</b> (canto superior direito)</li>
+    <li>Nome: coloque o nome do legume</li>
+    <li>Resolução: <b>1080p</b> &nbsp;·&nbsp; Taxa de quadros: <b>30</b> &nbsp;·&nbsp; Formato: <b>MP4</b></li>
+    <li>Clique em <b>Exportar</b> de novo</li>
+    <li>Espere. No fim, clique em <b>Abrir pasta</b> pra ver o arquivo</li>
+  </ol>
+  <div class="dica">
+    <b>Agora sim:</b> esse arquivo <kbd>.mp4</kbd> o YouTube aceita. É um vídeo de verdade.
+  </div>
+  <div class="alerta">
+    <b>Não exporte em 4K.</b> Demora muito, o arquivo fica enorme e o Shorts não precisa. 1080p é o padrão ideal pra vertical.
+  </div>
+</div>
+
+<!-- ══════════════ FASE 4 ══════════════ -->
+<div class="fase">
+  <div class="num">4</div>
+  <div>
+    <h2>Postar</h2>
+    <div class="sub">Últimos toques e está no ar</div>
+  </div>
+</div>
+
+<div class="passo">
+  <div class="titulo"><span class="b">▶</span>Publicar como Short</div>
+  <ol>
+    <li>Leve o arquivo <kbd>.mp4</kbd> pro celular (WhatsApp pra você mesmo é o mais fácil)</li>
+    <li>Abra o <b>app do YouTube</b> (no celular é mais simples que no PC)</li>
+    <li>Toque no <b>+</b> (embaixo, no meio)</li>
+    <li>Escolha <b>Criar um Short</b></li>
+    <li>Selecione o vídeo da galeria</li>
+    <li><b>Título:</b> curto e curioso — ex: <i>"Rabanete fermentado em 5 dias 🌶️"</i></li>
+    <li><b>Visibilidade:</b> comece com <b>"Não listado"</b> se quiser revisar antes. Depois mude pra <b>Público</b></li>
+    <li>Toque em <b>Enviar</b></li>
+  </ol>
+  <div class="dica">
+    <b>Também dá pra postar pelo PC</b> em <kbd>studio.youtube.com</kbd>, mas o caminho do celular é mais direto pra Shorts. Use o que for mais confortável.
+  </div>
+</div>
+
+<!-- ══════════════ GRAVADOR ALTERNATIVO ══════════════ -->
+<div class="fase">
+  <div class="num">?</div>
+  <div>
+    <h2>Se não quiser instalar o OBS</h2>
+    <div class="sub">Existe uma alternativa que já vem no Windows</div>
+  </div>
+</div>
+
+<div class="opcao">
+  <div class="tag b">Alt</div>
+  <div>
+    <h4>Xbox Game Bar (já vem no Windows)</h4>
+    <p>Aperte <kbd>Windows</kbd> + <kbd>G</kbd> → clique no ícone de captura → <b>Gravar</b>. Ou aperte <kbd>Windows</kbd> + <kbd>Alt</kbd> + <kbd>R</kbd> direto.</p>
+    <p style="margin-top:8px"><b>O problema:</b> ele costuma <b>não gravar a Área de Trabalho nem o navegador</b>. Só grava jogos e alguns apps. Se der tela preta ou não pegar o navegador, não tem jeito — use o OBS.</p>
+    <p style="margin-top:8px">Salva em <b>Vídeos → Capturas</b>.</p>
+  </div>
+</div>
+
+<div class="opcao">
+  <div class="tag a">Melhor</div>
+  <div>
+    <h4>OBS Studio (o que eu recomendo)</h4>
+    <p>Grátis, sem marca d'água, sem limite de tempo, grava qualquer coisa na tela incluindo o navegador. É o que gente de verdade usa.</p>
+    <p style="margin-top:8px">Instala uma vez e usa pra sempre. Leva 5 minutos pra configurar.</p>
+  </div>
+</div>
+
+<!-- ══════════════ ERROS ══════════════ -->
+<div class="fase">
+  <div class="num">!</div>
+  <div>
+    <h2>Os 8 erros que estragam o vídeo</h2>
+    <div class="sub">Confira antes de gravar — economiza muito retrabalho</div>
+  </div>
+</div>
+
+<table>
+  <tr><th style="width:44%">❌ O erro</th><th>✅ Como evitar</th></tr>
+  <tr><td><strong>Notificação no meio do vídeo</strong></td><td>Windows em "Não Perturbe" ANTES de gravar</td></tr>
+  <tr><td><strong>Mouse passando na tela</strong></td><td>Tirar o mouse da área depois do play</td></tr>
+  <tr><td><strong>OBS gravou tela preta</strong></td><td>Abrir o OBS como <b>administrador</b></td></tr>
+  <tr><td><strong>Barras pretas nas laterais</strong></td><td>9:16 no CapCut + <b>Escala</b> (nunca largura/altura separadas)</td></tr>
+  <tr><td><strong>Começo tremido</strong></td><td>Gravar 3s antes e 3s depois — e cortar</td></tr>
+  <tr><td><strong>Barra de tarefas aparecendo</strong></td><td>Ocultar automaticamente antes</td></tr>
+  <tr><td><strong>Música bloqueada</strong></td><td>Usar a biblioteca de áudio do YouTube</td></tr>
+  <tr><td><strong>Arquivo enorme / export demorado</strong></td><td>Exportar em <b>1080p</b>, nunca 4K</td></tr>
+</table>
+
+<!-- ══════════════ RESUMO ══════════════ -->
+<div class="resumo">
+  <h3>📌 Resumo em 9 passos</h3>
+  <ol>
+    <li>Instalar <b>OBS Studio</b> e <b>CapCut PC</b> (uma vez só)</li>
+    <li>Abrir o <kbd>.html</kbd> no navegador + <b>F11</b></li>
+    <li>Esconder barra de tarefas + Não Perturbe + tirar o mouse</li>
+    <li>OBS: <b>Iniciar Gravação</b> → 3s → <b>play</b> → 3s → <b>Parar</b></li>
+    <li>CapCut → <b>Criar projeto</b> → arrastar o <kbd>.mp4</kbd></li>
+    <li><b>Cortar</b> as pontas (Ctrl + B ajuda)</li>
+    <li><b>9:16</b> + Escala para preencher</li>
+    <li><b>1.2x</b> + música do YouTube + texto de gancho nos 2 primeiros segundos</li>
+    <li><b>Exportar 1080p / 30fps</b> → mandar pro celular → postar</li>
+  </ol>
+</div>
+
+<footer>
+  <p>Guia feito pro seu projeto de fermentação 🥬<br>Primeira vez leva uns 40 min (você está aprendendo). Depois, uns 10 min por vídeo.</p>
+  <a class="voltar" href="javascript:history.back()">← Voltar</a>
+</footer>
+
+</main>
+
+</body>
+</html>

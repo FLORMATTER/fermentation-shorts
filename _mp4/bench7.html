@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>bench7</title>
+<style>
+html,body{margin:0;background:#111;color:#ddd;font:12px monospace}
+#palco{position:absolute;left:0;top:0;width:405px;height:720px;overflow:hidden}
+#out{position:absolute;left:430px;top:0;white-space:pre;font:12px monospace;color:#ddd}
+</style>
+</head>
+<body>
+<div id="palco"></div>
+<pre id="out">correndo</pre>
+<script>
+/* _mp4/bench7.html — o que faz a rasterizacao do SVG custar 32 ms?
+   bench6 mostrou que o custo NAO depende do tamanho do bitmap (1080 e 540 custam
+   igual). Entao ou e custo fixo por documento, ou depende da complexidade do SVG.
+   Aqui a gente rasteriza variantes do MESMO quadro e compara:
+
+     A. SVG minimo (1 retangulo)          -> custo fixo por documento
+     B. cena s3 (29 nos)
+     C. cena s0 (a mais cheia)
+     D. cena s0 SEM os <text>             -> o texto e o vilao?
+     E. cena s0 SEM gradientes            -> o gradiente e o vilao?
+     F. cena s0 sem stroke-dasharray      -> o tracejado e o vilao?
+
+   Uso: node _mp4/rodar.js "file:///.../_mp4/bench7.html?arq=../mosquito/shorts-mosquito-trap-en.html" 240 --file-access */
+window.__log = [];
+function L(s){ window.__log.push(s); document.getElementById('out').textContent = window.__log.join('\n'); }
+
+var ARQ = new URLSearchParams(location.search).get('arq') || '../mosquito/shorts-mosquito-trap-en.html';
+var K = 20;
+
+var sonda = { ligada:false, soma:0, n:0, pior:0, prox:0 };
+function passo(){
+  if (!sonda.ligada) return;
+  var a = performance.now(), d = a - sonda.prox;
+  if (d > 0){ sonda.soma += d; sonda.n++; if (d > sonda.pior) sonda.pior = d; }
+  sonda.prox = performance.now() + 2;
+  setTimeout(passo, 2);
+}
+function sondaOn(){ sonda.soma=0; sonda.n=0; sonda.pior=0; sonda.prox=performance.now()+2; sonda.ligada=true; setTimeout(passo,2); }
+function sondaOff(){ sonda.ligada=false; return { travado: sonda.soma, n: sonda.n, pior: sonda.pior }; }
+
+var f = document.createElement('iframe');
+f.style.cssText = 'width:405px;height:720px;border:0;position:absolute;left:0;top:0';
+f.src = ARQ;
+document.getElementById('palco').appendChild(f);
+
+f.onload = function(){
+  var d = f.contentDocument, w = f.contentWindow;
+  if (!d || !w){ L('ERRO: nao consegui ler o iframe'); window.__done='FAIL'; return; }
+  var cenas = [].slice.call(d.querySelectorAll('svg.scene'));
+
+  var LADO = 1080, ALT = Math.round(LADO*720/405);
+  function embala(el){
+    var c = el.cloneNode(true);
+    c.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    c.setAttribute('width', LADO); c.setAttribute('height', ALT);
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(c));
+  }
+
+  var MINIMO = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="' + LADO + '" height="' + ALT + '" viewBox="0 0 405 720">' +
+    '<rect x="0" y="0" width="405" height="720" fill="#eee"/></svg>');
+
+  var s0 = d.getElementById(cenas[0].id), s3 = d.getElementById(cenas[3].id);
+  var s0texto = s0.cloneNode(true);
+  var nText = s0texto.querySelectorAll('text').length;
+  [].slice.call(s0texto.querySelectorAll('text')).forEach(function(t){ t.parentNode.removeChild(t); });
+  var s0grad = s0.cloneNode(true);
+  var nGrad = s0grad.querySelectorAll('linearGradient,radialGradient').length;
+  [].slice.call(s0grad.querySelectorAll('linearGradient,radialGradient')).forEach(function(g){ g.parentNode.removeChild(g); });
+  var s0dash = s0.cloneNode(true);
+  var nDash = s0dash.querySelectorAll('[stroke-dasharray]').length;
+  [].slice.call(s0dash.querySelectorAll('[stroke-dasharray]')).forEach(function(g){ g.removeAttribute('stroke-dasharray'); });
+
+  L('s0: ' + s0.querySelectorAll('*').length + ' nos | s3: ' + s3.querySelectorAll('*').length +
+    ' nos | texto em s0: ' + nText + ' | gradientes: ' + nGrad + ' | tracejados: ' + nDash);
+
+  var casos = [
+    { nome:'A. SVG minimo (1 rect)',        el: null, url: MINIMO },
+    { nome:'B. cena s3 (' + s3.querySelectorAll('*').length + ' nos)', el: s3, url: null },
+    { nome:'C. cena s0 (' + s0.querySelectorAll('*').length + ' nos)', el: s0, url: null },
+    { nome:'D. cena s0 sem ' + nText + ' <text>', el: null, url: embala(s0texto) },
+    { nome:'E. cena s0 sem ' + nGrad + ' gradientes', el: null, url: embala(s0grad) },
+    { nome:'F. cena s0 sem ' + nDash + ' tracejados', el: null, url: embala(s0dash) }
+  ];
+
+  var res = [];
+  var ci = 0, i = 0, t0 = 0;
+
+  function proximo(){
+    if (ci >= casos.length){ relatorio(); return; }
+    var c = casos[ci];
+    if (i === 0){ sondaOn(); t0 = performance.now(); }
+    var url = c.url || embala(c.el);
+    var im = new Image();
+    im.onload = function(){
+      i++;
+      if (i >= K){
+        var s = sondaOff();
+        var dur = performance.now() - t0;
+        res.push({ nome:c.nome, dur:dur/K, travado:s.travado/K, n:s.n, pior:s.pior });
+        i = 0; ci++; proximo(); return;
+      }
+      proximo();
+    };
+    im.onerror = function(){ L('erro em ' + c.nome); window.__done='FAIL'; };
+    im.src = url;
+  }
+
+  function relatorio(){
+    L('');
+    L('caso                                   por quadro   travado/quadro   pior');
+    res.forEach(function(r){
+      L('  ' + r.nome.padEnd(38) + r.dur.toFixed(1).padStart(6) + ' ms' +
+        r.travado.toFixed(1).padStart(12) + ' ms' + r.pior.toFixed(1).padStart(9) + ' ms');
+    });
+    L('');
+    L('se A for barato e C caro, o custo vem da COMPLEXIDADE do SVG (da para cortar).');
+    L('se A ja for caro, e custo fixo por documento (so da para rasterizar menos vezes).');
+    L('FIM');
+    window.__done = 'OK';
+  }
+
+  proximo();
+};
+</script>
+</body></html>

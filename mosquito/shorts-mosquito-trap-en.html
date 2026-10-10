@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animation — DIY mosquito trap (1.5 L bottle, water, sugar, yeast)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#0f0e0c;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    min-height:100vh; overflow:hidden;
+  }
+  #stage {
+    position:relative; width:405px; height:720px;
+    background:#fdfaf5; overflow:hidden; border-radius:16px;
+    box-shadow:0 24px 70px rgba(0,0,0,.7);
+  }
+  @media (max-height:790px){ #stage{ transform:scale(.86);} }
+  @media (max-height:700px){ #stage{ transform:scale(.72);} }
+
+  svg.scene {
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0; visibility:hidden; transition:opacity .42s ease;
+  }
+  svg.scene.on { opacity:1; visibility:visible; }
+
+  .bar { position:absolute; top:0; left:0; right:0; height:4px; background:rgba(0,0,0,.12); z-index:40; }
+  #progress { height:100%; width:0; background:#1f7a6e; transition:width .2s linear; }
+
+  .tag {
+    position:absolute; top:22px; left:0; right:0; text-align:center;
+    font-size:10px; font-weight:800; letter-spacing:.2em;
+    text-transform:uppercase; opacity:.5; z-index:30; color:#2c2c2a;
+  }
+  .wm { position:absolute; top:18px; right:16px; font-size:9px; font-weight:800;
+        letter-spacing:.1em; opacity:.35; z-index:35; text-transform:uppercase; color:#2c2c2a; }
+
+  .ui { position:absolute; bottom:82px; left:0; right:0; display:flex;
+        justify-content:center; gap:9px; z-index:40; opacity:0; transition:opacity .25s; }
+  #stage:hover .ui, #stage.touched .ui { opacity:1; }
+  .ui button { border:none; background:rgba(15,14,12,.8); color:#fff; font-size:11.5px;
+    font-weight:700; font-family:inherit; padding:8px 15px; border-radius:999px; cursor:pointer; }
+  .ui button:hover { background:#000; }
+
+  .cover { position:absolute; inset:0; z-index:50; background:rgba(0,0,0,.5);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
+  .cover.hide { display:none; }
+  .cover button { width:78px; height:78px; border-radius:50%; border:none;
+    background:rgba(255,255,255,.95); color:#111; font-size:27px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding-left:5px; }
+  .cover p { color:#fff; font-size:12px; font-weight:700; letter-spacing:.08em; opacity:.85; text-transform:uppercase; text-align:center; line-height:1.6; }
+
+  .cap {
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(15,14,12,.86); color:#fff;
+    padding:14px 22px 17px; font-size:16px; font-weight:800;
+    text-align:center; z-index:30; line-height:1.35;
+  }
+  .cap small { display:block; font-size:12px; font-weight:500; opacity:.72; margin-top:4px; letter-spacing:.01em; }
+
+  @keyframes floatSoft {
+    0%,100% { transform: translateY(0) }
+    50%     { transform: translateY(-6px) }
+  }
+  @keyframes popInSeq {
+    0%   { transform: scale(.4); opacity: 0 }
+    60%  { transform: scale(1.08); opacity: 1 }
+    100% { transform: scale(1); opacity: 1 }
+  }
+  @keyframes fadeSlide {
+    0%   { opacity: 0; transform: translateY(8px) }
+    100% { opacity: 1; transform: translateY(0) }
+  }
+  @keyframes slideUp {
+    0%   { transform: translateY(24px); opacity: 0 }
+    100% { transform: translateY(0); opacity: 1 }
+  }
+  @keyframes riseSlow {
+    0%   { transform: translateY(0) scale(.6); opacity: 0 }
+    30%  { opacity: .85 }
+    100% { transform: translateY(-104px) scale(1.3); opacity: 0 }
+  }
+  @keyframes riseCo2 {
+    0%   { transform: translateY(0) scale(.7); opacity: 0 }
+    22%  { opacity: 1 }
+    100% { transform: translateY(-112px) scale(1.15); opacity: 0 }
+  }
+  @keyframes wingFlap {
+    0%,100% { transform: rotate(-18deg) }
+    50%     { transform: rotate(18deg) }
+  }
+  @keyframes swayTilt {
+    0%,100% { transform: rotate(-5deg) }
+    50%     { transform: rotate(5deg) }
+  }
+  @keyframes dashRun {
+    to { stroke-dashoffset: -180 }
+  }
+  @keyframes pulseRing {
+    0%   { transform: scale(.5); opacity: .7 }
+    100% { transform: scale(1.6); opacity: 0 }
+  }
+  @keyframes dropIn {
+    0%   { transform: translateY(-14px) scale(.7); opacity: 0 }
+    70%  { opacity: 1 }
+    100% { transform: translateY(4px) scale(1); opacity: 1 }
+  }
+  @keyframes wiggle {
+    0%,100% { transform: rotate(-7deg) }
+    50%     { transform: rotate(7deg) }
+  }
+  @keyframes tipOver {
+    0%,100% { transform: rotate(-9deg) }
+    50%     { transform: rotate(2deg) }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div class="bar"><div id="progress"></div></div>
+  <div class="tag" id="tag">TRAP 1 / 8</div>
+  <div class="wm">@yourchannel</div>
+
+  <!-- ══════════ CENA 1 — O GANCHO ══════════ -->
+  <svg class="scene on" id="s0" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <clipPath id="s0Clip">
+        <path d="M-48,-16 L-48,100 Q-48,118 -30,118 L30,118 Q48,118 48,100 L48,-16 Q48,-46 15,-64 L15,-104 L-15,-104 L-15,-64 Q-48,-46 -48,-16 Z"/>
+      </clipPath>
+    </defs>
+    <rect width="405" height="720" fill="#f1f7f5"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#6f9a91" font-family="system-ui" letter-spacing="2">THE 5-MINUTE YARD TRAP</text>
+    <ellipse cx="176" cy="452" rx="146" ry="32" fill="#dbeae6" opacity=".7"/>
+
+    <path d="M150,208 C 196,146 250,146 300,194" fill="none" stroke="#7fb8ac" stroke-width="2.6" stroke-dasharray="9 11" stroke-linecap="round" style="animation:dashRun 2.6s linear infinite"/>
+    <g transform="translate(150,208)">
+      <circle r="14" fill="none" stroke="#7fb8ac" stroke-width="2" style="animation:pulseRing 2.2s ease-out infinite"/>
+    </g>
+
+    <g transform="translate(316,192)">
+      <g style="animation:swayTilt 2.4s ease-in-out infinite">
+        <g style="animation:wingFlap .18s linear infinite; transform-origin:-2px -6px">
+          <ellipse cx="2" cy="-10" rx="12" ry="5" fill="#ffffff" opacity=".9" stroke="#9fb3b8" stroke-width="1"/>
+        </g>
+        <g style="animation:wingFlap .18s linear infinite; animation-delay:.09s; transform-origin:-2px -6px">
+          <ellipse cx="-4" cy="-8" rx="11" ry="4.4" fill="#ffffff" opacity=".8" stroke="#9fb3b8" stroke-width="1"/>
+        </g>
+        <ellipse cx="0" cy="0" rx="10" ry="5" fill="#dfe9ec" stroke="#4a5c62" stroke-width="1.6"/>
+        <ellipse cx="-7" cy="-2" rx="6" ry="5" fill="#dfe9ec" stroke="#4a5c62" stroke-width="1.6"/>
+        <path d="M-12,-3 L-24,-7" stroke="#4a5c62" stroke-width="1.6" fill="none"/>
+        <path d="M9,1 L22,4" stroke="#4a5c62" stroke-width="1.6" fill="none"/>
+        <g stroke="#4a5c62" stroke-width="1.3" fill="none">
+          <path d="M-4,3 L-10,12 L-6,18"/>
+          <path d="M2,4 L4,14 L10,19"/>
+        </g>
+      </g>
+    </g>
+
+    <g transform="translate(176,352)">
+      <g style="animation:floatSoft 3.4s ease-in-out infinite">
+        <path d="M-48,-16 L-48,100 Q-48,118 -30,118 L30,118 Q48,118 48,100 L48,-16 Q48,-46 15,-64 L15,-104 L-15,-104 L-15,-64 Q-48,-46 -48,-16 Z" fill="#fbfdfc" stroke="#2f3a38" stroke-width="2.6" stroke-linejoin="round"/>
+        <g clip-path="url(#s0Clip)">
+          <rect x="-54" y="-8" width="108" height="132" fill="#e8d5a4" opacity=".92"/>
+          <rect x="-54" y="-8" width="108" height="7" fill="#d6bd82"/>
+        </g>
+        <path d="M-48,-16 L-48,100 Q-48,118 -30,118 L30,118 Q48,118 48,100 L48,-16 Q48,-46 15,-64 L15,-104 L-15,-104 L-15,-64 Q-48,-46 -48,-16 Z" fill="none" stroke="#2f3a38" stroke-width="2.6" stroke-linejoin="round"/>
+        <rect x="-19" y="-121" width="38" height="18" rx="6" fill="#e2ece9" stroke="#2f3a38" stroke-width="2.4"/>
+        <path d="M-34,-30 L-34,80" stroke="#ffffff" stroke-width="6" stroke-linecap="round" opacity=".7"/>
+        <g fill="#fdf6e2" opacity=".9">
+          <circle cx="-18" cy="96" r="4" style="animation:riseSlow 2.8s ease-out infinite"/>
+          <circle cx="14" cy="102" r="3.2" style="animation:riseSlow 2.8s ease-out infinite; animation-delay:1.1s"/>
+        </g>
+      </g>
+    </g>
+
+    <g font-family="system-ui" font-weight="900" font-size="11" text-anchor="middle">
+      <g style="animation:riseCo2 3.6s ease-out infinite">
+        <circle cx="230" cy="300" r="15" fill="#ffffff" stroke="#7fb8ac" stroke-width="2"/>
+        <text x="230" y="304" fill="#1f7a6e">CO₂</text>
+      </g>
+      <g style="animation:riseCo2 3.6s ease-out infinite; animation-delay:1.3s">
+        <circle cx="258" cy="272" r="15" fill="#ffffff" stroke="#7fb8ac" stroke-width="2"/>
+        <text x="258" y="276" fill="#1f7a6e">CO₂</text>
+      </g>
+    </g>
+
+    <text x="202" y="546" text-anchor="middle" font-size="24" font-weight="900" fill="#12332e" font-family="system-ui" letter-spacing="-.6" style="animation:popInSeq .7s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.3s">DIY MOSQUITO TRAP</text>
+    <text x="202" y="576" text-anchor="middle" font-size="11.5" font-weight="800" fill="#1f7a6e" font-family="system-ui" letter-spacing="1.8" style="animation:popInSeq .7s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.55s">1.5 L BOTTLE + WATER + SUGAR + YEAST</text>
+    <text x="202" y="606" text-anchor="middle" font-size="11.5" font-weight="600" fill="#7d8f8b" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.8s">They hunt you by the carbon dioxide you breathe.</text>
+    <text x="202" y="624" text-anchor="middle" font-size="11.5" font-weight="600" fill="#7d8f8b" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.9s">This bottle makes the same gas.</text>
+  </svg>
+
+  <!-- ══════════ CENA 2 — PASSO 1: O CORTE ══════════ -->
+  <svg class="scene" id="s1" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <clipPath id="s1Clip">
+        <path d="M-48,-16 L-48,100 Q-48,118 -30,118 L30,118 Q48,118 48,100 L48,-16 Q48,-46 15,-64 L15,-104 L-15,-104 L-15,-64 Q-48,-46 -48,-16 Z"/>
+      </clipPath>
+    </defs>
+    <rect width="405" height="720" fill="#fdfaf5"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">STEP 1 · THE CUT</text>
+    <ellipse cx="176" cy="400" rx="136" ry="28" fill="#eae4d6" opacity=".6"/>
+
+    <g transform="translate(176,288)">
+      <g style="animation:floatSoft 3.4s ease-in-out infinite">
+        <path d="M-48,-16 L-48,100 Q-48,118 -30,118 L30,118 Q48,118 48,100 L48,-16 Q48,-46 15,-64 L15,-104 L-15,-104 L-15,-64 Q-48,-46 -48,-16 Z" fill="#f7f4ec" stroke="#2f3a38" stroke-width="2.6" stroke-linejoin="round"/>
+        <g clip-path="url(#s1Clip)">
+          <rect x="-54" y="-4" width="108" height="128" fill="#e8d5a4" opacity=".7"/>
+        </g>
+        <path d="M-48,-16 L-48,100 Q-48,118 -30,118 L30,118 Q48,118 48,100 L48,-16 Q48,-46 15,-64 L15,-104 L-15,-104 L-15,-64 Q-48,-46 -48,-16 Z" fill="none" stroke="#2f3a38" stroke-width="2.6" stroke-linejoin="round"/>
+        <rect x="-19" y="-121" width="38" height="18" rx="6" fill="#e2ece9" stroke="#2f3a38" stroke-width="2.4"/>
+        <line x1="-64" y1="-52" x2="64" y2="-52" stroke="#c2551f" stroke-width="2.6" stroke-dasharray="8 6"/>
+      </g>
+    </g>
+
+    <g transform="translate(302,222)">
+      <g style="animation:swayTilt 3.4s ease-in-out infinite">
+        <path d="M-46,-6 L6,4 L6,12 L-46,4 Z" fill="#dde3e6" stroke="#2f3a38" stroke-width="2.2" stroke-linejoin="round"/>
+        <path d="M-46,14 L6,4 L6,-4 L-46,4 Z" fill="#eef2f4" stroke="#2f3a38" stroke-width="2.2" stroke-linejoin="round"/>
+        <path d="M6,8 L26,10" stroke="#2f3a38" stroke-width="2.4" fill="none"/>
+        <circle cx="36" cy="-2" r="10" fill="none" stroke="#2f3a38" stroke-width="2.4"/>
+        <circle cx="36" cy="18" r="10" fill="none" stroke="#2f3a38" stroke-width="2.4"/>
+      </g>
+    </g>
+
+    <text x="202" y="490" text-anchor="middle" font-size="24" font-weight="900" fill="#2f2a22" font-family="system-ui" letter-spacing="-.5" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.25s">CUT THE TOP OFF</text>
+    <text x="202" y="522" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a8272" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.6s">Cut about a third of the way down, right at the shoulder.</text>
+    <text x="202" y="542" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a8272" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.7s">A 1.5 L bottle is the classic size.</text>
+
+    <g style="animation:slideUp .6s ease both; animation-delay:.9s">
+      <rect x="46" y="566" width="313" height="62" rx="14" fill="#ffffff" stroke="#cfe3de" stroke-width="2"/>
+      <text x="202" y="592" text-anchor="middle" font-size="12.5" font-weight="900" fill="#1f7a6e" font-family="system-ui">KEEP BOTH HALVES</text>
+      <text x="202" y="613" text-anchor="middle" font-size="11" font-weight="600" fill="#7d8f8b" font-family="system-ui">The top becomes the funnel. Nothing is thrown away.</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 3 — PASSO 2: A MISTURA ══════════ -->
+  <svg class="scene" id="s2" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <clipPath id="s2Jug">
+        <path d="M-46,-76 L46,-76 L41,76 Q0,86 -41,76 Z"/>
+      </clipPath>
+    </defs>
+    <rect width="405" height="720" fill="#fdfaf5"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">STEP 2 · THE MIX</text>
+    <ellipse cx="202" cy="424" rx="150" ry="30" fill="#eae4d6" opacity=".55"/>
+
+    <g transform="translate(138,318)">
+      <g style="animation:floatSoft 3.4s ease-in-out infinite">
+        <path d="M-46,-76 L46,-76 L41,76 Q0,86 -41,76 Z" fill="#fbfdfc" stroke="#2f3a38" stroke-width="2.6" stroke-linejoin="round"/>
+        <g clip-path="url(#s2Jug)">
+          <rect x="-50" y="-10" width="100" height="92" fill="#cfe4ea" opacity=".95"/>
+          <rect x="-50" y="-10" width="100" height="6" fill="#a8cfda"/>
+        </g>
+        <path d="M-46,-76 L46,-76 L41,76 Q0,86 -41,76 Z" fill="none" stroke="#2f3a38" stroke-width="2.6" stroke-linejoin="round"/>
+        <g stroke="#a8bcc8" stroke-width="1.6" opacity=".85">
+          <path d="M36,-56 L48,-56"/><path d="M34,-26 L48,-26"/><path d="M33,4 L48,4"/>
+        </g>
+        <path d="M-32,-60 L-32,40" stroke="#ffffff" stroke-width="6" stroke-linecap="round" opacity=".75"/>
+        <text x="0" y="-16" text-anchor="middle" font-size="11" font-weight="900" fill="#2f6b7d" font-family="system-ui">200 ml</text>
+      </g>
+    </g>
+
+    <g transform="translate(292,230)">
+      <g style="animation:dropIn 2.4s ease-in-out infinite">
+        <path d="M-13,-38 L13,-26 L7,8 Q0,20 -7,8 Z" fill="#e8e2d0" stroke="#2f3a38" stroke-width="2.2" stroke-linejoin="round"/>
+        <ellipse cx="0" cy="-4" rx="9" ry="11" fill="#ffffff" stroke="#2f3a38" stroke-width="1.8"/>
+        <g fill="#ffffff">
+          <circle cx="-4" cy="-7" r="3"/><circle cx="3" cy="-5" r="2.6"/><circle cx="0" cy="-1" r="2.4"/>
+        </g>
+        <text x="0" y="36" text-anchor="middle" font-size="11" font-weight="900" fill="#8a5a2e" font-family="system-ui">50 g</text>
+      </g>
+    </g>
+
+    <text x="202" y="490" text-anchor="middle" font-size="20" font-weight="900" fill="#12332e" font-family="system-ui" letter-spacing="-.4" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.25s">200 ml WATER + 50 g SUGAR</text>
+    <text x="202" y="522" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a8272" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.6s">Warm water from the tap. Mix until the sugar is gone.</text>
+    <text x="202" y="542" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a8272" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.7s">50 g is about three heaped tablespoons.</text>
+
+    <g style="animation:slideUp .6s ease both; animation-delay:.9s">
+      <rect x="46" y="566" width="313" height="62" rx="14" fill="#ffffff" stroke="#cfe3de" stroke-width="2"/>
+      <text x="202" y="592" text-anchor="middle" font-size="12.5" font-weight="900" fill="#1f7a6e" font-family="system-ui">WHY THE SUGAR?</text>
+      <text x="202" y="613" text-anchor="middle" font-size="11" font-weight="600" fill="#7d8f8b" font-family="system-ui">The yeast eats it and breathes out carbon dioxide.</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 4 — PASSO 3: O FERMENTO ══════════ -->
+  <svg class="scene" id="s3" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <clipPath id="s3Clip">
+        <path d="M-56,-46 L-56,84 Q-56,108 -34,108 L34,108 Q56,108 56,84 L56,-46 Z"/>
+      </clipPath>
+    </defs>
+    <rect width="405" height="720" fill="#f1f7f5"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#6f9a91" font-family="system-ui" letter-spacing="2">STEP 3 · THE YEAST</text>
+    <ellipse cx="202" cy="420" rx="140" ry="28" fill="#dbeae6" opacity=".6"/>
+
+    <g transform="translate(202,306)">
+      <g style="animation:floatSoft 3.4s ease-in-out infinite">
+        <path d="M-56,-46 L-56,84 Q-56,108 -34,108 L34,108 Q56,108 56,84 L56,-46 Z" fill="#fbfdfc"/>
+        <g clip-path="url(#s3Clip)">
+          <rect x="-60" y="6" width="120" height="110" fill="#e8d5a4" opacity=".55"/>
+          <rect x="-60" y="6" width="120" height="6" fill="#d6bd82" opacity=".75"/>
+        </g>
+        <path d="M-56,-46 L-56,84 Q-56,108 -34,108 L34,108 Q56,108 56,84 L56,-46 Z" fill="none" stroke="#2f3a38" stroke-width="2.6" stroke-linejoin="round"/>
+        <g transform="translate(30,-64)">
+          <g style="animation:tipOver 3.2s ease-in-out infinite">
+            <path d="M-11,-32 L11,-22 L6,7 Q0,17 -6,7 Z" fill="#e8e2d0" stroke="#2f3a38" stroke-width="2.2" stroke-linejoin="round"/>
+            <ellipse cx="0" cy="-4" rx="8" ry="9.5" fill="#f6f1e2" stroke="#2f3a38" stroke-width="1.8"/>
+            <g fill="#d9b96a">
+              <circle cx="-3" cy="-6" r="2.6"/><circle cx="3" cy="-4" r="2.2"/><circle cx="0" cy="-1" r="2"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <text x="308" y="250" text-anchor="middle" font-size="12" font-weight="900" fill="#8a5a2e" font-family="system-ui">1 g</text>
+
+    <text x="202" y="490" text-anchor="middle" font-size="22" font-weight="900" fill="#12332e" font-family="system-ui" letter-spacing="-.4" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.25s">COOL IT. THEN 1 g YEAST</text>
+    <text x="202" y="522" text-anchor="middle" font-size="11.5" font-weight="600" fill="#7d8f8b" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.6s">Hot water kills the yeast. Wait until it is lukewarm.</text>
+    <text x="202" y="542" text-anchor="middle" font-size="11.5" font-weight="600" fill="#7d8f8b" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.7s">1 g is about a quarter of a teaspoon.</text>
+
+    <g style="animation:slideUp .6s ease both; animation-delay:.9s">
+      <rect x="46" y="566" width="313" height="62" rx="14" fill="#ffffff" stroke="#cfe3de" stroke-width="2"/>
+      <text x="202" y="592" text-anchor="middle" font-size="12.5" font-weight="900" fill="#c2551f" font-family="system-ui">DO NOT STIR</text>
+      <text x="202" y="613" text-anchor="middle" font-size="11" font-weight="600" fill="#7d8f8b" font-family="system-ui">It dissolves on its own. Stirring changes nothing.</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 5 — PASSO 4: VIRAR O TOPO ══════════ -->
+  <svg class="scene" id="s4" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <clipPath id="s4Cup">
+        <path d="M-66,-50 L-66,86 Q-66,110 -40,110 L40,110 Q66,110 66,86 L66,-50 Z"/>
+      </clipPath>
+    </defs>
+    <rect width="405" height="720" fill="#f1f7f5"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#6f9a91" font-family="system-ui" letter-spacing="2">STEP 4 · THE FUNNEL</text>
+
+    <g transform="translate(196,300)">
+      <g style="animation:floatSoft 3.4s ease-in-out infinite">
+        <path d="M-66,-50 L-66,86 Q-66,110 -40,110 L40,110 Q66,110 66,86 L66,-50 Z" fill="#fbfdfc"/>
+        <path d="M-64,-56 C-60,-14 -26,2 -16,30 L-16,52 L16,52 L16,30 C26,2 60,-14 64,-56 Z" fill="#f4fbf9" stroke="#2f3a38" stroke-width="2.6" stroke-linejoin="round"/>
+        <g clip-path="url(#s4Cup)">
+          <rect x="-70" y="18" width="140" height="102" fill="#e8d5a4" opacity=".55"/>
+          <rect x="-70" y="18" width="140" height="6" fill="#d6bd82" opacity=".75"/>
+        </g>
+        <path d="M-64,-56 C-60,-14 -26,2 -16,30 L-16,52 L16,52 L16,30 C26,2 60,-14 64,-56 Z" fill="none" stroke="#2f3a38" stroke-width="2.6" stroke-linejoin="round"/>
+        <path d="M-64,-56 L64,-56" stroke="#c2551f" stroke-width="3.2"/>
+        <path d="M-66,-50 L-66,86 Q-66,110 -40,110 L40,110 Q66,110 66,86 L66,-50 Z" fill="none" stroke="#2f3a38" stroke-width="2.6" stroke-linejoin="round"/>
+        <path d="M-46,-34 L-40,60" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+      </g>
+    </g>
+
+    <g transform="translate(330,236)" opacity=".9">
+      <path d="M0,-24 Q22,0 0,26" fill="none" stroke="#1f7a6e" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M-8,18 L0,30 L9,17" fill="none" stroke="#1f7a6e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <text x="202" y="490" text-anchor="middle" font-size="24" font-weight="900" fill="#12332e" font-family="system-ui" letter-spacing="-.5" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.25s">FLIP THE TOP OVER</text>
+    <text x="202" y="522" text-anchor="middle" font-size="11.5" font-weight="600" fill="#7d8f8b" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.6s">Push it in neck-first. The neck becomes a funnel.</text>
+    <text x="202" y="542" text-anchor="middle" font-size="11.5" font-weight="600" fill="#7d8f8b" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.7s">They fly in and cannot find the way back out.</text>
+
+    <g style="animation:slideUp .6s ease both; animation-delay:.9s">
+      <rect x="46" y="566" width="313" height="62" rx="14" fill="#ffffff" stroke="#cfe3de" stroke-width="2"/>
+      <text x="202" y="592" text-anchor="middle" font-size="12.5" font-weight="900" fill="#1f7a6e" font-family="system-ui">PRESS IT DOWN FIRMLY</text>
+      <text x="202" y="613" text-anchor="middle" font-size="11" font-weight="600" fill="#7d8f8b" font-family="system-ui">The rim should sit just under the edge of the bottle.</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 6 — PASSO 5: EMBRULHAR ══════════ -->
+  <svg class="scene" id="s5" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <clipPath id="s5Clip">
+        <path d="M-48,-16 L-48,100 Q-48,118 -30,118 L30,118 Q48,118 48,100 L48,-16 Q48,-46 15,-64 L15,-104 L-15,-104 L-15,-64 Q-48,-46 -48,-16 Z"/>
+      </clipPath>
+    </defs>
+    <rect width="405" height="720" fill="#fdfaf5"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">STEP 5 · KEEP IT DARK</text>
+
+    <g transform="translate(322,300) rotate(7)" opacity=".45">
+      <path d="M-40,-54 L40,-54 L40,54 L-40,54 Z" fill="#f2ece0" stroke="#b9b0a0" stroke-width="2"/>
+      <g stroke="#c9c2b2" stroke-width="1.6">
+        <path d="M-30,-40 L30,-40"/><path d="M-30,-24 L30,-24"/><path d="M-30,-8 L30,-8"/><path d="M-30,8 L30,8"/><path d="M-30,24 L30,24"/>
+      </g>
+    </g>
+
+    <g transform="translate(176,300)">
+      <g style="animation:floatSoft 3.4s ease-in-out infinite">
+        <path d="M-48,-16 L-48,100 Q-48,118 -30,118 L30,118 Q48,118 48,100 L48,-16 Q48,-46 15,-64 L15,-104 L-15,-104 L-15,-64 Q-48,-46 -48,-16 Z" fill="#eef1ef" stroke="#2f3a38" stroke-width="2.6" stroke-linejoin="round"/>
+        <g clip-path="url(#s5Clip)">
+          <rect x="-54" y="-6" width="108" height="130" fill="#e8d5a4" opacity=".6"/>
+        </g>
+        <path d="M-48,-16 L-48,100 Q-48,118 -30,118 L30,118 Q48,118 48,100 L48,-16 Q48,-46 15,-64 L15,-104 L-15,-104 L-15,-64 Q-48,-46 -48,-16 Z" fill="none" stroke="#2f3a38" stroke-width="2.6" stroke-linejoin="round"/>
+        <rect x="-19" y="-121" width="38" height="18" rx="6" fill="#e2ece9" stroke="#2f3a38" stroke-width="2.4"/>
+        <g transform="rotate(-2)">
+          <path d="M-60,-24 L60,-30 L64,102 L-56,106 Z" fill="#f4efe2" stroke="#2f3a38" stroke-width="2.4" stroke-linejoin="round"/>
+          <g stroke="#b9b0a0" stroke-width="1.7">
+            <path d="M-46,-8 L46,-12"/><path d="M-45,6 L46,2"/><path d="M-45,20 L46,16"/><path d="M-44,34 L46,30"/>
+          </g>
+          <path d="M-56,-14 L58,-20" stroke="#2f3a38" stroke-width="3.4"/>
+        </g>
+        <g fill="#cfe4ea" opacity=".9">
+          <circle cx="-6" cy="-140" r="4" style="animation:riseSlow 3s ease-out infinite"/>
+          <circle cx="10" cy="-134" r="3" style="animation:riseSlow 3s ease-out infinite; animation-delay:1.2s"/>
+        </g>
+      </g>
+    </g>
+
+    <text x="202" y="490" text-anchor="middle" font-size="24" font-weight="900" fill="#2f2a22" font-family="system-ui" letter-spacing="-.5" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.25s">WRAP IT IN PAPER</text>
+    <text x="202" y="522" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a8272" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.6s">Newspaper or a plastic bag. They look for dark places.</text>
+    <text x="202" y="542" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a8272" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.7s">Leave the top open — the gas has to escape.</text>
+
+    <g style="animation:slideUp .6s ease both; animation-delay:.9s">
+      <rect x="46" y="566" width="313" height="62" rx="14" fill="#fdf4e6" stroke="#f0d0a4" stroke-width="2"/>
+      <text x="202" y="592" text-anchor="middle" font-size="12.5" font-weight="900" fill="#c2551f" font-family="system-ui">DARK, BUT NOT SEALED</text>
+      <text x="202" y="613" text-anchor="middle" font-size="11" font-weight="600" fill="#8a5a2e" font-family="system-ui">Seal it and nothing can get in.</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 7 — PASSO 6: ONDE COLOCAR ══════════ -->
+  <svg class="scene" id="s6" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <clipPath id="s6Clip">
+        <path d="M-48,-16 L-48,100 Q-48,118 -30,118 L30,118 Q48,118 48,100 L48,-16 Q48,-46 15,-64 L15,-104 L-15,-104 L-15,-64 Q-48,-46 -48,-16 Z"/>
+      </clipPath>
+      <linearGradient id="s6Shade" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="40%" stop-color="#2f3a38" stop-opacity="0"/>
+        <stop offset="100%" stop-color="#2f3a38" stop-opacity=".18"/>
+      </linearGradient>
+      <linearGradient id="s6Floor" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#2f3a38" stop-opacity="0"/>
+        <stop offset="100%" stop-color="#2f3a38" stop-opacity=".13"/>
+      </linearGradient>
+    </defs>
+    <rect width="405" height="720" fill="#fdfaf5"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">STEP 6 · WAIT FOR THEM</text>
+
+    <rect x="40" y="112" width="328" height="300" fill="url(#s6Shade)"/>
+    <rect x="40" y="292" width="328" height="120" fill="url(#s6Floor)"/>
+    <path d="M40,112 L40,412 L368,412 L368,112" fill="none" stroke="#c9c2b2" stroke-width="2.2" stroke-dasharray="7 7"/>
+
+    <g transform="translate(330,166)">
+      <circle r="17" fill="none" stroke="#c9871f" stroke-width="2.6"/>
+      <g stroke="#c9871f" stroke-width="2.4" stroke-linecap="round">
+        <path d="M0,-26 L0,-31"/><path d="M0,26 L0,31"/><path d="M-26,0 L-31,0"/><path d="M26,0 L31,0"/>
+        <path d="M-18,-18 L-22,-22"/><path d="M18,18 L22,22"/><path d="M18,-18 L22,-22"/><path d="M-18,18 L-22,22"/>
+      </g>
+      <path d="M-21,-21 L21,21" stroke="#c2551f" stroke-width="3.2" stroke-linecap="round"/>
+    </g>
+
+    <g transform="translate(104,192)">
+      <g style="animation:swayTilt 2.8s ease-in-out infinite">
+        <g style="animation:wingFlap .18s linear infinite; transform-origin:-2px -6px">
+          <ellipse cx="2" cy="-10" rx="11" ry="4.6" fill="#ffffff" opacity=".9" stroke="#9fb3b8" stroke-width="1"/>
+        </g>
+        <ellipse cx="0" cy="0" rx="9" ry="4.6" fill="#dfe9ec" stroke="#4a5c62" stroke-width="1.6"/>
+        <ellipse cx="-6" cy="-2" rx="5.5" ry="4.6" fill="#dfe9ec" stroke="#4a5c62" stroke-width="1.6"/>
+        <path d="M-11,-3 L-22,-7" stroke="#4a5c62" stroke-width="1.6" fill="none"/>
+        <path d="M8,1 L20,4" stroke="#4a5c62" stroke-width="1.6" fill="none"/>
+      </g>
+    </g>
+
+    <g transform="translate(202,300)">
+      <g style="animation:floatSoft 3.4s ease-in-out infinite">
+        <path d="M-48,-16 L-48,100 Q-48,118 -30,118 L30,118 Q48,118 48,100 L48,-16 Q48,-46 15,-64 L15,-104 L-15,-104 L-15,-64 Q-48,-46 -48,-16 Z" fill="#eef1ef" stroke="#2f3a38" stroke-width="2.6" stroke-linejoin="round"/>
+        <g clip-path="url(#s6Clip)">
+          <rect x="-54" y="-6" width="108" height="130" fill="#e8d5a4" opacity=".55"/>
+        </g>
+        <g clip-path="url(#s6Clip)">
+          <rect x="-54" y="6" width="108" height="24" fill="#2f3a38" opacity=".82"/>
+          <rect x="-54" y="56" width="108" height="24" fill="#2f3a38" opacity=".82"/>
+        </g>
+        <path d="M-48,-16 L-48,100 Q-48,118 -30,118 L30,118 Q48,118 48,100 L48,-16 Q48,-46 15,-64 L15,-104 L-15,-104 L-15,-64 Q-48,-46 -48,-16 Z" fill="none" stroke="#2f3a38" stroke-width="2.6" stroke-linejoin="round"/>
+        <rect x="-19" y="-121" width="38" height="18" rx="6" fill="#3a4442" stroke="#2f3a38" stroke-width="2.4"/>
+        <g fill="#cfe4ea" opacity=".95">
+          <circle cx="-16" cy="96" r="5" style="animation:riseSlow 2.8s ease-out infinite"/>
+          <circle cx="14" cy="102" r="4" style="animation:riseSlow 2.8s ease-out infinite; animation-delay:1s"/>
+          <circle cx="-2" cy="106" r="3.4" style="animation:riseSlow 2.8s ease-out infinite; animation-delay:1.9s"/>
+        </g>
+      </g>
+    </g>
+
+    <text x="202" y="490" text-anchor="middle" font-size="22" font-weight="900" fill="#2f2a22" font-family="system-ui" letter-spacing="-.4" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.25s">DARK CORNER. THEN WAIT.</text>
+    <text x="202" y="522" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a8272" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.6s">Low, in the shade, out of the rain, near where they breed.</text>
+    <text x="202" y="542" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a8272" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.7s">Bubbles mean it is working. Replace it every 2 weeks.</text>
+
+    <g style="animation:slideUp .6s ease both; animation-delay:.9s">
+      <rect x="46" y="566" width="313" height="62" rx="14" fill="#ffffff" stroke="#cfe3de" stroke-width="2"/>
+      <text x="202" y="592" text-anchor="middle" font-size="12.5" font-weight="900" fill="#1f7a6e" font-family="system-ui">DAY 1 → DAY 14</text>
+      <text x="202" y="613" text-anchor="middle" font-size="11" font-weight="600" fill="#7d8f8b" font-family="system-ui">When the bubbles stop, the trap is dead.</text>
+    </g>
+  </svg>
+
+  <!-- ══════════ CENA 8 — A VERDADE + CTA ══════════ -->
+  <svg class="scene" id="s7" viewBox="0 0 405 720" xmlns="http://www.w3.org/2000/svg">
+    <rect width="405" height="720" fill="#fdfaf5"/>
+    <text x="202" y="72" text-anchor="middle" font-size="10" font-weight="800" fill="#a89270" font-family="system-ui" letter-spacing="2">THE PART NOBODY TELLS YOU</text>
+
+    <g style="animation:slideUp .6s ease both; animation-delay:.1s">
+      <rect x="26" y="112" width="168" height="236" rx="18" fill="#ffffff" stroke="#bfded7" stroke-width="2.4"/>
+      <g transform="translate(110,206) scale(.55)">
+        <path d="M-48,-16 L-48,100 Q-48,118 -30,118 L30,118 Q48,118 48,100 L48,-16 Q48,-46 15,-64 L15,-104 L-15,-104 L-15,-64 Q-48,-46 -48,-16 Z" fill="#fbfdfc" stroke="#2f3a38" stroke-width="4.4" stroke-linejoin="round"/>
+        <rect x="-19" y="-121" width="38" height="18" rx="6" fill="#e2ece9" stroke="#2f3a38" stroke-width="4"/>
+      </g>
+      <text x="110" y="298" text-anchor="middle" font-size="30" font-weight="900" fill="#1f7a6e" font-family="system-ui">✓</text>
+      <text x="110" y="322" text-anchor="middle" font-size="11.5" font-weight="900" fill="#14564d" font-family="system-ui">CATCHES A FEW</text>
+      <text x="110" y="340" text-anchor="middle" font-size="10.5" font-weight="600" fill="#7d8f8b" font-family="system-ui">CO₂ pulls them in</text>
+    </g>
+
+    <g style="animation:slideUp .6s ease both; animation-delay:.3s">
+      <rect x="211" y="112" width="168" height="236" rx="18" fill="#ffffff" stroke="#f0c9a0" stroke-width="2.4"/>
+      <g transform="translate(295,196)">
+        <path d="M-54,-30 L54,-30 L46,52 Q0,62 -46,52 Z" fill="#e6eff3" stroke="#2f3a38" stroke-width="2.6" stroke-linejoin="round"/>
+        <path d="M-52,-10 L52,-10 L46,52 Q0,62 -46,52 Z" fill="#cfe4ea" opacity=".9"/>
+        <g fill="#5b6b70" opacity=".85">
+          <path d="M-28,4 q6,-8 12,0 q6,8 -12,0" style="animation:wiggle .9s ease-in-out infinite"/>
+          <path d="M8,18 q6,-8 12,0 q6,8 -12,0" style="animation:wiggle 1.1s ease-in-out infinite"/>
+          <path d="M-14,30 q6,-8 12,0 q6,8 -12,0" style="animation:wiggle 1s ease-in-out infinite; animation-delay:.3s"/>
+        </g>
+      </g>
+      <text x="295" y="298" text-anchor="middle" font-size="30" font-weight="900" fill="#c2551f" font-family="system-ui">✕</text>
+      <text x="295" y="322" text-anchor="middle" font-size="11.5" font-weight="900" fill="#7a3a12" font-family="system-ui">BREEDS HUNDREDS</text>
+      <text x="295" y="340" text-anchor="middle" font-size="10.5" font-weight="600" fill="#9a7a5e" font-family="system-ui">standing water = larvae</text>
+    </g>
+
+    <text x="202" y="398" text-anchor="middle" font-size="22" font-weight="900" fill="#2f2a22" font-family="system-ui" letter-spacing="-.5" style="animation:popInSeq .6s cubic-bezier(.3,1.5,.5,1) both; animation-delay:.5s">THE TRAP IS NOT THE FIX</text>
+    <text x="202" y="428" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a8272" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.7s">Standing water breeds hundreds of mosquitoes.</text>
+    <text x="202" y="448" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8a8272" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:.8s">Dump those first. The trap only catches a few.</text>
+
+    <g style="animation:slideUp .6s ease both; animation-delay:.95s">
+      <rect x="40" y="474" width="325" height="84" rx="14" fill="#eaf5f2" stroke="#bfded7" stroke-width="2"/>
+      <text x="202" y="502" text-anchor="middle" font-size="12.5" font-weight="900" fill="#14564d" font-family="system-ui">1.5 L BOTTLE + WATER + SUGAR + YEAST</text>
+      <text x="202" y="526" text-anchor="middle" font-size="11" font-weight="600" fill="#5c7a75" font-family="system-ui">Five minutes, and it costs you nothing.</text>
+      <text x="202" y="548" text-anchor="middle" font-size="11" font-weight="600" fill="#5c7a75" font-family="system-ui">Would you try it in your yard?</text>
+    </g>
+
+    <text x="202" y="596" text-anchor="middle" font-size="12" font-weight="800" fill="#1f7a6e" font-family="system-ui" style="animation:fadeSlide .6s ease both; animation-delay:1.15s">Tell me in the comments 👇</text>
+  </svg>
+
+  <div class="cap" id="cap">DIY mosquito trap<small>1.5 L bottle, water, sugar and yeast</small></div>
+
+  <div class="ui">
+    <button onclick="prev()">◀</button>
+    <button onclick="toggle()" id="btnPlay">⏸ Pause</button>
+    <button onclick="next()">▶</button>
+  </div>
+
+  <div class="cover" id="cover">
+    <button onclick="play()">▶</button>
+    <p>DIY mosquito trap · 8 scenes · 57s</p>
+  </div>
+</div>
+
+<script>
+const scenes = [
+  { id:'s0', ms:6000, tag:'TRAP 1 / 8', cap:'DIY mosquito trap', sub:'1.5 L bottle, water, sugar and yeast', color:'#1f7a6e' },
+  { id:'s1', ms:7000, tag:'TRAP 2 / 8', cap:'Step 1 — cut the top off', sub:'about a third of the way down', color:'#1f7a6e' },
+  { id:'s2', ms:7000, tag:'TRAP 3 / 8', cap:'Step 2 — 200 ml water + 50 g sugar', sub:'mix until the sugar is gone', color:'#c9871f' },
+  { id:'s3', ms:7500, tag:'TRAP 4 / 8', cap:'Step 3 — cool, then 1 g yeast', sub:'do not stir, it dissolves on its own', color:'#c9871f' },
+  { id:'s4', ms:7000, tag:'TRAP 5 / 8', cap:'Step 4 — flip the top over', sub:'the neck becomes a funnel', color:'#1f7a6e' },
+  { id:'s5', ms:7000, tag:'TRAP 6 / 8', cap:'Step 5 — wrap it in paper', sub:'dark, but never sealed', color:'#2f3a38' },
+  { id:'s6', ms:8000, tag:'TRAP 7 / 8', cap:'Step 6 — dark corner, then wait', sub:'bubbles mean it works', color:'#2f3a38' },
+  { id:'s7', ms:7500, tag:'TRAP 8 / 8', cap:'The trap is not the fix', sub:'dump the standing water first', color:'#c2551f' }
+];
+
+const stage = document.getElementById('stage');
+const progress = document.getElementById('progress');
+const capEl = document.getElementById('cap');
+const tagEl = document.getElementById('tag');
+const btnPlay = document.getElementById('btnPlay');
+
+let i = 0, playing = false, tick0 = null, elapsed = 0;
+const RES = 70;
+
+function render() {
+  scenes.forEach((s, n) => {
+    const el = document.getElementById(s.id);
+    el.classList.remove('on');
+    if (n === i) el.classList.add('on');
+  });
+  tagEl.textContent = scenes[i].tag;
+  capEl.innerHTML = scenes[i].cap + '<small>' + scenes[i].sub + '</small>';
+  progress.style.background = scenes[i].color;
+  progress.style.width = '0%';
+}
+
+function loop() {
+  clearInterval(tick0);
+  tick0 = setInterval(() => {
+    if (!playing) return;
+    elapsed += RES;
+    const total = scenes[i].ms;
+    progress.style.width = Math.min(100, (elapsed / total) * 100) + '%';
+    if (elapsed >= total) {
+      if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+      else { stop(); progress.style.width = '100%'; }
+    }
+  }, RES);
+}
+
+function next() {
+  if (i < scenes.length - 1) { i++; elapsed = 0; render(); }
+  else { stop(); progress.style.width = '100%'; }
+}
+function prev() { if (i > 0) { i--; elapsed = 0; render(); } }
+function play() {
+  playing = true; elapsed = 0;
+  btnPlay.textContent = '⏸ Pause';
+  document.getElementById('cover').classList.add('hide');
+  render(); loop();
+}
+function stop() {
+  playing = false;
+  btnPlay.textContent = '▶ Watch';
+  clearInterval(tick0);
+}
+function toggle(){ playing ? stop() : play(); }
+
+stage.addEventListener('click', e => {
+  if (e.target.closest('button')) return;
+  if (playing) toggle();
+});
+
+/* os botoes so aparecem no mousemove e somem sozinhos —
+   numa gravacao sem mexer no mouse eles nunca entram no quadro */
+let uiTimer = null;
+stage.addEventListener('mousemove', () => {
+  stage.classList.add('touched');
+  clearTimeout(uiTimer);
+  uiTimer = setTimeout(() => stage.classList.remove('touched'), 2200);
+});
+
+render();
+</script>
+
+<script>
+/* ?rec = modo gravacao.
+   Sem ?rec na URL, nada muda: e o short normal.
+   Com ?rec, o quadro preenche 1080x1920, a capa e os botoes
+   somem e a animacao comeca sozinha. */
+(function () {
+  if (location.search.indexOf('rec') < 0) return;
+  var css = '#cover{display:none!important}.ui{display:none!important}'
+          + '#stage{border-radius:0!important;box-shadow:none!important}';
+  var st = document.getElementById('stage');
+  if (st) {
+    var w = st.offsetWidth, h = st.offsetHeight;
+    if (w && h) {
+      css += '#stage{transform:scale(' + ((h > w ? 1920 : 1080) / h)
+           + ')!important;transform-origin:center center!important}';
+    }
+  }
+  if (document.getElementById('frame')) {
+    css += '#frame{transform:scale(1)!important;left:0!important;top:0!important}';
+  }
+  var tag = document.createElement('style');
+  tag.textContent = css;
+  document.head.appendChild(tag);
+  if (typeof showChapters === 'function') showChapters(false);
+  setTimeout(function () { if (typeof play === 'function') play(); }, 500);
+})();
+</script>
+</body>
+</html>
